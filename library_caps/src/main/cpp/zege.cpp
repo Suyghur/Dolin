@@ -3,9 +3,9 @@
 //
 
 #include <jni.h>
-#include "libs/jvmti.h"
+#include "includes/jvmti.h"
 #include <string.h>
-#include "libs/logger.h"
+#include "includes/logger.h"
 #include "clz_prepare.h"
 
 static jvmtiEnv *localJvmtiEnv;

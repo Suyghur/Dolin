@@ -1,4 +1,4 @@
 include ':demo'
-include ':library_caps'
-include ':library_log'
+//include ':library_caps'
+include ':library_logkit'
 rootProject.name = 'Dolin'

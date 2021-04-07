@@ -4,7 +4,7 @@
 
 #include <terminator.h>
 #include <logger.h>
-#include "libs/clz_prepare.h"
+#include "includes/clz_prepare.h"
 
 
 void JNICALL clzPrepare(jvmtiEnv *jvmti_env, JNIEnv *env, jthread thread, jclass clz) {
@@ -15,5 +15,5 @@ void JNICALL clzPrepare(jvmtiEnv *jvmti_env, JNIEnv *env, jthread thread, jclass
     char *clz_signature = nullptr;
     jvmti_env->GetClassSignature(clz, &clz_signature, nullptr);
 
-    char *stack_info=createStackInfo()
+//    char *stack_info=createStackInfo()
 }

@@ -2,7 +2,7 @@
 // Created by #Suyghur, on 4/6/21.
 //
 
-#include "libs/terminator.h"
+#include "includes/terminator.h"
 
 static volatile bool terminated = false;
 

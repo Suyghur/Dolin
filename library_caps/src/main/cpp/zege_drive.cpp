@@ -3,7 +3,7 @@
 //
 
 #include <logger.h>
-#include "libs/zege_drive.h"
+#include "includes/zege_drive.h"
 
 
 jvmtiEnv *getJvmtiEnv(JavaVM *vm) {
@@ -72,7 +72,7 @@ char *createStackInfo(jvmtiEnv *jvmti_env, JNIEnv *env, jthread thread, int stac
         }
 
         if (result == nullptr) {
-            asprintf(&result, "%s%s%s", clz_signature, "^^^", method_name)
+            asprintf(&result, "%s%s%s", clz_signature, "^^^", method_name);
         } else {
             char *stack = nullptr;
             asprintf(&stack, "%s%s%s%s%s", result, ",,,", clz_signature, "^^^", method_name);

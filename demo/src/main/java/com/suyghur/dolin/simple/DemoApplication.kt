@@ -2,7 +2,6 @@ package com.suyghur.dolin.simple
 
 import android.app.Application
 import android.content.Context
-import com.suyghur.dolin.Zege
 
 /**
  * @author #Suyghur.
@@ -16,6 +15,6 @@ class DemoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Zege.getDefault().initialize(this)
+//        Zege.getDefault().initialize(this)
     }
 }

@@ -10,7 +10,7 @@ android {
     defaultConfig {
         minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
-        ndkVersion "21.1.6352462" // <<==== Here
+        ndkVersion "21.1.6352462"
 
         externalNativeBuild {
             cmake {

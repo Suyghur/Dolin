@@ -6,8 +6,6 @@ package com.suyghur.dolin.logger.internal
  */
 interface ILogger {
 
-    fun v(tag: String, msg: String, vararg args: Any)
-
     fun d(tag: String, msg: String, vararg args: Any)
 
     fun d(tag: String, any: Any)

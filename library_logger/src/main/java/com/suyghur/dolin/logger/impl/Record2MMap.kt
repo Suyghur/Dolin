@@ -6,13 +6,13 @@ import com.suyghur.dolin.logger.internal.IRecord
  * @author #Suyghur.
  * Created on 4/7/21
  */
-class RecordImpl(bufferPath: String, capacity: Int, logPath: String, compress: Boolean) : IRecord {
+class Record2MMap(bufferPath: String, capacity: Int, logPath: String, compress: Boolean) : IRecord {
 
     //句柄
     private var ptr = 0L
 
     init {
-        System.loadLibrary("logkit")
+        System.loadLibrary("logger")
         try {
             ptr = initNative(bufferPath, capacity, logPath, compress)
         } catch (e: Exception) {

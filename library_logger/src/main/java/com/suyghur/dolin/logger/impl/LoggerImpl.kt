@@ -21,9 +21,6 @@ class LoggerImpl : ILogger {
 
     }
 
-    override fun v(tag: String, msg: String, vararg args: Any) {
-        TODO("Not yet implemented")
-    }
 
     override fun d(tag: String, msg: String, vararg args: Any) {
         TODO("Not yet implemented")

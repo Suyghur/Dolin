@@ -1,4 +1,4 @@
-package com.suyghur.dolin.logkit.record
+package com.suyghur.dolin.logger.internal
 
 /**
  * @author #Suyghur.

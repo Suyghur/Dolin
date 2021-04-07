@@ -76,6 +76,13 @@ class LoggerImpl : ILogger {
         private object LoggerImplHolder {
             val INSTANCE = LoggerImpl()
         }
+
+        /**
+         * 防止单例对象在反序列化时重新生成对象
+         */
+        private fun readResolve(): Any {
+            return LoggerImplHolder.INSTANCE
+        }
     }
 
 

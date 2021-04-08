@@ -11,13 +11,11 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
-aux_source_directory(src/main/cpp/libs DIR_LIB_SOURCE)
-include_directories(src/main/cpp/libs)
+include_directories(src/main/cpp/includes)
 add_library(
-        logkit
+        zap
         SHARED
         ${DIR_SOURCE}
-        ${DIR_LIB_SOURCE}
 )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -37,7 +35,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        logkit
+        zap
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

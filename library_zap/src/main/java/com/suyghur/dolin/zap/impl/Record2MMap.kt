@@ -1,6 +1,6 @@
-package com.suyghur.dolin.logger.impl
+package com.suyghur.dolin.zap.impl
 
-import com.suyghur.dolin.logger.internal.IRecord
+import com.suyghur.dolin.zap.internal.IRecord
 
 /**
  * @author #Suyghur.
@@ -12,7 +12,7 @@ class Record2MMap(bufferPath: String, capacity: Int, logPath: String, compress: 
     private var ptr = 0L
 
     init {
-        System.loadLibrary("logger")
+        System.loadLibrary("zap")
         try {
             ptr = initNative(bufferPath, capacity, logPath, compress)
         } catch (e: Exception) {

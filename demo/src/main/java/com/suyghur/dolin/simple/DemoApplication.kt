@@ -2,9 +2,9 @@ package com.suyghur.dolin.simple
 
 import android.app.Application
 import android.content.Context
-import com.suyghur.dolin.logger.entity.Config
-import com.suyghur.dolin.logger.entity.Level
-import com.suyghur.dolin.logger.Logger
+import com.suyghur.dolin.zap.entity.Config
+import com.suyghur.dolin.zap.entity.Level
+import com.suyghur.dolin.zap.Zap
 
 /**
  * @author #Suyghur.
@@ -24,6 +24,6 @@ class DemoApplication : Application() {
                 .setRecordLevel(Level.DEBUG)
                 .setOverdueDay(3)
                 .create()
-        Logger.initialize(config)
+        Zap.initialize(config)
     }
 }

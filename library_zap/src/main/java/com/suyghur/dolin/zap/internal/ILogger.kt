@@ -1,4 +1,4 @@
-package com.suyghur.dolin.logger.internal
+package com.suyghur.dolin.zap.internal
 
 /**
  * @author #Suyghur.

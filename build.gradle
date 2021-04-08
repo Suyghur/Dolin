@@ -2,6 +2,8 @@
 buildscript {
     // 混淆开关
     ext.MINIFY_ENABLE = false
+    // ndk版本
+    ext.NDK_VERSION = '21.3.6528147'
     // kotlin版本
     ext.KOTLIN_VERSION = '1.4.20'
     // compileSdkVersion
@@ -18,7 +20,7 @@ buildscript {
         mavenCentral()
         jcenter()
     }
-    
+
     dependencies {
         classpath "com.android.tools.build:gradle:4.1.3"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"

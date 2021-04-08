@@ -2,7 +2,7 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#include "buffer.h"
+#include "includes/buffer.h"
 
 Buffer::Buffer(char *ptr, size_t buffer_size) : buffer_ptr(ptr), buffer_size(buffer_size), buffer_header(buffer_ptr, buffer_size) {}
 

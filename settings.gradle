@@ -1,4 +1,4 @@
 include ':demo'
 //include ':library_caps'
-include ':library_logger'
+include ':library_zap'
 rootProject.name = 'Dolin'

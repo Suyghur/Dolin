@@ -6,9 +6,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sstream>
-#include "libs/buffer.h"
-#include "libs/file_flush.h"
-#include "libs/buffer_header.h"
+#include "includes/buffer.h"
+#include "includes/file_flush.h"
+#include "includes/buffer_header.h"
 
 static FileFlush *p_file_flush = nullptr;
 
@@ -133,7 +133,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     }
-    jclass clz = env->FindClass("com/suyghur/dolin/logger/impl/Record2MMap");
+    jclass clz = env->FindClass("com/suyghur/dolin/zap/impl/Record2MMap");
     if (env->RegisterNatives(clz, gMethods, sizeof(gMethods) / sizeof(gMethods[0])) < 0) {
         return JNI_ERR;
     }

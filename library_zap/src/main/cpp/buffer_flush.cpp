@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include <cstring>
-#include "buffer_flush.h"
+#include "includes/buffer_flush.h"
 
 BufferFlush::BufferFlush(FILE *log_file, size_t size) : capacity(size), log_file_ptr(log_file) {}
 
@@ -13,7 +13,8 @@ BufferFlush::~BufferFlush() {
         delete[] data_ptr;
     }
     if (release_ptr != nullptr) {
-        delete release_ptr;
+//        delete release_ptr;
+        ::operator delete(release_ptr);
     }
 
 }

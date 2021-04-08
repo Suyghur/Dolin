@@ -1,13 +1,13 @@
-package com.suyghur.dolin.logger
+package com.suyghur.dolin.zap
 
-import com.suyghur.dolin.logger.entity.Config
-import com.suyghur.dolin.logger.impl.LoggerPrint
+import com.suyghur.dolin.zap.entity.Config
+import com.suyghur.dolin.zap.impl.LoggerPrint
 
 /**
  * @author #Suyghur.
  * Created on 4/7/21
  */
-object Logger {
+object Zap {
 
     fun initialize(config: Config) {
         LoggerPrint.getInstance().initialize(config)

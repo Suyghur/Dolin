@@ -73,5 +73,5 @@ android {
 
 dependencies {
 //    implementation project(':library_caps')
-    implementation project(':library_logger')
+    implementation project(':library_zap')
 }

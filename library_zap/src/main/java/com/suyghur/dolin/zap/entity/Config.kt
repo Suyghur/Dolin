@@ -1,4 +1,4 @@
-package com.suyghur.dolin.logger.entity
+package com.suyghur.dolin.zap.entity
 
 import android.content.Context
 import android.text.TextUtils

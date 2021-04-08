@@ -1,11 +1,11 @@
-package com.suyghur.dolin.logger.impl
+package com.suyghur.dolin.zap.impl
 
 import android.util.Log
 import androidx.annotation.Keep
-import com.suyghur.dolin.logger.entity.Config
-import com.suyghur.dolin.logger.entity.Level
-import com.suyghur.dolin.logger.entity.LoggerData
-import com.suyghur.dolin.logger.internal.ILogger
+import com.suyghur.dolin.zap.entity.Config
+import com.suyghur.dolin.zap.entity.Level
+import com.suyghur.dolin.zap.entity.ZapData
+import com.suyghur.dolin.zap.internal.ILogger
 import java.lang.reflect.Array
 
 /**
@@ -97,7 +97,7 @@ class LoggerPrint : ILogger {
                 "$any"
             }
         }
-        val data = LoggerData.obtain(level, tag, msg)
+        val data = ZapData.obtain(level, tag, msg)
         if (!interceptLogcat(level)) {
             printInner(data)
         }
@@ -107,7 +107,7 @@ class LoggerPrint : ILogger {
         data.recycle()
     }
 
-    private fun printInner(data: LoggerData) {
+    private fun printInner(data: ZapData) {
         if (data.msg.length <= MAX_LENGTH_OF_SINGLE_MESSAGE) {
             doPrint(data.level, data.tag, data.msg)
             return

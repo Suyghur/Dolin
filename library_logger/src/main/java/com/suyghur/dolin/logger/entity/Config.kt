@@ -1,4 +1,4 @@
-package com.suyghur.dolin.logger
+package com.suyghur.dolin.logger.entity
 
 import android.content.Context
 import android.text.TextUtils
@@ -11,16 +11,24 @@ class Config private constructor(builder: Builder) {
 
     var logDir = ""
         private set
-    private var logcatLevel: Level
-    private var recordLevel: Level
+    var defaultTag = ""
+        private set
+    var logcatLevel: Level
+        private set
+    var recordLevel: Level
+        private set
+    var recordEnable: Boolean
+        private set
     private var overdueDayMs = 0L
     private var fileSizeLimitDayByte = 0
 
 
     init {
         this.logDir = builder.logDir
+        this.defaultTag = builder.defaultTag
         this.logcatLevel = builder.logcatLevel
         this.recordLevel = builder.recordLevel
+        this.recordEnable = builder.recordEnable
         this.overdueDayMs = builder.overdueDay * 24 * 3600 * 1000L
         this.fileSizeLimitDayByte = builder.fileSizeLimitDay * 1024 * 1024
     }
@@ -37,8 +45,10 @@ class Config private constructor(builder: Builder) {
 
     class Builder(context: Context) {
         internal var logDir = context.getExternalFilesDir("dolin")!!.absolutePath
+        internal var defaultTag = "dolin_logger"
         internal var logcatLevel = Level.DEBUG
         internal var recordLevel = Level.DEBUG
+        internal var recordEnable = true
         internal var overdueDay = 3
         internal var fileSizeLimitDay = 15
 
@@ -52,6 +62,13 @@ class Config private constructor(builder: Builder) {
             return this
         }
 
+        fun setDefaultTag(tag: String): Builder {
+            if (!TextUtils.isEmpty(tag)) {
+                this.defaultTag = tag
+            }
+            return this
+        }
+
         /**
          * 允许输出到logcat的日志的最低级别，默认为[Level.DEBUG]级别
          */
@@ -61,10 +78,15 @@ class Config private constructor(builder: Builder) {
         }
 
         /**
-         * 允许记录到文件的日志的最低级别, [Level.NONE]会禁用记录，默认为[Level.DEBUG]级别
+         * 允许记录到文件的日志的最低级别, 默认为[Level.DEBUG]级别
          */
         fun setRecordLevel(level: Level): Builder {
             this.recordLevel = level
+            return this
+        }
+
+        fun setRecordEnable(enable: Boolean): Builder {
+            this.recordEnable = enable
             return this
         }
 

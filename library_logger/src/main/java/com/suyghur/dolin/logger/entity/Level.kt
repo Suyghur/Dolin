@@ -1,4 +1,4 @@
-package com.suyghur.dolin.logger
+package com.suyghur.dolin.logger.entity
 
 /**
  * @author #Suyghur.

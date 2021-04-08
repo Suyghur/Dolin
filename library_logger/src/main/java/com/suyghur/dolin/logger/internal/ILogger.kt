@@ -6,24 +6,23 @@ package com.suyghur.dolin.logger.internal
  */
 interface ILogger {
 
-    fun d(tag: String, msg: String, vararg args: Any)
 
-    fun d(tag: String, any: Any)
+    fun d(any: Any?)
 
-    fun i(tag: String, msg: String, vararg args: Any)
+    fun d(tag: String, any: Any?)
 
-    fun w(tag: String, msg: String, vararg args: Any)
+    fun i(any: Any?)
 
-    fun e(tag: String, msg: String, vararg args: Any)
+    fun i(tag: String, any: Any?)
 
-    fun e(throwable: Throwable, tag: String, msg: String, vararg args: Any)
+    fun w(any: Any?)
+
+    fun w(tag: String, any: Any?)
+
+    fun e(any: Any?)
+
+    fun e(tag: String, any: Any?)
 
     fun record(level: Int, tag: String, msg: String)
-
-    fun print(tag: String, msg: String, vararg args: Any)
-
-    fun print(tag: String, any: Any)
-
-    fun print(level: Int, tag: String, msg: String)
 
 }

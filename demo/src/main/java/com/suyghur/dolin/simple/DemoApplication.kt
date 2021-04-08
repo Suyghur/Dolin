@@ -2,6 +2,9 @@ package com.suyghur.dolin.simple
 
 import android.app.Application
 import android.content.Context
+import com.suyghur.dolin.logger.entity.Config
+import com.suyghur.dolin.logger.entity.Level
+import com.suyghur.dolin.logger.Logger
 
 /**
  * @author #Suyghur.
@@ -15,6 +18,12 @@ class DemoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-//        Zege.getDefault().initialize(this)
+        val config = Config.Builder(this)
+                .setLogcatLevel(Level.DEBUG)
+                .setRecordEnable(true)
+                .setRecordLevel(Level.DEBUG)
+                .setOverdueDay(3)
+                .create()
+        Logger.initialize(config)
     }
 }

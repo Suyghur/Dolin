@@ -74,4 +74,6 @@ android {
 dependencies {
 //    implementation project(':library_caps')
     implementation project(':library_zap')
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
+
 }

@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
+import com.suyghur.dolin.zap.Zap
+import com.suyghur.dolin.zap.entity.Level
+import com.suyghur.dolin.zap.util.LevelUtils
 
 /**
  * @author #Suyghur.

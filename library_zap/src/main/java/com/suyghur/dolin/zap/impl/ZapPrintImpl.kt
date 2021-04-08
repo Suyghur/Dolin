@@ -1,5 +1,7 @@
 package com.suyghur.dolin.zap.impl
 
+import android.app.Application
+import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.Keep
 import com.suyghur.dolin.zap.entity.Config
@@ -12,23 +14,33 @@ import java.lang.reflect.Array
  * @author #Suyghur.
  * Created on 4/7/21
  */
-class LoggerPrint : ILogger {
+class ZapPrintImpl : ILogger {
 
     private var hasInitialized: Boolean = false
     private var tag = ""
+    private var logDir = ""
     private var logcatLevel = Level.NONE
     private var recordLevel = Level.NONE
     private var record2MMap: Record2MMap? = null
+    private var dateFileFormatter: DateFileFormatter = DateFileFormatter()
 
-    fun initialize(config: Config) {
+    fun initialize(application: Application, config: Config) {
         if (hasInitialized) {
             throw IllegalArgumentException("Logger already initialize")
         }
+
+        logDir = if (TextUtils.isEmpty(config.logDir)) {
+            application.getExternalFilesDir("dolin/zap")!!.absolutePath
+        } else {
+            config.logDir
+        }
+
         this.tag = config.defaultTag
         this.logcatLevel = config.logcatLevel
         this.recordLevel = config.recordLevel
         if (config.recordEnable) {
-//            record2MMap = Record2MMap(config.logDir)
+            record2MMap = Record2MMap(config.logDir, 1, "", false)
+            ZapLifecycle.registerZapLifeCallback(application, record2MMap!!)
         }
     }
 
@@ -64,9 +76,9 @@ class LoggerPrint : ILogger {
         print(Level.ERROR, tag, any)
     }
 
-    override fun record(level: Int, tag: String, msg: String) {
-        TODO("Not yet implemented")
-    }
+//    override fun record(level: Int, tag: String, msg: String) {
+//        TODO("Not yet implemented")
+//    }
 
     private fun interceptLogcat(level: Level): Boolean {
         return level.ordinal < logcatLevel.ordinal
@@ -102,7 +114,7 @@ class LoggerPrint : ILogger {
             printInner(data)
         }
         if (!interceptRecord(level)) {
-            recordLevel
+            doRecord(data)
         }
         data.recycle()
     }
@@ -132,18 +144,22 @@ class LoggerPrint : ILogger {
         }
     }
 
+    private fun doRecord(data: ZapData) {
+        record2MMap?.write(dateFileFormatter.format(data.level, data.tag, data.msg))
+    }
+
     companion object {
 
         const val MAX_LENGTH_OF_SINGLE_MESSAGE = 4063
 
         @Keep
         @JvmStatic
-        fun getInstance(): LoggerPrint {
+        fun getInstance(): ZapPrintImpl {
             return LoggerPrintHolder.INSTANCE
         }
 
         private object LoggerPrintHolder {
-            val INSTANCE = LoggerPrint()
+            val INSTANCE = ZapPrintImpl()
         }
 
         /**

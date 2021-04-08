@@ -2,8 +2,8 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#ifndef DOLIN_BUFFER_HEADER_H
-#define DOLIN_BUFFER_HEADER_H
+#ifndef DOLIN_ZAP_BUFFER_HEADER_H
+#define DOLIN_ZAP_BUFFER_HEADER_H
 
 #include <string>
 
@@ -57,4 +57,4 @@ namespace buffer_header {
 }
 
 
-#endif //DOLIN_BUFFER_HEADER_H
+#endif //DOLIN_ZAP_BUFFER_HEADER_H

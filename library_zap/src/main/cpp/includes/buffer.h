@@ -2,8 +2,8 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#ifndef DOLIN_BUFFER_H
-#define DOLIN_BUFFER_H
+#ifndef DOLIN_ZAP_BUFFER_H
+#define DOLIN_ZAP_BUFFER_H
 
 #include <string>
 #include <mutex>
@@ -71,4 +71,4 @@ private:
 };
 
 
-#endif //DOLIN_BUFFER_H
+#endif //DOLIN_ZAP_BUFFER_H

@@ -1,6 +1,5 @@
 package com.suyghur.dolin.zap.entity
 
-import android.content.Context
 import android.text.TextUtils
 
 /**
@@ -43,9 +42,9 @@ class Config private constructor(builder: Builder) {
                 '}'
     }
 
-    class Builder(context: Context) {
-        internal var logDir = context.getExternalFilesDir("dolin")!!.absolutePath
-        internal var defaultTag = "dolin_logger"
+    class Builder() {
+        internal var logDir = ""
+        internal var defaultTag = "dolin_zap"
         internal var logcatLevel = Level.DEBUG
         internal var recordLevel = Level.DEBUG
         internal var recordEnable = true
@@ -56,9 +55,7 @@ class Config private constructor(builder: Builder) {
          * 日志存储路径，默认是应用的私有目录下dolin文件夹
          */
         fun setLogDir(logDir: String): Builder {
-            if (!TextUtils.isEmpty(logDir)) {
-                this.logDir = logDir
-            }
+            this.logDir = logDir
             return this
         }
 

@@ -2,8 +2,8 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#ifndef DOLIN_FILE_FLUSH_H
-#define DOLIN_FILE_FLUSH_H
+#ifndef DOLIN_ZAP_FILE_FLUSH_H
+#define DOLIN_ZAP_FILE_FLUSH_H
 
 
 #include "buffer_flush.h"
@@ -33,4 +33,4 @@ private:
 };
 
 
-#endif //DOLIN_FILE_FLUSH_H
+#endif //DOLIN_ZAP_FILE_FLUSH_H

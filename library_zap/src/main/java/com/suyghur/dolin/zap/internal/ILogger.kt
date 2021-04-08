@@ -23,6 +23,6 @@ interface ILogger {
 
     fun e(tag: String, any: Any?)
 
-    fun record(level: Int, tag: String, msg: String)
+//    fun record(level: Int, tag: String, msg: String)
 
 }

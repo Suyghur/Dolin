@@ -99,7 +99,7 @@ void Buffer::callFileFlush() {
 }
 
 void Buffer::callFileFlush(FileFlush *flush) {
-    callFileFlush(file_flush_ptr, nullptr);
+    callFileFlush(flush, nullptr);
 }
 
 void Buffer::callFileFlush(FileFlush *flush, Buffer *buffer) {

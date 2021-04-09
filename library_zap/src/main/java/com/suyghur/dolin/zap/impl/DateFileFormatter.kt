@@ -36,7 +36,7 @@ class DateFileFormatter : IFormatter {
         if (stringBuilder.length > timeLength) {
             stringBuilder.delete(timeLength, stringBuilder.length)
         }
-        return stringBuilder.append("[${LevelUtils.getShortLevelName(level)}").append(tag).append(": ").append(msg).append("\n").toString()
+        return stringBuilder.append("[${LevelUtils.getShortLevelName(level)}]").append(tag).append(": ").append(msg).append("\n").toString()
     }
 
     override fun format(level: Level, tag: String, msg: String): String {

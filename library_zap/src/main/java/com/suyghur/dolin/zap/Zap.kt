@@ -10,8 +10,12 @@ import com.suyghur.dolin.zap.impl.ZapPrintImpl
  */
 object Zap {
 
-    fun initialize(application: Application,config: Config) {
-        ZapPrintImpl.getInstance().initialize(application,config)
+    fun initialize(application: Application, config: Config) {
+        ZapPrintImpl.getInstance().initialize(application, config)
+    }
+
+    fun recycle() {
+        ZapPrintImpl.getInstance().recycle()
     }
 
     fun d(any: Any?) {

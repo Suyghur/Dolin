@@ -25,6 +25,14 @@ class ZapData {
         }
     }
 
+    override fun toString(): String {
+        return "ZapData{" +
+                "level=" + level.name +
+                ", tag='" + tag + '\'' +
+                ", msg='" + msg + '\'' +
+                '}'
+    }
+
     companion object {
         private val sPoolSync = Any()
         private var sPool: ZapData? = null

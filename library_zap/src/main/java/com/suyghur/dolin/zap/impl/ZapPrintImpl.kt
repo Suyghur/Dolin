@@ -4,11 +4,16 @@ import android.app.Application
 import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.Keep
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.suyghur.dolin.zap.entity.Config
 import com.suyghur.dolin.zap.entity.Level
 import com.suyghur.dolin.zap.entity.ZapData
 import com.suyghur.dolin.zap.internal.ILogger
+import com.suyghur.dolin.zap.util.FileUtils
+import java.io.File
 import java.lang.reflect.Array
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * @author #Suyghur.
@@ -30,7 +35,7 @@ class ZapPrintImpl : ILogger {
         }
 
         logDir = if (TextUtils.isEmpty(config.logDir)) {
-            application.getExternalFilesDir("dolin/zap")!!.absolutePath
+            FileUtils.getLogDir(application)
         } else {
             config.logDir
         }
@@ -38,9 +43,18 @@ class ZapPrintImpl : ILogger {
         this.tag = config.defaultTag
         this.logcatLevel = config.logcatLevel
         this.recordLevel = config.recordLevel
+        val logFileName = logDir + File.separator + SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) + "-zap"
         if (config.recordEnable) {
-            record2MMap = Record2MMap(config.logDir, 1, "", false)
+            record2MMap = Record2MMap("$logDir/zap.cache", 1024 * 400, logFileName, false)
             ZapLifecycle.registerZapLifeCallback(application, record2MMap!!)
+        }
+    }
+
+    fun recycle() {
+        record2MMap?.apply {
+            ZapLifecycle.unregisterZapLifeCallback()
+            asyncFlush()
+            release()
         }
     }
 
@@ -85,7 +99,7 @@ class ZapPrintImpl : ILogger {
     }
 
     private fun interceptRecord(level: Level): Boolean {
-        return level.ordinal >= recordLevel.ordinal
+        return level.ordinal < recordLevel.ordinal
     }
 
     private fun print(level: Level, tag: String, any: Any?) {
@@ -145,6 +159,7 @@ class ZapPrintImpl : ILogger {
     }
 
     private fun doRecord(data: ZapData) {
+        Log.d("dolin_zap", "$data")
         record2MMap?.write(dateFileFormatter.format(data.level, data.tag, data.msg))
     }
 

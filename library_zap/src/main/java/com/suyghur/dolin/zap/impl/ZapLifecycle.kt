@@ -4,51 +4,54 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 
+
 /**
  * @author #Suyghur.
  * Created on 4/8/21
  */
 object ZapLifecycle {
 
-    fun registerZapLifeCallback(application: Application, record2MMap: Record2MMap) {
-        application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-            }
+    private var record2MMap: Record2MMap? = null
+    private var application: Application? = null
 
-            override fun onActivityStarted(activity: Activity) {
-            }
+    private val callback = object : Application.ActivityLifecycleCallbacks {
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        }
 
-            override fun onActivityResumed(activity: Activity) {
-            }
+        override fun onActivityStarted(activity: Activity) {
+        }
 
-            override fun onActivityPaused(activity: Activity) {
-                record2MMap.asyncFlush()
-            }
+        override fun onActivityResumed(activity: Activity) {
+        }
 
-            override fun onActivityStopped(activity: Activity) {
-            }
+        override fun onActivityPaused(activity: Activity) {
+            record2MMap?.asyncFlush()
+        }
 
-            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-                record2MMap.asyncFlush()
-            }
+        override fun onActivityStopped(activity: Activity) {
+        }
 
-            override fun onActivityDestroyed(activity: Activity) {
-                record2MMap.asyncFlush()
-            }
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+        }
 
-        })
+        override fun onActivityDestroyed(activity: Activity) {
+        }
     }
 
-//    private fun initFragmentLifeCallback(): FragmentManager.FragmentLifecycleCallbacks {
-//        return object : FragmentManager.FragmentLifecycleCallbacks() {
-//            override fun onFragmentCreated(fm: FragmentManager, f: Fragment, savedInstanceState: Bundle?) {
-//                super.onFragmentCreated(fm, f, savedInstanceState)
-//            }
-//
-//            override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
-//                super.onFragmentResumed(fm, f)
-//            }
-//
-//        }
-//    }
+    fun registerZapLifeCallback(application: Application, record2MMap: Record2MMap) {
+        this.application = application
+        this.record2MMap = record2MMap
+        application.registerActivityLifecycleCallbacks(callback)
+    }
+
+    fun unregisterZapLifeCallback() {
+        application?.apply {
+            unregisterActivityLifecycleCallbacks(callback)
+            application = null
+        }
+        record2MMap?.apply {
+            record2MMap = null
+        }
+
+    }
 }

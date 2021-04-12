@@ -1,3 +1,3 @@
-package com.suyghur.dolin.simple
+package com.suyghur.dolin
 
 class Item constructor(val id: Int, val text: String)

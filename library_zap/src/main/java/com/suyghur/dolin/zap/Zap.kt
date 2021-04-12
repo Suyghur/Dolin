@@ -2,7 +2,7 @@ package com.suyghur.dolin.zap
 
 import android.app.Application
 import com.suyghur.dolin.zap.entity.Config
-import com.suyghur.dolin.zap.impl.ZapPrintImpl
+import com.suyghur.dolin.zap.impl.ZapPrint
 
 /**
  * @author #Suyghur.
@@ -10,43 +10,57 @@ import com.suyghur.dolin.zap.impl.ZapPrintImpl
  */
 object Zap {
 
+    private lateinit var sZapPrint: ZapPrint
+    private var hasInitialized = false
+
     fun initialize(application: Application, config: Config) {
-        ZapPrintImpl.getInstance().initialize(application, config)
+        sZapPrint = ZapPrint.instance()
+        sZapPrint.initialize(application, config)
+        hasInitialized = true
     }
 
     fun recycle() {
-        ZapPrintImpl.getInstance().recycle()
+        if (hasInitialized)
+            sZapPrint.recycle()
     }
 
     fun d(any: Any?) {
-        ZapPrintImpl.getInstance().d(any)
+        if (hasInitialized)
+            sZapPrint.d(any)
     }
 
     fun d(tag: String, any: Any?) {
-        ZapPrintImpl.getInstance().d(tag, any)
+        if (hasInitialized)
+            sZapPrint.d(tag, any)
     }
 
     fun i(any: Any?) {
-        ZapPrintImpl.getInstance().i(any)
+        if (hasInitialized)
+            sZapPrint.i(any)
     }
 
     fun i(tag: String, any: Any?) {
-        ZapPrintImpl.getInstance().i(tag, any)
+        if (hasInitialized)
+            sZapPrint.i(tag, any)
     }
 
     fun w(any: Any?) {
-        ZapPrintImpl.getInstance().w(any)
+        if (hasInitialized)
+            sZapPrint.w(any)
     }
 
     fun w(tag: String, any: Any?) {
-        ZapPrintImpl.getInstance().w(tag, any)
+        if (hasInitialized)
+            sZapPrint.w(tag, any)
     }
 
     fun e(any: Any?) {
-        ZapPrintImpl.getInstance().e(any)
+        if (hasInitialized)
+            sZapPrint.e(any)
     }
 
     fun e(tag: String, any: Any?) {
-        ZapPrintImpl.getInstance().e(tag, any)
+        if (hasInitialized)
+            sZapPrint.e(tag, any)
     }
 }

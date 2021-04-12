@@ -1,4 +1,4 @@
-package com.suyghur.dolin.simple
+package com.suyghur.dolin
 
 import android.app.Activity
 import android.content.Intent
@@ -39,6 +39,14 @@ class ZapActivity : Activity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
+        v?.apply {
+            when (tag as Int) {
+                0 -> Zap.d("测试DEBUG日志")
+                1 -> Zap.i("测试INFO日志")
+                2 -> Zap.w("测试WARNING日志")
+                3 -> Zap.e("测试ERROR日志")
+            }
+        }
     }
 
     companion object {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.suyghur.dolin.simple">
+    package="com.suyghur.dolin">
 
     <application
         android:name=".DemoApplication"
@@ -22,7 +22,7 @@
         </activity>
 
         <activity
-            android:name=".ZapActivity"
+            android:name="com.suyghur.dolin.ZapActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:exported="true"
             android:launchMode="singleTask"

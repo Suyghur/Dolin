@@ -3,12 +3,10 @@ package com.suyghur.dolin.zap.impl
 import android.app.Application
 import android.text.TextUtils
 import android.util.Log
-import androidx.annotation.Keep
-import androidx.lifecycle.ProcessLifecycleOwner
 import com.suyghur.dolin.zap.entity.Config
 import com.suyghur.dolin.zap.entity.Level
 import com.suyghur.dolin.zap.entity.ZapData
-import com.suyghur.dolin.zap.internal.ILogger
+import com.suyghur.dolin.zap.internal.IPrint
 import com.suyghur.dolin.zap.util.FileUtils
 import java.io.File
 import java.lang.reflect.Array
@@ -19,7 +17,7 @@ import java.util.*
  * @author #Suyghur.
  * Created on 4/7/21
  */
-class ZapPrintImpl : ILogger {
+class ZapPrint : IPrint {
 
     private var hasInitialized: Boolean = false
     private var tag = ""
@@ -29,18 +27,24 @@ class ZapPrintImpl : ILogger {
     private var record2MMap: Record2MMap? = null
     private var dateFileFormatter: DateFileFormatter = DateFileFormatter()
 
+
     fun initialize(application: Application, config: Config) {
         if (hasInitialized) {
             throw IllegalArgumentException("Logger already initialize")
         }
 
-        logDir = if (TextUtils.isEmpty(config.logDir)) {
+        this.logDir = if (TextUtils.isEmpty(config.logDir)) {
             FileUtils.getLogDir(application)
         } else {
             config.logDir
         }
 
-        this.tag = config.defaultTag
+        this.tag = if (TextUtils.isEmpty(config.tag)) {
+            "dolin_zap"
+        } else {
+            config.tag
+        }
+
         this.logcatLevel = config.logcatLevel
         this.recordLevel = config.recordLevel
         val logFileName = logDir + File.separator + SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) + "-zap"
@@ -89,10 +93,6 @@ class ZapPrintImpl : ILogger {
     override fun e(tag: String, any: Any?) {
         print(Level.ERROR, tag, any)
     }
-
-//    override fun record(level: Int, tag: String, msg: String) {
-//        TODO("Not yet implemented")
-//    }
 
     private fun interceptLogcat(level: Level): Boolean {
         return level.ordinal < logcatLevel.ordinal
@@ -159,7 +159,6 @@ class ZapPrintImpl : ILogger {
     }
 
     private fun doRecord(data: ZapData) {
-        Log.d("dolin_zap", "$data")
         record2MMap?.write(dateFileFormatter.format(data.level, data.tag, data.msg))
     }
 
@@ -167,14 +166,12 @@ class ZapPrintImpl : ILogger {
 
         const val MAX_LENGTH_OF_SINGLE_MESSAGE = 4063
 
-        @Keep
-        @JvmStatic
-        fun getInstance(): ZapPrintImpl {
+        fun instance(): ZapPrint {
             return LoggerPrintHolder.INSTANCE
         }
 
         private object LoggerPrintHolder {
-            val INSTANCE = ZapPrintImpl()
+            val INSTANCE = ZapPrint()
         }
 
         /**
@@ -184,6 +181,5 @@ class ZapPrintImpl : ILogger {
             return LoggerPrintHolder.INSTANCE
         }
     }
-
 
 }

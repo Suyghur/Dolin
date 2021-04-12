@@ -1,6 +1,5 @@
 package com.suyghur.dolin.zap.impl
 
-import com.suyghur.dolin.zap.Zap
 import com.suyghur.dolin.zap.internal.IRecord
 
 /**
@@ -34,7 +33,6 @@ class Record2MMap(bufferPath: String, capacity: Int, logPath: String, compress: 
     override fun asyncFlush() {
         if (ptr != 0L) {
             try {
-                Zap.d("asyncFlush")
                 asyncFlushNative(ptr)
             } catch (e: Exception) {
                 e.printStackTrace()

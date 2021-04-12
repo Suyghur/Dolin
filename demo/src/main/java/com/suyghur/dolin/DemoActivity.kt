@@ -1,4 +1,4 @@
-package com.suyghur.dolin.simple
+package com.suyghur.dolin
 
 import android.app.Activity
 import android.app.AlertDialog

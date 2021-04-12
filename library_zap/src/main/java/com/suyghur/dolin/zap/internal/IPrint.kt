@@ -4,7 +4,7 @@ package com.suyghur.dolin.zap.internal
  * @author #Suyghur.
  * Created on 4/7/21
  */
-interface ILogger {
+interface IPrint {
 
 
     fun d(any: Any?)
@@ -22,7 +22,5 @@ interface ILogger {
     fun e(any: Any?)
 
     fun e(tag: String, any: Any?)
-
-//    fun record(level: Int, tag: String, msg: String)
 
 }

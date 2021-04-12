@@ -12,7 +12,7 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION
 
     defaultConfig {
-        applicationId "com.suyghur.dolin.simple"
+        applicationId "com.suyghur.dolin"
         minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1

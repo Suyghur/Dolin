@@ -1,7 +1,5 @@
 package com.suyghur.dolin.zap.entity
 
-import android.text.TextUtils
-
 /**
  * @author #Suyghur.
  * Created on 4/7/21
@@ -10,7 +8,7 @@ class Config private constructor(builder: Builder) {
 
     var logDir = ""
         private set
-    var defaultTag = ""
+    var tag = ""
         private set
     var logcatLevel: Level
         private set
@@ -24,7 +22,7 @@ class Config private constructor(builder: Builder) {
 
     init {
         this.logDir = builder.logDir
-        this.defaultTag = builder.defaultTag
+        this.tag = builder.tag
         this.logcatLevel = builder.logcatLevel
         this.recordLevel = builder.recordLevel
         this.recordEnable = builder.recordEnable
@@ -44,7 +42,7 @@ class Config private constructor(builder: Builder) {
 
     class Builder() {
         internal var logDir = ""
-        internal var defaultTag = "dolin_zap"
+        internal var tag = ""
         internal var logcatLevel = Level.DEBUG
         internal var recordLevel = Level.DEBUG
         internal var recordEnable = true
@@ -60,9 +58,7 @@ class Config private constructor(builder: Builder) {
         }
 
         fun setDefaultTag(tag: String): Builder {
-            if (!TextUtils.isEmpty(tag)) {
-                this.defaultTag = tag
-            }
+            this.tag = tag
             return this
         }
 

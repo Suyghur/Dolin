@@ -13,7 +13,7 @@ import java.util.*
  */
 class DateFileFormatter : IFormatter {
 
-    private val pattern = "yyy-MM-dd HH:mm:ss"
+    private val pattern = "yyyy-MM-dd HH:mm:ss"
     private var simpleDateFormat: SimpleDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
     private var date: Date
     private var lastDateFormatted = ""

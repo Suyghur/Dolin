@@ -1,8 +1,9 @@
-package com.suyghur.dolin.zap.impl
+package com.suyghur.dolin.zap.lifecycle
 
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import com.suyghur.dolin.zap.impl.Record2MMap
 
 
 /**
@@ -39,8 +40,8 @@ object ZapLifecycle {
     }
 
     fun registerZapLifeCallback(application: Application, record2MMap: Record2MMap) {
-        this.application = application
-        this.record2MMap = record2MMap
+        ZapLifecycle.application = application
+        ZapLifecycle.record2MMap = record2MMap
         application.registerActivityLifecycleCallbacks(callback)
     }
 

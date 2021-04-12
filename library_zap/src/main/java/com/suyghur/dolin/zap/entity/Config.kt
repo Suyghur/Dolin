@@ -16,6 +16,8 @@ class Config private constructor(builder: Builder) {
         private set
     var recordEnable: Boolean
         private set
+    var catchEnable: Boolean
+        private set
     private var overdueDayMs = 0L
     private var fileSizeLimitDayByte = 0
 
@@ -26,6 +28,7 @@ class Config private constructor(builder: Builder) {
         this.logcatLevel = builder.logcatLevel
         this.recordLevel = builder.recordLevel
         this.recordEnable = builder.recordEnable
+        this.catchEnable = builder.catchEnable
         this.overdueDayMs = builder.overdueDay * 24 * 3600 * 1000L
         this.fileSizeLimitDayByte = builder.fileSizeLimitDay * 1024 * 1024
     }
@@ -40,12 +43,13 @@ class Config private constructor(builder: Builder) {
                 '}'
     }
 
-    class Builder() {
+    class Builder {
         internal var logDir = ""
         internal var tag = ""
         internal var logcatLevel = Level.DEBUG
         internal var recordLevel = Level.DEBUG
         internal var recordEnable = true
+        internal var catchEnable = true
         internal var overdueDay = 3
         internal var fileSizeLimitDay = 15
 
@@ -80,6 +84,11 @@ class Config private constructor(builder: Builder) {
 
         fun setRecordEnable(enable: Boolean): Builder {
             this.recordEnable = enable
+            return this
+        }
+
+        fun setCatchEnable(enable: Boolean): Builder {
+            this.catchEnable = enable
             return this
         }
 

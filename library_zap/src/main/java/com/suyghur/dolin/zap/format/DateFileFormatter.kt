@@ -1,4 +1,4 @@
-package com.suyghur.dolin.zap.impl
+package com.suyghur.dolin.zap.format
 
 import android.text.TextUtils
 import com.suyghur.dolin.zap.entity.Level

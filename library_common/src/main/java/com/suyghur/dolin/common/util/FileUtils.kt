@@ -1,4 +1,4 @@
-package com.suyghur.dolin.zap.util
+package com.suyghur.dolin.common.util
 
 import android.content.Context
 import java.io.File

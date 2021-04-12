@@ -3,11 +3,13 @@ package com.suyghur.dolin.zap.impl
 import android.app.Application
 import android.text.TextUtils
 import android.util.Log
+import com.suyghur.dolin.common.util.FileUtils
 import com.suyghur.dolin.zap.entity.Config
 import com.suyghur.dolin.zap.entity.Level
 import com.suyghur.dolin.zap.entity.ZapData
+import com.suyghur.dolin.zap.format.DateFileFormatter
 import com.suyghur.dolin.zap.internal.IPrint
-import com.suyghur.dolin.zap.util.FileUtils
+import com.suyghur.dolin.zap.lifecycle.ZapLifecycle
 import java.io.File
 import java.lang.reflect.Array
 import java.text.SimpleDateFormat

@@ -15,17 +15,17 @@ public:
 
     ~BufferFlush();
 
-    void write(void *data, size_t len);
+    void Write(void *data, size_t len);
 
-    void reset();
+    void Reset();
 
-    size_t getLength();
+    size_t GetLength();
 
-    void *getPtr();
+    void *GetPtr();
 
-    FILE *getLogFile();
+    FILE *GetLogFile();
 
-    void releaseThiz(void *buffer);
+    void ReleaseThiz(void *buffer);
 
 private:
     FILE *log_file_ptr = nullptr;
@@ -34,7 +34,7 @@ private:
     char *write_ptr = nullptr;
     size_t capacity;
 
-    size_t emptySize();
+    size_t EmptySize();
 };
 
 

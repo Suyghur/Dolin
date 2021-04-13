@@ -51,6 +51,13 @@ android {
             path "CMakeLists.txt"
         }
     }
+
+//    sourceSets {
+//        main {
+//            // let gradle pack the shared library into apk
+//            jniLibs.srcDirs = ['src/main/jniLibs']
+//        }
+//    }
 }
 
 dependencies {

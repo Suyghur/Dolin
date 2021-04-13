@@ -12,22 +12,13 @@ cmake_minimum_required(VERSION 3.4.1)
 
 include_directories(src/main/cpp/include)
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
+#add_subdirectory(common)
+#include_directories(src/main/cpp/common)
 add_library(
-        dolin-zap
+        dolin-common
         SHARED
         ${DIR_SOURCE}
 )
-
-#动态方式加载 STATIC：表示静态的.a的库 SHARED：表示.so的库
-add_library(dolin-common SHARED IMPORTED)
-
-#设置要连接的so的相对路径
-#${CMAKE_SOURCE_DIR}：表示CMake.txt的当前文件夹路径
-#${ANDROID_ABI}：编译时会自动根据CPU架构去选择相应的库
-set_target_properties(dolin-common PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/src/main/cpp/libs/${ANDROID_ABI}/libdolin-common.so)
-
-##添加第三方头文件
-target_include_directories(dolin-zap PRIVATE ${CMAKE_SOURCE_DIR}/src/main/cpp/third_part)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -46,7 +37,6 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        dolin-zap
         dolin-common
         # Links the target library to the log library
         # included in the NDK.

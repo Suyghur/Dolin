@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.suyghur.dolin.common.util.DeviceInfoUtils
 import com.suyghur.dolin.zap.Zap
 import kotlin.system.exitProcess
 
@@ -29,7 +28,8 @@ class DemoActivity : Activity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
-        initDeviceInfo()
+//        initDeviceInfo()
+//        Zap.d("test : ${Common.testLib()}")
     }
 
     private fun initView() {
@@ -48,18 +48,18 @@ class DemoActivity : Activity(), View.OnClickListener {
         setContentView(layout)
     }
 
-    private fun initDeviceInfo() {
-        val sb = StringBuilder()
-        sb.append("Android ID：").append(DeviceInfoUtils.getAndroidDeviceId(this)).append("\n")
-        sb.append("厂商：").append(DeviceInfoUtils.getDeviceBrand()).append("\n")
-        sb.append("型号：").append(DeviceInfoUtils.getModel()).append("\n")
-        sb.append("系统版本：").append(DeviceInfoUtils.getDeviceSoftWareVersion()).append("\n")
-        sb.append("cpu核数：").append(DeviceInfoUtils.getCpuCount()).append("\n")
-        sb.append("cpu架构：").append(DeviceInfoUtils.getCpuABI()).append("\n")
-        sb.append("本机内存：").append(DeviceInfoUtils.getRAM()).append("\n")
-        sb.append("本机剩余内存：").append(DeviceInfoUtils.getAvailMem(this)).append("M")
-        textView.text = sb.toString()
-    }
+//    private fun initDeviceInfo() {
+//        val sb = StringBuilder()
+//        sb.append("Android ID：").append(DeviceInfoUtils.getAndroidDeviceId(this)).append("\n")
+//        sb.append("厂商：").append(DeviceInfoUtils.getDeviceBrand()).append("\n")
+//        sb.append("型号：").append(DeviceInfoUtils.getModel()).append("\n")
+//        sb.append("系统版本：").append(DeviceInfoUtils.getDeviceSoftWareVersion()).append("\n")
+//        sb.append("cpu核数：").append(DeviceInfoUtils.getCpuCount()).append("\n")
+//        sb.append("cpu架构：").append(DeviceInfoUtils.getCpuABI()).append("\n")
+//        sb.append("本机内存：").append(DeviceInfoUtils.getRAM()).append("\n")
+//        sb.append("本机剩余内存：").append(DeviceInfoUtils.getAvailMem(this)).append("M")
+//        textView.text = sb.toString()
+//    }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {

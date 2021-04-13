@@ -12,7 +12,7 @@
 #include "buffer_header.h"
 #include "file_flush.h"
 
-using namespace buffer_header;
+using namespace zap;
 
 class Buffer {
 public:
@@ -23,27 +23,27 @@ public:
 
     ~Buffer();
 
-    void initData(char *log_path, size_t log_path_len, bool compress);
+    void InitData(char *log_path, size_t log_path_len, bool _compress);
 
-    size_t getLength();
+    size_t GetLength();
 
-    size_t append(const char *log, size_t len);
+    size_t Append(const char *log, size_t len);
 
-    void release();
+    void Release();
 
-    size_t emptySize();
+    size_t EmptySize();
 
-    char *getLogPath();
+    char *GetLogPath();
 
-    void setFileFlush(FileFlush *flush);
+    void SetFileFlush(FileFlush *flush);
 
-    void callFileFlush();
+    void CallFileFlush();
 
-    void callFileFlush(FileFlush *flush);
+    void CallFileFlush(FileFlush *flush);
 
-    void callFileFlush(FileFlush *flush, Buffer *buffer);
+    void CallFileFlush(FileFlush *flush, Buffer *buffer);
 
-    void changeLogPath(char *path);
+    void ChangeLogPath(char *path);
 
 private:
     FILE *log_file_ptr = nullptr;
@@ -59,13 +59,13 @@ private:
     z_stream zStream{};
     bool compress = false;
 
-    void clear();
+    void Clear();
 
-    void setLength(size_t len);
+    void SetLength(size_t len);
 
-    bool initCompress(bool compress);
+    bool InitCompress(bool compress);
 
-    bool openLogFile(const char *path);
+    bool OpenLogFile(const char *path);
 
 
 };

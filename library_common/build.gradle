@@ -7,10 +7,16 @@ android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
 
-
     defaultConfig {
         minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
+
+//        externalNativeBuild {
+//            cmake {
+//                cppFlags '-std=c++11 -frtti -fexceptions -lz'
+//                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+//            }
+//        }
     }
 
     buildTypes {
@@ -19,6 +25,8 @@ android {
             proguardFiles 'proguard-rules.pro'
         }
     }
+
+    ndkVersion NDK_VERSION
 
     buildFeatures {
         buildConfig = false
@@ -37,6 +45,12 @@ android {
     dexOptions {
         preDexLibraries = false
     }
+
+//    externalNativeBuild {
+//        cmake {
+//            path "CMakeLists.txt"
+//        }
+//    }
 }
 
 dependencies {

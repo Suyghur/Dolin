@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace buffer_header {
+namespace zap {
     static const char kMagicHeader = '\x11';
 
     struct Header {
@@ -24,31 +24,31 @@ namespace buffer_header {
 
         ~BufferHeader();
 
-        void initHeader(Header &header);
+        void InitHeader(Header &header);
 
-        void *getOriginPtr();
+        void *GetOriginPtr();
 
-        void *getPtr();
+        void *GetPtr();
 
-        void *getWritePtr();
+        void *GetWritePtr();
 
-        Header *getHeader();
+        Header *GetHeader();
 
-        size_t getHeaderLen();
+        size_t GetHeaderLen();
 
-        void setLogLen(size_t len);
+        void SetLogLen(size_t len);
 
-        size_t getLogLen();
+        size_t GetLogLen();
 
-        size_t getLogPathLen();
+        size_t GetLogPathLen();
 
-        char *getLogPath();
+        char *GetLogPath();
 
-        bool isCompress();
+        bool IsCompress();
 
-        bool isAvailable();
+        bool IsAvailable();
 
-        static size_t calculateHeaderLen(size_t path_len);
+        static size_t CalculateHeaderLen(size_t path_len);
 
     private:
         char *data_ptr;

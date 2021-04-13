@@ -1,5 +1,6 @@
 package com.suyghur.dolin.zap.impl
 
+import android.util.Log
 import com.suyghur.dolin.zap.internal.IRecord
 
 /**
@@ -12,7 +13,7 @@ class Record2MMap(bufferPath: String, capacity: Int, logPath: String, compress: 
     private var ptr = 0L
 
     init {
-        System.loadLibrary("zap")
+        System.loadLibrary("dolin-zap")
         try {
             ptr = initNative(bufferPath, capacity, logPath, compress)
         } catch (e: Exception) {
@@ -23,6 +24,7 @@ class Record2MMap(bufferPath: String, capacity: Int, logPath: String, compress: 
     override fun write(msg: String) {
         if (ptr != 0L) {
             try {
+                Log.d("dolin_zap", "test : ${testCommonLib(ptr)}")
                 writeNative(ptr, msg)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -67,6 +69,8 @@ class Record2MMap(bufferPath: String, capacity: Int, logPath: String, compress: 
     private external fun changeLogPathNative(ptr: Long, path: String)
 
     private external fun releaseNative(ptr: Long)
+
+    private external fun testCommonLib(ptr: Long): String
 
     companion object {
         @JvmStatic

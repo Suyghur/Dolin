@@ -2,17 +2,17 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#include "includes/file_flush.h"
+#include "include/file_flush.h"
 
 FileFlush::FileFlush() {
-    async_thread = std::thread(&FileFlush::asyncLogThread, this);
+    async_thread = std::thread(&FileFlush::AsyncLogThread, this);
 }
 
 FileFlush::~FileFlush() {
-    stopFlush();
+    StopFlush();
 }
 
-bool FileFlush::asyncFlush(BufferFlush *buffer) {
+bool FileFlush::AsyncFlush(BufferFlush *buffer) {
     std::unique_lock<std::mutex> lck_async_flush(async_mtx);
     if (exit) {
         delete buffer;
@@ -23,19 +23,19 @@ bool FileFlush::asyncFlush(BufferFlush *buffer) {
     return true;
 }
 
-void FileFlush::stopFlush() {
+void FileFlush::StopFlush() {
     exit = true;
     async_condition.notify_all();
     async_thread.join();
 }
 
-void FileFlush::asyncLogThread() {
+void FileFlush::AsyncLogThread() {
     while (true) {
         std::unique_lock<std::mutex> lck_async_log_thread(async_mtx);
         while (!async_buffer.empty()) {
             BufferFlush *data = async_buffer.back();
             async_buffer.pop_back();
-            flush(data);
+            Flush(data);
         }
         if (exit) {
             return;
@@ -47,11 +47,11 @@ void FileFlush::asyncLogThread() {
 /**
  * 写文件
  */
-ssize_t FileFlush::flush(BufferFlush *buffer) {
+ssize_t FileFlush::Flush(BufferFlush *buffer) {
     ssize_t written = 0;
-    FILE *log_file = buffer->getLogFile();
-    if (log_file != nullptr && buffer->getLength() > 0) {
-        written = fwrite(buffer->getPtr(), buffer->getLength(), 1, log_file);
+    FILE *log_file = buffer->GetLogFile();
+    if (log_file != nullptr && buffer->GetLength() > 0) {
+        written = fwrite(buffer->GetPtr(), buffer->GetLength(), 1, log_file);
         fflush(log_file);
     }
     delete buffer;

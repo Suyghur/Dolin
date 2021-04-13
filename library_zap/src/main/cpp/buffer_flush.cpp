@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include <cstring>
-#include "includes/buffer_flush.h"
+#include "include/buffer_flush.h"
 
 BufferFlush::BufferFlush(FILE *log_file, size_t size) : capacity(size), log_file_ptr(log_file) {}
 
@@ -22,19 +22,19 @@ BufferFlush::~BufferFlush() {
 /**
  * 填充缓存
  */
-void BufferFlush::write(void *data, size_t len) {
+void BufferFlush::Write(void *data, size_t len) {
     if (data_ptr == nullptr) {
         capacity = (size_t) fmax(capacity, len);
         data_ptr = new char[capacity]{0};
         write_ptr = data_ptr;
     }
 
-    size_t empty_size = emptySize();
+    size_t empty_size = EmptySize();
     if (len < empty_size) {
         memcpy(write_ptr, data, len);
         write_ptr += len;
     } else {
-        size_t now_len = getLength();
+        size_t now_len = GetLength();
         size_t new_capacity = now_len + len;
         char *data_tmp = new char[new_capacity]{0};
         memcpy(data_tmp, data_ptr, now_len);
@@ -46,32 +46,32 @@ void BufferFlush::write(void *data, size_t len) {
     }
 }
 
-void BufferFlush::reset() {
+void BufferFlush::Reset() {
     if (data_ptr != nullptr) {
         memset(data_ptr, 0, capacity);
         write_ptr = data_ptr;
     }
 }
 
-size_t BufferFlush::getLength() {
+size_t BufferFlush::GetLength() {
     if (data_ptr != nullptr && write_ptr != nullptr) {
         return write_ptr - data_ptr;
     }
     return 0;
 }
 
-void *BufferFlush::getPtr() {
+void *BufferFlush::GetPtr() {
     return data_ptr;
 }
 
-FILE *BufferFlush::getLogFile() {
+FILE *BufferFlush::GetLogFile() {
     return log_file_ptr;
 }
 
-void BufferFlush::releaseThiz(void *buffer) {
+void BufferFlush::ReleaseThiz(void *buffer) {
     this->release_ptr = buffer;
 }
 
-size_t BufferFlush::emptySize() {
-    return capacity - getLength();
+size_t BufferFlush::EmptySize() {
+    return capacity - GetLength();
 }

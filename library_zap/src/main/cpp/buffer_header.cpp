@@ -2,13 +2,13 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#include "includes/buffer_header.h"
+#include "include/buffer_header.h"
 
-buffer_header::BufferHeader::BufferHeader(void *data, size_t size) : data_ptr((char *) data), data_size(size) {}
+zap::BufferHeader::BufferHeader(void *data, size_t size) : data_ptr((char *) data), data_size(size) {}
 
-buffer_header::BufferHeader::~BufferHeader() = default;
+zap::BufferHeader::~BufferHeader() = default;
 
-void buffer_header::BufferHeader::initHeader(buffer_header::Header &header) {
+void zap::BufferHeader::InitHeader(zap::Header &header) {
     if ((sizeof(char) + sizeof(size_t) + sizeof(size_t) + header.log_path_len) > data_size) {
         return;
     }
@@ -26,27 +26,27 @@ void buffer_header::BufferHeader::initHeader(buffer_header::Header &header) {
 /**
  * 获取原始的锚点
  */
-void *buffer_header::BufferHeader::getOriginPtr() {
+void *zap::BufferHeader::GetOriginPtr() {
     return data_ptr;
 }
 
 /**
  * 获取当前锚点
  */
-void *buffer_header::BufferHeader::getPtr() {
-    return data_ptr + getHeaderLen();
+void *zap::BufferHeader::GetPtr() {
+    return data_ptr + GetHeaderLen();
 }
 
 /**
  * 获取写入的锚点
  */
-void *buffer_header::BufferHeader::getWritePtr() {
-    return data_ptr + getHeaderLen() + getLogLen();
+void *zap::BufferHeader::GetWritePtr() {
+    return data_ptr + GetHeaderLen() + GetLogLen();
 }
 
-buffer_header::Header *buffer_header::BufferHeader::getHeader() {
+zap::Header *zap::BufferHeader::GetHeader() {
     auto *header = new Header();
-    if (isAvailable()) {
+    if (IsAvailable()) {
         header->magic = kMagicHeader;
 
         size_t log_len = 0;
@@ -68,46 +68,46 @@ buffer_header::Header *buffer_header::BufferHeader::getHeader() {
     return header;
 }
 
-size_t buffer_header::BufferHeader::getHeaderLen() {
-    if (isAvailable()) {
-        return calculateHeaderLen(getLogPathLen());
+size_t zap::BufferHeader::GetHeaderLen() {
+    if (IsAvailable()) {
+        return CalculateHeaderLen(GetLogPathLen());
     }
     return 0;
 }
 
-void buffer_header::BufferHeader::setLogLen(size_t len) {
-    if (isAvailable()) {
+void zap::BufferHeader::SetLogLen(size_t len) {
+    if (IsAvailable()) {
         memcpy(data_ptr + sizeof(char), &len, sizeof(size_t));
     }
 }
 
-size_t buffer_header::BufferHeader::getLogLen() {
-    if (isAvailable()) {
+size_t zap::BufferHeader::GetLogLen() {
+    if (IsAvailable()) {
         size_t len = 0;
         memcpy(&len, data_ptr + sizeof(char), sizeof(size_t));
         //log长度总是大于0并小于buffer_size减去header长度的
-        if (len > 0 && len < (data_size - getHeaderLen())) {
+        if (len > 0 && len < (data_size - GetHeaderLen())) {
             return len;
         }
     }
     return 0;
 }
 
-size_t buffer_header::BufferHeader::getLogPathLen() {
-    if (isAvailable()) {
+size_t zap::BufferHeader::GetLogPathLen() {
+    if (IsAvailable()) {
         size_t len = 0;
         memcpy(&len, data_ptr + sizeof(char) + sizeof(size_t), sizeof(size_t));
         //log path 的长度不能大于整个buffer减去header中其他数据的长度
-        if (len > 0 && len < data_size - calculateHeaderLen(0)) {
+        if (len > 0 && len < data_size - CalculateHeaderLen(0)) {
             return len;
         }
     }
     return 0;
 }
 
-char *buffer_header::BufferHeader::getLogPath() {
-    if (isAvailable()) {
-        size_t log_path_len = getLogPathLen();
+char *zap::BufferHeader::GetLogPath() {
+    if (IsAvailable()) {
+        size_t log_path_len = GetLogPathLen();
         if (log_path_len > 0) {
             char *log_path = new char[log_path_len + 1];
             memset(log_path, 0, log_path_len + 1);
@@ -119,18 +119,18 @@ char *buffer_header::BufferHeader::getLogPath() {
 }
 
 
-bool buffer_header::BufferHeader::isCompress() {
-    if (isAvailable()) {
-        return ((data_ptr + sizeof(char) + sizeof(size_t) + sizeof(size_t) + getLogPathLen())[0]) == 1;
+bool zap::BufferHeader::IsCompress() {
+    if (IsAvailable()) {
+        return ((data_ptr + sizeof(char) + sizeof(size_t) + sizeof(size_t) + GetLogPathLen())[0]) == 1;
     }
     return false;
 }
 
-bool buffer_header::BufferHeader::isAvailable() {
+bool zap::BufferHeader::IsAvailable() {
     return data_ptr[0] == kMagicHeader;
 }
 
-size_t buffer_header::BufferHeader::calculateHeaderLen(size_t path_len) {
+size_t zap::BufferHeader::CalculateHeaderLen(size_t path_len) {
     return sizeof(char) + sizeof(size_t) + sizeof(size_t) + path_len + sizeof(char);
 }
 

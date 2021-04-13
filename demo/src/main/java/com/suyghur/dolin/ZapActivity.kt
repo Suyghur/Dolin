@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
-import com.suyghur.dolin.common.util.DeviceInfoUtils
 import com.suyghur.dolin.zap.Zap
 
 /**
@@ -35,7 +34,6 @@ class ZapActivity : Activity(), View.OnClickListener {
             }
         }
         setContentView(layout)
-        Zap.d("free RAM : ${DeviceInfoUtils.getAvailMem(this)}M")
     }
 
     override fun onClick(v: View?) {

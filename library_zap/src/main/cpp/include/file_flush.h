@@ -16,14 +16,14 @@ public:
 
     ~FileFlush();
 
-    bool asyncFlush(BufferFlush *buffer);
+    bool AsyncFlush(BufferFlush *buffer);
 
-    void stopFlush();
+    void StopFlush();
 
 private:
-    void asyncLogThread();
+    void AsyncLogThread();
 
-    static ssize_t flush(BufferFlush *buffer);
+    static ssize_t Flush(BufferFlush *buffer);
 
     bool exit = false;
     std::vector<BufferFlush *> async_buffer;

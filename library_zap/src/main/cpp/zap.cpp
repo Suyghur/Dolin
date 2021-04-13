@@ -19,7 +19,8 @@ static void WriteDirty2File(int buffer_fd) {
         auto buffer_size = static_cast<size_t>(file_stat.st_size);
         //buffer size必须大于文件头长度，否则下标溢出
         if (buffer_size > zap::BufferHeader::CalculateHeaderLen(0)) {
-            char *buffer_ptr_tmp = (char *) mmap(0, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_fd, 0);
+            char *buffer_ptr_tmp = (char *) mmap(0, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED,
+                                                 buffer_fd, 0);
             if (buffer_ptr_tmp != MAP_FAILED) {
                 auto *tmp = new Buffer(buffer_ptr_tmp, buffer_size);
                 size_t data_size = tmp->GetLength();
@@ -41,7 +42,8 @@ static char *OpenMMap(int buffer_fd, size_t buffer_size) {
         //根据buffer size 调整 buffer 大小
         ftruncate(buffer_fd, static_cast<int >(buffer_size));
         lseek(buffer_fd, 0, SEEK_SET);
-        map_ptr = (char *) mmap(nullptr, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_fd, 0);
+        map_ptr = (char *) mmap(nullptr, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_fd,
+                                0);
         if (map_ptr == MAP_FAILED) {
             map_ptr = nullptr;
         }
@@ -131,7 +133,7 @@ static JNINativeMethod gMethods[] = {
         {"asyncFlushNative",    "(J)V",                                      (void *) AsyncFlushNative},
         {"changeLogPathNative", "(JLjava/lang/String;)V",                    (void *) ChangeLogPathNative},
         {"releaseNative",       "(J)V",                                      (void *) ReleaseNative},
-        {"testCommonLib",             "(J)Ljava/lang/String;",                     (void *) TestCommonLib}
+        {"testCommonLib",       "(J)Ljava/lang/String;",                     (void *) TestCommonLib}
 };
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -139,7 +141,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
         return JNI_ERR;
     }
-    jclass clz = env->FindClass("com/suyghur/dolin/zap/impl/Record2MMap");
+    jclass clz = env->FindClass("com/dolin/zap/impl/Record2MMap");
     if (env->RegisterNatives(clz, gMethods, sizeof(gMethods) / sizeof(gMethods[0])) < 0) {
         return JNI_ERR;
     }

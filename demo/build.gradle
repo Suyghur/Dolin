@@ -12,7 +12,7 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION
 
     defaultConfig {
-        applicationId "com.suyghur.dolin"
+        applicationId "com.dolin.demo"
         minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
@@ -23,6 +23,8 @@ android {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
     }
+
+    ndkVersion NDK_VERSION
 
     signingConfigs {
         config {

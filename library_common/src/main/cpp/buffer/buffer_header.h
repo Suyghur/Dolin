@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace zap {
+namespace dolin_common {
     static const char kMagicHeader = '\x11';
 
     struct Header {

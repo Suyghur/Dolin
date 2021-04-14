@@ -1,5 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
+
+    ext.COMMON_LIB_DEV_ENABLE = false
     // 混淆开关
     ext.MINIFY_ENABLE = false
     // ndk版本

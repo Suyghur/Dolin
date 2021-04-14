@@ -12,7 +12,7 @@
 #include "buffer_header.h"
 #include "file_flush.h"
 
-using namespace zap;
+using namespace dolin_common;
 
 class Buffer {
 public:

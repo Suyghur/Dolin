@@ -10,14 +10,16 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-include_directories(src/main/cpp/include)
+include_directories(src/main/cpp/buffer)
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
+aux_source_directory(src/main/cpp/buffer DIR_SOURCE_BUFFER)
 #add_subdirectory(common)
 #include_directories(src/main/cpp/common)
 add_library(
         dolin-common
         SHARED
         ${DIR_SOURCE}
+        ${DIR_SOURCE_BUFFER}
 )
 
 # Searches for a specified prebuilt library and stores the path as a

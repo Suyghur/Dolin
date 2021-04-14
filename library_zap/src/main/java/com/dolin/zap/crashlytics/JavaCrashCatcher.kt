@@ -1,7 +1,7 @@
 package com.dolin.zap.crashlytics
 
 import android.os.Process
-import com.suyghur.dolin.zap.Zap
+import com.dolin.zap.Zap
 import kotlin.system.exitProcess
 
 /**

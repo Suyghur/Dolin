@@ -2,13 +2,13 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#include "include/buffer_header.h"
+#include "buffer_header.h"
 
-zap::BufferHeader::BufferHeader(void *data, size_t size) : data_ptr((char *) data), data_size(size) {}
+dolin_common::BufferHeader::BufferHeader(void *data, size_t size) : data_ptr((char *) data), data_size(size) {}
 
-zap::BufferHeader::~BufferHeader() = default;
+dolin_common::BufferHeader::~BufferHeader() = default;
 
-void zap::BufferHeader::InitHeader(zap::Header &header) {
+void dolin_common::BufferHeader::InitHeader(dolin_common::Header &header) {
     if ((sizeof(char) + sizeof(size_t) + sizeof(size_t) + header.log_path_len) > data_size) {
         return;
     }
@@ -26,25 +26,25 @@ void zap::BufferHeader::InitHeader(zap::Header &header) {
 /**
  * 获取原始的锚点
  */
-void *zap::BufferHeader::GetOriginPtr() {
+void *dolin_common::BufferHeader::GetOriginPtr() {
     return data_ptr;
 }
 
 /**
  * 获取当前锚点
  */
-void *zap::BufferHeader::GetPtr() {
+void *dolin_common::BufferHeader::GetPtr() {
     return data_ptr + GetHeaderLen();
 }
 
 /**
  * 获取写入的锚点
  */
-void *zap::BufferHeader::GetWritePtr() {
+void *dolin_common::BufferHeader::GetWritePtr() {
     return data_ptr + GetHeaderLen() + GetLogLen();
 }
 
-zap::Header *zap::BufferHeader::GetHeader() {
+dolin_common::Header *dolin_common::BufferHeader::GetHeader() {
     auto *header = new Header();
     if (IsAvailable()) {
         header->magic = kMagicHeader;
@@ -68,20 +68,20 @@ zap::Header *zap::BufferHeader::GetHeader() {
     return header;
 }
 
-size_t zap::BufferHeader::GetHeaderLen() {
+size_t dolin_common::BufferHeader::GetHeaderLen() {
     if (IsAvailable()) {
         return CalculateHeaderLen(GetLogPathLen());
     }
     return 0;
 }
 
-void zap::BufferHeader::SetLogLen(size_t len) {
+void dolin_common::BufferHeader::SetLogLen(size_t len) {
     if (IsAvailable()) {
         memcpy(data_ptr + sizeof(char), &len, sizeof(size_t));
     }
 }
 
-size_t zap::BufferHeader::GetLogLen() {
+size_t dolin_common::BufferHeader::GetLogLen() {
     if (IsAvailable()) {
         size_t len = 0;
         memcpy(&len, data_ptr + sizeof(char), sizeof(size_t));
@@ -93,7 +93,7 @@ size_t zap::BufferHeader::GetLogLen() {
     return 0;
 }
 
-size_t zap::BufferHeader::GetLogPathLen() {
+size_t dolin_common::BufferHeader::GetLogPathLen() {
     if (IsAvailable()) {
         size_t len = 0;
         memcpy(&len, data_ptr + sizeof(char) + sizeof(size_t), sizeof(size_t));
@@ -105,7 +105,7 @@ size_t zap::BufferHeader::GetLogPathLen() {
     return 0;
 }
 
-char *zap::BufferHeader::GetLogPath() {
+char *dolin_common::BufferHeader::GetLogPath() {
     if (IsAvailable()) {
         size_t log_path_len = GetLogPathLen();
         if (log_path_len > 0) {
@@ -119,18 +119,18 @@ char *zap::BufferHeader::GetLogPath() {
 }
 
 
-bool zap::BufferHeader::IsCompress() {
+bool dolin_common::BufferHeader::IsCompress() {
     if (IsAvailable()) {
         return ((data_ptr + sizeof(char) + sizeof(size_t) + sizeof(size_t) + GetLogPathLen())[0]) == 1;
     }
     return false;
 }
 
-bool zap::BufferHeader::IsAvailable() {
+bool dolin_common::BufferHeader::IsAvailable() {
     return data_ptr[0] == kMagicHeader;
 }
 
-size_t zap::BufferHeader::CalculateHeaderLen(size_t path_len) {
+size_t dolin_common::BufferHeader::CalculateHeaderLen(size_t path_len) {
     return sizeof(char) + sizeof(size_t) + sizeof(size_t) + path_len + sizeof(char);
 }
 

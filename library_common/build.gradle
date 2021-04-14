@@ -11,12 +11,14 @@ android {
         minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
 
-//        externalNativeBuild {
-//            cmake {
-//                cppFlags '-std=c++11 -frtti -fexceptions -lz'
-//                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-//            }
-//        }
+        if (COMMON_LIB_DEV_ENABLE) {
+            externalNativeBuild {
+                cmake {
+                    cppFlags '-std=c++11 -frtti -fexceptions -lz'
+                    abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                }
+            }
+        }
     }
 
     buildTypes {
@@ -46,11 +48,13 @@ android {
         preDexLibraries = false
     }
 
-//    externalNativeBuild {
-//        cmake {
-//            path "CMakeLists.txt"
-//        }
-//    }
+    if (COMMON_LIB_DEV_ENABLE) {
+        externalNativeBuild {
+            cmake {
+                path "CMakeLists.txt"
+            }
+        }
+    }
 }
 
 dependencies {

@@ -2,7 +2,7 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#include "include/file_flush.h"
+#include "file_flush.h"
 
 FileFlush::FileFlush() {
     async_thread = std::thread(&FileFlush::AsyncLogThread, this);
@@ -13,7 +13,7 @@ FileFlush::~FileFlush() {
 }
 
 bool FileFlush::AsyncFlush(BufferFlush *buffer) {
-    std::unique_lock<std::mutex> lck_async_flush(async_mtx);
+    std::unique_lock <std::mutex> lck_async_flush(async_mtx);
     if (exit) {
         delete buffer;
         return false;
@@ -31,7 +31,7 @@ void FileFlush::StopFlush() {
 
 void FileFlush::AsyncLogThread() {
     while (true) {
-        std::unique_lock<std::mutex> lck_async_log_thread(async_mtx);
+        std::unique_lock <std::mutex> lck_async_log_thread(async_mtx);
         while (!async_buffer.empty()) {
             BufferFlush *data = async_buffer.back();
             async_buffer.pop_back();

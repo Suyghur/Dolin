@@ -6,10 +6,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sstream>
-#include "include/buffer.h"
-#include "include/file_flush.h"
-#include "include/buffer_header.h"
-#include "third_part/common.h"
+#include "third_part/buffer/buffer.h"
+#include "third_part/buffer/file_flush.h"
+#include "third_part/buffer/buffer_header.h"
 
 static FileFlush *pFileFlush = nullptr;
 
@@ -18,9 +17,8 @@ static void WriteDirty2File(int buffer_fd) {
     if (fstat(buffer_fd, &file_stat) >= 0) {
         auto buffer_size = static_cast<size_t>(file_stat.st_size);
         //buffer size必须大于文件头长度，否则下标溢出
-        if (buffer_size > zap::BufferHeader::CalculateHeaderLen(0)) {
-            char *buffer_ptr_tmp = (char *) mmap(0, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED,
-                                                 buffer_fd, 0);
+        if (buffer_size > dolin_common::BufferHeader::CalculateHeaderLen(0)) {
+            char *buffer_ptr_tmp = (char *) mmap(0, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_fd, 0);
             if (buffer_ptr_tmp != MAP_FAILED) {
                 auto *tmp = new Buffer(buffer_ptr_tmp, buffer_size);
                 size_t data_size = tmp->GetLength();
@@ -42,8 +40,7 @@ static char *OpenMMap(int buffer_fd, size_t buffer_size) {
         //根据buffer size 调整 buffer 大小
         ftruncate(buffer_fd, static_cast<int >(buffer_size));
         lseek(buffer_fd, 0, SEEK_SET);
-        map_ptr = (char *) mmap(nullptr, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_fd,
-                                0);
+        map_ptr = (char *) mmap(nullptr, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_fd, 0);
         if (map_ptr == MAP_FAILED) {
             map_ptr = nullptr;
         }
@@ -121,19 +118,12 @@ static void ReleaseNative(JNIEnv *env, jobject thiz, jlong ptr) {
     pFileFlush = nullptr;
 }
 
-
-static jstring TestCommonLib(JNIEnv *env, jobject thiz, jlong ptr) {
-
-    return env->NewStringUTF(Common::TestFunc().c_str());
-}
-
 static JNINativeMethod gMethods[] = {
         {"initNative",          "(Ljava/lang/String;ILjava/lang/String;Z)J", (void *) InitNative},
         {"writeNative",         "(JLjava/lang/String;)V",                    (void *) WriteNative},
         {"asyncFlushNative",    "(J)V",                                      (void *) AsyncFlushNative},
         {"changeLogPathNative", "(JLjava/lang/String;)V",                    (void *) ChangeLogPathNative},
-        {"releaseNative",       "(J)V",                                      (void *) ReleaseNative},
-        {"testCommonLib",       "(J)Ljava/lang/String;",                     (void *) TestCommonLib}
+        {"releaseNative",       "(J)V",                                      (void *) ReleaseNative}
 };
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {

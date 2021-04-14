@@ -2,7 +2,7 @@
 // Created by #Suyghur, on 4/7/21.
 //
 
-#include "include/buffer.h"
+#include "buffer.h"
 
 Buffer::Buffer(char *ptr, size_t buffer_size) : buffer_ptr(ptr), buffer_size(buffer_size), buffer_header(buffer_ptr, buffer_size) {}
 
@@ -14,7 +14,7 @@ void Buffer::InitData(char *log_path, size_t log_path_len, bool _compress) {
     std::lock_guard<std::recursive_mutex> lck_release(log_mtx);
     memset(buffer_ptr, '\0', buffer_size);
 
-    zap::Header header{};
+    dolin_common::Header header{};
     header.magic = kMagicHeader;
     header.log_path_len = log_path_len;
     header.log_path = log_path;

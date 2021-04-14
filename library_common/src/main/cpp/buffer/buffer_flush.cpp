@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include <cstring>
-#include "include/buffer_flush.h"
+#include "buffer_flush.h"
 
 BufferFlush::BufferFlush(FILE *log_file, size_t size) : capacity(size), log_file_ptr(log_file) {}
 

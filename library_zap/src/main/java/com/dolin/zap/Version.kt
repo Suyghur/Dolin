@@ -6,7 +6,7 @@ package com.dolin.zap
  */
 object Version {
 
-    const val VERSION_NAME = "1.0.0"
+    const val VERSION = "1.0.0"
 
-    const val VERSION_CODE = 100
+    const val FULL_VERSION = "Zap_$VERSION"
 }

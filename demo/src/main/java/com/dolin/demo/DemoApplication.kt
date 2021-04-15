@@ -19,9 +19,15 @@ class DemoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         val config = Config.Builder()
+                //logcat输出最低等级
                 .setLogcatLevel(Level.DEBUG)
+                //是否开启缓存日志
                 .setRecordEnable(true)
+                //缓存日志最低等级
                 .setRecordLevel(Level.DEBUG)
+                //是否开启压缩缓存日志内容
+                .setRecordCompressEnable(true)
+                //缓存文件的过期时间
                 .setOverdueDay(3)
                 .create()
         Zap.initialize(this, config)

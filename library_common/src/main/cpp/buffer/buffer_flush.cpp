@@ -29,6 +29,7 @@ void BufferFlush::Write(void *data, size_t len) {
         write_ptr = data_ptr;
     }
 
+
     size_t empty_size = EmptySize();
     if (len < empty_size) {
         memcpy(write_ptr, data, len);

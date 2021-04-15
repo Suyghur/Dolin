@@ -63,7 +63,7 @@ private:
 
     void SetLength(size_t len);
 
-    bool InitCompress(bool compress);
+    bool InitCompress(bool _compress);
 
     bool OpenLogFile(const char *path);
 

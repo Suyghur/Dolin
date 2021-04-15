@@ -1,4 +1,4 @@
-include ':library_crashlytics'
+//include ':library_crashlytics'
 include ':library_common'
 include ':demo'
 //include ':library_caps'

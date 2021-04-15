@@ -16,7 +16,7 @@ class Config private constructor(builder: Builder) {
         private set
     var recordEnable: Boolean
         private set
-    var catchEnable: Boolean
+    var compressEnable: Boolean
         private set
     private var overdueDayMs = 0L
     private var fileSizeLimitDayByte = 0
@@ -28,7 +28,7 @@ class Config private constructor(builder: Builder) {
         this.logcatLevel = builder.logcatLevel
         this.recordLevel = builder.recordLevel
         this.recordEnable = builder.recordEnable
-        this.catchEnable = builder.catchEnable
+        this.compressEnable = builder.compressEnable
         this.overdueDayMs = builder.overdueDay * 24 * 3600 * 1000L
         this.fileSizeLimitDayByte = builder.fileSizeLimitDay * 1024 * 1024
     }
@@ -49,7 +49,7 @@ class Config private constructor(builder: Builder) {
         internal var logcatLevel = Level.DEBUG
         internal var recordLevel = Level.DEBUG
         internal var recordEnable = true
-        internal var catchEnable = true
+        internal var compressEnable = true
         internal var overdueDay = 3
         internal var fileSizeLimitDay = 15
 
@@ -87,8 +87,8 @@ class Config private constructor(builder: Builder) {
             return this
         }
 
-        fun setCatchEnable(enable: Boolean): Builder {
-            this.catchEnable = enable
+        fun setRecordCompressEnable(enable: Boolean): Builder {
+            this.compressEnable = enable
             return this
         }
 

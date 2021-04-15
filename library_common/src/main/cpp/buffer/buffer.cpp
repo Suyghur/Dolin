@@ -3,6 +3,7 @@
 //
 
 #include "buffer.h"
+#include "common_log.h"
 
 Buffer::Buffer(char *ptr, size_t buffer_size) : buffer_ptr(ptr), buffer_size(buffer_size), buffer_header(buffer_ptr, buffer_size) {}
 
@@ -39,6 +40,7 @@ size_t Buffer::GetLength() {
 }
 
 size_t Buffer::Append(const char *log, size_t len) {
+    LOGD("JNI->%s", log);
     std::lock_guard<std::recursive_mutex> lck_append(log_mtx);
     if (GetLength() == 0) {
         InitCompress(compress);
@@ -139,8 +141,8 @@ void Buffer::Clear() {
     SetLength(GetLength());
 }
 
-bool Buffer::InitCompress(bool is_compress) {
-    compress = compress;
+bool Buffer::InitCompress(bool _compress) {
+    compress = _compress;
     if (compress) {
         zStream.zalloc = Z_NULL;
         zStream.zfree = Z_NULL;

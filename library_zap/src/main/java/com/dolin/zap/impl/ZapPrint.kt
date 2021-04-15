@@ -10,6 +10,7 @@ import com.dolin.zap.entity.ZapData
 import com.dolin.zap.format.DateFileFormatter
 import com.dolin.zap.internal.IPrint
 import com.dolin.zap.lifecycle.ZapLifecycle
+import com.dolin.zap.util.LogFileUtils
 import java.io.File
 import java.lang.reflect.Array
 import java.text.SimpleDateFormat
@@ -32,7 +33,7 @@ class ZapPrint : IPrint {
 
     fun initialize(application: Application, config: Config) {
         if (hasInitialized) {
-            throw IllegalArgumentException("Logger already initialize")
+            return
         }
 
         this.logDir = if (TextUtils.isEmpty(config.logDir)) {
@@ -46,14 +47,18 @@ class ZapPrint : IPrint {
         } else {
             config.tag
         }
-
         this.logcatLevel = config.logcatLevel
         this.recordLevel = config.recordLevel
-        val logFileName = logDir + File.separator + SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) + "-zap"
+
+        val logFileName = logDir + File.separator + SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) + ".zap"
         if (config.recordEnable) {
-            record2MMap = Record2MMap("$logDir/zap.cache", 1024 * 400, logFileName, config.compressEnable)
+            record2MMap = Record2MMap("$logDir/.cache", 1024 * 400, logFileName, config.compressEnable)
             ZapLifecycle.registerZapLifeCallback(application, record2MMap!!)
         }
+
+        Thread {
+            LogFileUtils.cleanOverdueLog(application, logDir, config.overdueDayMs)
+        }.start()
     }
 
     fun recycle() {

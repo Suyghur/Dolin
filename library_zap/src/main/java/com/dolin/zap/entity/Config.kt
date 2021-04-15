@@ -18,7 +18,8 @@ class Config private constructor(builder: Builder) {
         private set
     var compressEnable: Boolean
         private set
-    private var overdueDayMs = 0L
+    var overdueDayMs = 0L
+        private set
     private var fileSizeLimitDayByte = 0
 
 

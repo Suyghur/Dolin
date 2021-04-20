@@ -4,6 +4,7 @@
 .idea
 /local.properties
 .DS_Store
+.soLibs
 
 # ---> Android
 # Built application files

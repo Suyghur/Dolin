@@ -16,6 +16,7 @@ namespace dolin_common {
         size_t log_path_len;
         char *log_path;
         bool compress;
+        size_t limit_size;
     };
 
     class BufferHeader {
@@ -28,7 +29,7 @@ namespace dolin_common {
 
         void *GetOriginPtr();
 
-        void *GetPtr();
+        void *GetDataPtr();
 
         void *GetWritePtr();
 

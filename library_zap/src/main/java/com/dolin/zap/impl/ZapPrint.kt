@@ -52,12 +52,12 @@ class ZapPrint : IPrint {
 
         val logFileName = logDir + File.separator + SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) + ".zap"
         if (config.recordEnable) {
-            record2MMap = Record2MMap("$logDir/.cache", 1024 * 400, logFileName, config.compressEnable)
+            record2MMap = Record2MMap("$logDir/zap.cache", 1024 * 400, logFileName, config.compressEnable, config.fileSizeLimitDayByte)
             ZapLifecycle.registerZapLifeCallback(application, record2MMap!!)
         }
 
         Thread {
-            LogFileUtils.cleanOverdueLog(application, logDir, config.overdueDayMs)
+            LogFileUtils.cleanOverdueLog(logDir, config.overdueDayMs)
         }.start()
     }
 

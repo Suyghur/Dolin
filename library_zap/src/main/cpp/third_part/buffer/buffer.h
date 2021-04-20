@@ -23,7 +23,7 @@ public:
 
     ~Buffer();
 
-    void InitData(char *log_path, size_t log_path_len, bool _compress);
+    void InitData(char *log_path, size_t log_path_len, bool _compress, size_t _limit_size);
 
     size_t GetLength();
 
@@ -45,6 +45,8 @@ public:
 
     void ChangeLogPath(char *path);
 
+    bool IsCurrentLogFileOversize();
+
 private:
     FILE *log_file_ptr = nullptr;
     FileFlush *file_flush_ptr = nullptr;
@@ -58,15 +60,17 @@ private:
     BufferHeader buffer_header;
     z_stream zStream{};
     bool compress = false;
+    size_t limit_size = 0;
 
     void Clear();
 
     void SetLength(size_t len);
 
-    bool InitCompress(bool compress);
+    bool InitCompress(bool _compress);
 
     bool OpenLogFile(const char *path);
 
+    size_t GetCurrentLogFileSize();
 
 };
 

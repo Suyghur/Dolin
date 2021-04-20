@@ -9,7 +9,7 @@ import java.io.File
  */
 object LogFileUtils {
 
-    fun cleanOverdueLog(context: Context, logFolderPath: String, overdueDayMs: Long) {
+    fun cleanOverdueLog( logFolderPath: String, overdueDayMs: Long) {
         val folder = File(logFolderPath)
         if (!folder.exists()) {
             return

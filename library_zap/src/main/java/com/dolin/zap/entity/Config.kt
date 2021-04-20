@@ -20,7 +20,8 @@ class Config private constructor(builder: Builder) {
         private set
     var overdueDayMs = 0L
         private set
-    private var fileSizeLimitDayByte = 0
+    var fileSizeLimitDayByte = 0
+        private set
 
 
     init {

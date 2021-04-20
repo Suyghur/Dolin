@@ -9,6 +9,7 @@
 #include "third_part/buffer/buffer.h"
 #include "third_part/buffer/file_flush.h"
 #include "third_part/buffer/buffer_header.h"
+#include "third_part/buffer/common_log.h"
 
 static FileFlush *pFileFlush = nullptr;
 
@@ -50,7 +51,7 @@ static char *OpenMMap(int buffer_fd, size_t buffer_size) {
 
 
 static jlong InitNative(JNIEnv *env, jclass thiz, jstring buffer_path, jint capacity,
-                        jstring log_path, jboolean compress) {
+                        jstring log_path, jboolean compress, jint limit_size) {
     const char *_buffer_path = env->GetStringUTFChars(buffer_path, JNI_FALSE);
     const char *_log_path = env->GetStringUTFChars(log_path, JNI_FALSE);
     auto buffer_size = static_cast<size_t>(capacity);
@@ -73,7 +74,7 @@ static jlong InitNative(JNIEnv *env, jclass thiz, jstring buffer_path, jint capa
     auto *buffer = new Buffer(buffer_ptr, buffer_size);
     buffer->CallFileFlush(pFileFlush);
     //将 buffer 中的数据清空，并写入日志文件信息
-    buffer->InitData((char *) _log_path, strlen(_log_path), compress);
+    buffer->InitData((char *) _log_path, strlen(_log_path), compress, limit_size);
     buffer->map_buffer = map_buffer;
 
     env->ReleaseStringUTFChars(buffer_path, _buffer_path);
@@ -118,12 +119,25 @@ static void ReleaseNative(JNIEnv *env, jobject thiz, jlong ptr) {
     pFileFlush = nullptr;
 }
 
+
+static jboolean IsCurrentLogFileOversize(JNIEnv *env, jobject thiz, jlong ptr) {
+    auto *buffer = reinterpret_cast<Buffer *>(ptr);
+    if (buffer->IsCurrentLogFileOversize()) {
+        LOGD("JNI -> oversize");
+        return JNI_TRUE;
+    } else {
+        LOGD("JNI -> not oversize");
+        return JNI_FALSE;
+    }
+}
+
 static JNINativeMethod gMethods[] = {
-        {"initNative",          "(Ljava/lang/String;ILjava/lang/String;Z)J", (void *) InitNative},
-        {"writeNative",         "(JLjava/lang/String;)V",                    (void *) WriteNative},
-        {"asyncFlushNative",    "(J)V",                                      (void *) AsyncFlushNative},
-        {"changeLogPathNative", "(JLjava/lang/String;)V",                    (void *) ChangeLogPathNative},
-        {"releaseNative",       "(J)V",                                      (void *) ReleaseNative}
+        {"initNative",               "(Ljava/lang/String;ILjava/lang/String;ZI)J", (void *) InitNative},
+        {"writeNative",              "(JLjava/lang/String;)V",                     (void *) WriteNative},
+        {"asyncFlushNative",         "(J)V",                                       (void *) AsyncFlushNative},
+        {"changeLogPathNative",      "(JLjava/lang/String;)V",                     (void *) ChangeLogPathNative},
+        {"releaseNative",            "(J)V",                                       (void *) ReleaseNative},
+        {"isCurrentLogFileOversize", "(J)Z",                                       (void *) IsCurrentLogFileOversize}
 };
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {

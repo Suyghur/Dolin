@@ -3,7 +3,7 @@
 //
 
 #include "buffer.h"
-#include "common_log.h"
+#include "../kit/common_log.h"
 
 Buffer::Buffer(char *ptr, size_t buffer_size) : buffer_ptr(ptr), buffer_size(buffer_size), buffer_header(buffer_ptr, buffer_size) {}
 
@@ -11,7 +11,7 @@ Buffer::~Buffer() {
     Release();
 }
 
-void Buffer::InitData(char *log_path, size_t log_path_len, bool _compress) {
+void Buffer::InitData(char *log_path, size_t log_path_len, bool _compress, size_t _limit_size) {
     std::lock_guard<std::recursive_mutex> lck_release(log_mtx);
     memset(buffer_ptr, '\0', buffer_size);
 
@@ -21,11 +21,13 @@ void Buffer::InitData(char *log_path, size_t log_path_len, bool _compress) {
     header.log_path = log_path;
     header.log_len = 0;
     header.compress = _compress;
+    header.limit_size = _limit_size;
 
     buffer_header.InitHeader(header);
     InitCompress(_compress);
+    limit_size = _limit_size;
 
-    data_ptr = (char *) buffer_header.GetPtr();
+    data_ptr = (char *) buffer_header.GetDataPtr();
     write_ptr = (char *) buffer_header.GetWritePtr();
 
     OpenLogFile(log_path);
@@ -40,7 +42,6 @@ size_t Buffer::GetLength() {
 }
 
 size_t Buffer::Append(const char *log, size_t len) {
-    LOGD("JNI->%s", log);
     std::lock_guard<std::recursive_mutex> lck_append(log_mtx);
     if (GetLength() == 0) {
         InitCompress(compress);
@@ -131,7 +132,7 @@ void Buffer::ChangeLogPath(char *path) {
     if (log_file_ptr != nullptr) {
         CallFileFlush();
     }
-    InitData(path, strlen(path), compress);
+    InitData(path, strlen(path), compress, limit_size);
 }
 
 void Buffer::Clear() {
@@ -162,3 +163,18 @@ bool Buffer::OpenLogFile(const char *path) {
     }
     return false;
 }
+
+bool Buffer::IsCurrentLogFileOversize() {
+    return GetCurrentLogFileSize() >= buffer_header.GetHeader()->limit_size;
+}
+
+size_t Buffer::GetCurrentLogFileSize() {
+    size_t size = 0;
+    if (log_file_ptr != nullptr) {
+        fseek(log_file_ptr, 0, SEEK_END);
+        size = ftell(log_file_ptr);
+    }
+    return size;
+}
+
+

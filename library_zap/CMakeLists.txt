@@ -19,12 +19,12 @@ add_library(
 )
 
 #动态方式加载 STATIC：表示静态的.a的库 SHARED：表示.so的库
-add_library(dolin-common SHARED IMPORTED)
+add_library(dolin-comm SHARED IMPORTED)
 
 #设置要连接的so的相对路径
 #${CMAKE_SOURCE_DIR}：表示CMake.txt的当前文件夹路径
 #${ANDROID_ABI}：编译时会自动根据CPU架构去选择相应的库
-set_target_properties(dolin-common PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/src/main/cpp/libs/${ANDROID_ABI}/libdolin-common.so)
+set_target_properties(dolin-comm PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/../soLibs/comm/${ANDROID_ABI}/libdolin-comm.so)
 
 ##添加第三方头文件
 target_include_directories(dolin-zap PRIVATE ${CMAKE_SOURCE_DIR}/src/main/cpp/third_part)
@@ -47,7 +47,7 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         dolin-zap
-        dolin-common
+        dolin-comm
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

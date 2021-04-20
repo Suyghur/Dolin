@@ -10,16 +10,21 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+#设置库文件的输出目录
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../soLibs/comm/${ANDROID_ABI})
+#message(------ ${PROJECT_SOURCE_DIR}/../lib ------)
+
 include_directories(src/main/cpp/buffer)
+include_directories(src/main/cpp/kit)
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
 aux_source_directory(src/main/cpp/buffer DIR_SOURCE_BUFFER)
-#add_subdirectory(common)
-#include_directories(src/main/cpp/common)
+aux_source_directory(src/main/cpp/kit DIR_SOURCE_KIT)
 add_library(
-        dolin-common
+        dolin-comm
         SHARED
         ${DIR_SOURCE}
         ${DIR_SOURCE_BUFFER}
+        ${DIR_SOURCE_KIT}
 )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -39,7 +44,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        dolin-common
+        dolin-comm
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

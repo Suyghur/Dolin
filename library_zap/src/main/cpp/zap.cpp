@@ -103,7 +103,7 @@ static void AsyncFlushNative(JNIEnv *env, jobject thiz, jlong ptr) {
     }
 }
 
-static void ChangeLogPathNative(JNIEnv *env, jobject thiz, jlong ptr, jstring path) {
+static void ExpLogFile(JNIEnv *env, jobject thiz, jlong ptr, jstring path, jint part_num) {
     const char *log_path = env->GetStringUTFChars(path, JNI_FALSE);
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
     buffer->ChangeLogPath(const_cast<charf *>(log_path));
@@ -120,7 +120,7 @@ static void ReleaseNative(JNIEnv *env, jobject thiz, jlong ptr) {
 }
 
 
-static jboolean IsCurrentLogFileOversize(JNIEnv *env, jobject thiz, jlong ptr) {
+static jboolean IsLogFileOverSizeNative(JNIEnv *env, jobject thiz, jlong ptr) {
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
     if (buffer->IsCurrentLogFileOversize()) {
         LOGD("JNI -> oversize");
@@ -131,13 +131,18 @@ static jboolean IsCurrentLogFileOversize(JNIEnv *env, jobject thiz, jlong ptr) {
     }
 }
 
+static jint GetPartNumNative(JNIEnv *env, jobject thiz, jlong ptr) {
+    return 0;
+}
+
 static JNINativeMethod gMethods[] = {
-        {"initNative",               "(Ljava/lang/String;ILjava/lang/String;ZI)J", (void *) InitNative},
-        {"writeNative",              "(JLjava/lang/String;)V",                     (void *) WriteNative},
-        {"asyncFlushNative",         "(J)V",                                       (void *) AsyncFlushNative},
-        {"changeLogPathNative",      "(JLjava/lang/String;)V",                     (void *) ChangeLogPathNative},
-        {"releaseNative",            "(J)V",                                       (void *) ReleaseNative},
-        {"isCurrentLogFileOversize", "(J)Z",                                       (void *) IsCurrentLogFileOversize}
+        {"initNative",              "(Ljava/lang/String;ILjava/lang/String;ZI)J", (void *) InitNative},
+        {"writeNative",             "(JLjava/lang/String;)V",                     (void *) WriteNative},
+        {"asyncFlushNative",        "(J)V",                                       (void *) AsyncFlushNative},
+        {"expLogFileNative",        "(JLjava/lang/String;I)V",                    (void *) ExpLogFile},
+        {"releaseNative",           "(J)V",                                       (void *) ReleaseNative},
+        {"isLogFileOverSizeNative", "(J)Z",                                       (void *) IsLogFileOverSizeNative},
+        {"getPartNumNative",        "(J)I",                                       (void *) GetPartNumNative}
 };
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {

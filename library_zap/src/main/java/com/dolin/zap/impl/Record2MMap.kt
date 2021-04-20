@@ -9,7 +9,7 @@ import com.dolin.zap.internal.IRecord
  */
 class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String, compress: Boolean, limitSize: Int) : IRecord {
 
-    //句柄
+    //buffer指针
     private var ptr = 0L
 
     init {
@@ -35,7 +35,7 @@ class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String
         if (ptr != 0L) {
             try {
                 Log.d("dolin_zap", "log path $logPath")
-                if (isCurrentLogFileOversize(ptr)) {
+                if (isLogFileOverSizeNative(ptr)) {
                     //新建文件扩展文件
 //                    changeLogPathNative()
                 }
@@ -46,10 +46,10 @@ class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String
         }
     }
 
-    override fun changeLogPath(path: String) {
+    override fun expLogFile(path: String, partNum: Int) {
         if (ptr != 0L) {
             try {
-                changeLogPathNative(ptr, path)
+                expLogFileNative(ptr, path, partNum)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -70,11 +70,13 @@ class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String
 
     private external fun asyncFlushNative(ptr: Long)
 
-    private external fun changeLogPathNative(ptr: Long, path: String)
+    private external fun expLogFileNative(ptr: Long, path: String, partNum: Int)
 
     private external fun releaseNative(ptr: Long)
 
-    private external fun isCurrentLogFileOversize(ptr: Long): Boolean
+    private external fun getPartNumNative(ptr: Long): Int
+
+    private external fun isLogFileOverSizeNative(ptr: Long): Boolean
 
     companion object {
         @JvmStatic

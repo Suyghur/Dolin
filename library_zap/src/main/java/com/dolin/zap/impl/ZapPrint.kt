@@ -3,7 +3,6 @@ package com.dolin.zap.impl
 import android.app.Application
 import android.text.TextUtils
 import android.util.Log
-import com.dolin.common.util.FileUtils
 import com.dolin.zap.entity.Config
 import com.dolin.zap.entity.Level
 import com.dolin.zap.entity.ZapData
@@ -11,7 +10,6 @@ import com.dolin.zap.format.DateFileFormatter
 import com.dolin.zap.internal.IPrint
 import com.dolin.zap.lifecycle.ZapLifecycle
 import com.dolin.zap.util.LogFileUtils
-import java.io.File
 import java.lang.reflect.Array
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,22 +22,23 @@ class ZapPrint : IPrint {
 
     private var hasInitialized: Boolean = false
     private var tag = ""
-    private var logDir = ""
+    private var logFolderDir = ""
     private var logcatLevel = Level.NONE
     private var recordLevel = Level.NONE
     private var record2MMap: Record2MMap? = null
     private var dateFileFormatter: DateFileFormatter = DateFileFormatter()
-
 
     fun initialize(application: Application, config: Config) {
         if (hasInitialized) {
             return
         }
 
-        this.logDir = if (TextUtils.isEmpty(config.logDir)) {
-            FileUtils.getLogDir(application)
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        this.logFolderDir = if (TextUtils.isEmpty(config.logFolderDir)) {
+            LogFileUtils.getLogFolderDir(application)
         } else {
-            config.logDir
+            config.logFolderDir
         }
 
         this.tag = if (TextUtils.isEmpty(config.tag)) {
@@ -47,17 +46,20 @@ class ZapPrint : IPrint {
         } else {
             config.tag
         }
+
         this.logcatLevel = config.logcatLevel
         this.recordLevel = config.recordLevel
 
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val bufferPath = "$logFolderDir/zap.cache"
+        val logPath = LogFileUtils.getLogDir(logFolderDir, date)
+
         if (config.recordEnable) {
-            record2MMap = Record2MMap(logDir, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable)
+            record2MMap = Record2MMap(bufferPath, logPath, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable)
             ZapLifecycle.registerZapLifeCallback(application, record2MMap!!)
         }
 
         Thread {
-            LogFileUtils.cleanOverdueLog(logDir, config.overdueDayMs)
+            LogFileUtils.cleanOverdueLog(logFolderDir, config.overdueDayMs)
         }.start()
     }
 

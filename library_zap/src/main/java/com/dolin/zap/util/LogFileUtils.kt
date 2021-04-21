@@ -1,5 +1,6 @@
 package com.dolin.zap.util
 
+import android.content.Context
 import java.io.File
 
 /**
@@ -27,6 +28,25 @@ object LogFileUtils {
         return System.currentTimeMillis() - file.lastModified() > overdueDayMs
     }
 
+    fun getLogFolderDir(context: Context): String {
+        var folder = context.getExternalFilesDir("dolin/zap")
+        if (folder == null) {
+            folder = File(context.filesDir, "dolin/zap")
+        }
+        if (!folder.exists()) {
+            folder.mkdirs()
+        }
+        return folder.absolutePath
+    }
+
+    fun getLogDir(folderDir: String, date: String): String {
+        val folder = File("$folderDir/$date")
+        if (!folder.exists()) {
+            folder.mkdirs()
+        }
+        return folder.absolutePath
+    }
+
     fun getLogFileNumByDate(folderPath: String, date: String): Int {
         var num = 0
         val folder = File(folderPath)
@@ -35,7 +55,7 @@ object LogFileUtils {
         }
         repeat(folder.walk().maxDepth(1)
                 .filter { it.isFile }
-                .filter { it.name.startsWith(date) }
+//                .filter { it.name.startsWith(date) }
                 .count()) {
             num++
         }

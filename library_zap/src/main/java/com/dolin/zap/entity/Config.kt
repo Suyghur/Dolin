@@ -6,7 +6,7 @@ package com.dolin.zap.entity
  */
 class Config private constructor(builder: Builder) {
 
-    var logDir = ""
+    var logFolderDir = ""
         private set
     var tag = ""
         private set
@@ -25,7 +25,7 @@ class Config private constructor(builder: Builder) {
 
 
     init {
-        this.logDir = builder.logDir
+        this.logFolderDir = builder.logDir
         this.tag = builder.tag
         this.logcatLevel = builder.logcatLevel
         this.recordLevel = builder.recordLevel
@@ -37,7 +37,7 @@ class Config private constructor(builder: Builder) {
 
     override fun toString(): String {
         return "Config{" +
-                "logDir='" + logDir + '\'' +
+                "logDir='" + logFolderDir + '\'' +
                 ", logcatLevel=" + logcatLevel +
                 ", recordLevel=" + recordLevel +
                 ", overdueDayMs=" + overdueDayMs +

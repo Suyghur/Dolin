@@ -1,9 +1,9 @@
 //
-// Created by #Suyghur, on 4/7/21.
+// Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_ZAP_BUFFER_HEADER_H
-#define DOLIN_ZAP_BUFFER_HEADER_H
+#ifndef DOLIN_COMMON_BUFFER_HEADER_H
+#define DOLIN_COMMON_BUFFER_HEADER_H
 
 #include <string>
 
@@ -45,6 +45,8 @@ namespace dolin_common {
 
         char *GetLogPath();
 
+        size_t GetLimitSize();
+
         bool IsCompress();
 
         bool IsAvailable();
@@ -58,4 +60,4 @@ namespace dolin_common {
 }
 
 
-#endif //DOLIN_ZAP_BUFFER_HEADER_H
+#endif //DOLIN_COMMON_BUFFER_HEADER_H

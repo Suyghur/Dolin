@@ -50,9 +50,9 @@ class ZapPrint : IPrint {
         this.logcatLevel = config.logcatLevel
         this.recordLevel = config.recordLevel
 
-        val logFileName = logDir + File.separator + SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) + ".zap"
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         if (config.recordEnable) {
-            record2MMap = Record2MMap("$logDir/zap.cache", 1024 * 400, logFileName, config.compressEnable, config.fileSizeLimitDayByte)
+            record2MMap = Record2MMap(logDir, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable)
             ZapLifecycle.registerZapLifeCallback(application, record2MMap!!)
         }
 

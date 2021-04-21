@@ -10,7 +10,7 @@ interface IRecord {
 
     fun asyncFlush()
 
-    fun expLogFile(path: String, partNum: Int)
+    fun expLogFile(path: String, limitSize: Int)
 
     fun release()
 }

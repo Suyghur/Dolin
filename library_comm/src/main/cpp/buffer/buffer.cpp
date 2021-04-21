@@ -11,7 +11,7 @@ Buffer::~Buffer() {
     Release();
 }
 
-void Buffer::InitData(char *log_path, size_t log_path_len, bool _compress, size_t _limit_size) {
+void Buffer::InitData(char *log_path, size_t log_path_len, size_t limit_size, bool _compress) {
     std::lock_guard<std::recursive_mutex> lck_release(log_mtx);
     memset(buffer_ptr, '\0', buffer_size);
 
@@ -20,12 +20,11 @@ void Buffer::InitData(char *log_path, size_t log_path_len, bool _compress, size_
     header.log_path_len = log_path_len;
     header.log_path = log_path;
     header.log_len = 0;
+    header.limit_size = limit_size;
     header.compress = _compress;
-    header.limit_size = _limit_size;
 
     buffer_header.InitHeader(header);
     InitCompress(_compress);
-    limit_size = _limit_size;
 
     data_ptr = (char *) buffer_header.GetDataPtr();
     write_ptr = (char *) buffer_header.GetWritePtr();
@@ -128,11 +127,12 @@ void Buffer::CallFileFlush(FileFlush *flush, Buffer *buffer) {
     }
 }
 
-void Buffer::ChangeLogPath(char *path) {
+void Buffer::ExpLogPath(char *path, size_t limit_size) {
     if (log_file_ptr != nullptr) {
         CallFileFlush();
     }
-    InitData(path, strlen(path), compress, limit_size);
+    InitData(path, strlen(path), limit_size, compress);
+
 }
 
 void Buffer::Clear() {
@@ -165,7 +165,7 @@ bool Buffer::OpenLogFile(const char *path) {
 }
 
 bool Buffer::IsCurrentLogFileOversize() {
-    return GetCurrentLogFileSize() >= buffer_header.GetHeader()->limit_size;
+    return GetCurrentLogFileSize() >= buffer_header.GetLimitSize();
 }
 
 size_t Buffer::GetCurrentLogFileSize() {

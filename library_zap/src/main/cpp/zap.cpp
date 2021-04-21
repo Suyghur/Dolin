@@ -1,5 +1,5 @@
 //
-// Created by #Suyghur, on 4/7/21.
+// Created by #Suyghur, on 2021/4/7.
 //
 #include <jni.h>
 #include <sys/stat.h>
@@ -50,8 +50,15 @@ static char *OpenMMap(int buffer_fd, size_t buffer_size) {
 }
 
 
-static jlong InitNative(JNIEnv *env, jclass thiz, jstring buffer_path, jint capacity,
-                        jstring log_path, jboolean compress, jint limit_size) {
+static jlong InitNative(JNIEnv *env, jclass thiz, jstring buffer_path, jstring log_path, jint capacity, jint limit_size, jboolean compress) {
+//    const char *_folder_path = env->GetStringUTFChars(folder_path, JNI_FALSE);
+//    const char *_log_date = env->GetStringUTFChars(log_date, JNI_FALSE);
+//    size_t folder_path_len = strlen(_folder_path);
+//    size_t log_date_len = strlen(_log_date);
+
+//    char *buffer_path = (char *) malloc(folder_path_len + 10);
+//    sprintf(buffer_path, "%s%s", _folder_path, "/zap.cache");
+
     const char *_buffer_path = env->GetStringUTFChars(buffer_path, JNI_FALSE);
     const char *_log_path = env->GetStringUTFChars(log_path, JNI_FALSE);
     auto buffer_size = static_cast<size_t>(capacity);
@@ -74,7 +81,7 @@ static jlong InitNative(JNIEnv *env, jclass thiz, jstring buffer_path, jint capa
     auto *buffer = new Buffer(buffer_ptr, buffer_size);
     buffer->CallFileFlush(pFileFlush);
     //将 buffer 中的数据清空，并写入日志文件信息
-    buffer->InitData((char *) _log_path, strlen(_log_path), compress, limit_size);
+    buffer->InitData((char *) _log_path, strlen(_log_path),  limit_size, compress);
     buffer->map_buffer = map_buffer;
 
     env->ReleaseStringUTFChars(buffer_path, _buffer_path);
@@ -103,10 +110,10 @@ static void AsyncFlushNative(JNIEnv *env, jobject thiz, jlong ptr) {
     }
 }
 
-static void ExpLogFile(JNIEnv *env, jobject thiz, jlong ptr, jstring path, jint part_num) {
+static void ExpLogFileNative(JNIEnv *env, jobject thiz, jlong ptr, jstring path,  jint limit_size) {
     const char *log_path = env->GetStringUTFChars(path, JNI_FALSE);
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
-    buffer->ChangeLogPath(const_cast<charf *>(log_path));
+    buffer->ExpLogPath(const_cast<charf *>(log_path), limit_size);
     env->ReleaseStringUTFChars(path, log_path);
 }
 
@@ -122,28 +129,16 @@ static void ReleaseNative(JNIEnv *env, jobject thiz, jlong ptr) {
 
 static jboolean IsLogFileOverSizeNative(JNIEnv *env, jobject thiz, jlong ptr) {
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
-    if (buffer->IsCurrentLogFileOversize()) {
-        LOGD("JNI -> oversize");
-        return JNI_TRUE;
-    } else {
-        LOGD("JNI -> not oversize");
-        return JNI_FALSE;
-    }
-}
-
-static jint GetPartNumNative(JNIEnv *env, jobject thiz, jlong ptr) {
-    return 0;
+    return buffer->IsCurrentLogFileOversize() ? JNI_TRUE : JNI_FALSE;
 }
 
 static JNINativeMethod gMethods[] = {
-        {"initNative",              "(Ljava/lang/String;ILjava/lang/String;ZI)J", (void *) InitNative},
+        {"initNative",              "(Ljava/lang/String;Ljava/lang/String;IIZ)J", (void *) InitNative},
         {"writeNative",             "(JLjava/lang/String;)V",                     (void *) WriteNative},
         {"asyncFlushNative",        "(J)V",                                       (void *) AsyncFlushNative},
-        {"expLogFileNative",        "(JLjava/lang/String;I)V",                    (void *) ExpLogFile},
+        {"expLogFileNative",        "(JLjava/lang/String;I)V",                   (void *) ExpLogFileNative},
         {"releaseNative",           "(J)V",                                       (void *) ReleaseNative},
-        {"isLogFileOverSizeNative", "(J)Z",                                       (void *) IsLogFileOverSizeNative},
-        {"getPartNumNative",        "(J)I",                                       (void *) GetPartNumNative}
-};
+        {"isLogFileOverSizeNative", "(J)Z",                                       (void *) IsLogFileOverSizeNative}};
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env = nullptr;

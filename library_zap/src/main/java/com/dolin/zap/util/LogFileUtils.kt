@@ -1,6 +1,5 @@
 package com.dolin.zap.util
 
-import android.content.Context
 import java.io.File
 
 /**
@@ -9,8 +8,8 @@ import java.io.File
  */
 object LogFileUtils {
 
-    fun cleanOverdueLog( logFolderPath: String, overdueDayMs: Long) {
-        val folder = File(logFolderPath)
+    fun cleanOverdueLog(folderPath: String, overdueDayMs: Long) {
+        val folder = File(folderPath)
         if (!folder.exists()) {
             return
         }
@@ -26,5 +25,20 @@ object LogFileUtils {
 
     private fun isFileOverdue(file: File, overdueDayMs: Long): Boolean {
         return System.currentTimeMillis() - file.lastModified() > overdueDayMs
+    }
+
+    fun getLogFileNumByDate(folderPath: String, date: String): Int {
+        var num = 0
+        val folder = File(folderPath)
+        if (!folder.exists()) {
+            return num
+        }
+        repeat(folder.walk().maxDepth(1)
+                .filter { it.isFile }
+                .filter { it.name.startsWith(date) }
+                .count()) {
+            num++
+        }
+        return num
     }
 }

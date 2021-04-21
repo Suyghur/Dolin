@@ -1,9 +1,9 @@
 //
-// Created by #Suyghur, on 4/7/21.
+// Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_ZAP_BUFFER_H
-#define DOLIN_ZAP_BUFFER_H
+#ifndef DOLIN_COMMON_BUFFER_H
+#define DOLIN_COMMON_BUFFER_H
 
 #include <string>
 #include <mutex>
@@ -23,7 +23,7 @@ public:
 
     ~Buffer();
 
-    void InitData(char *log_path, size_t log_path_len, bool _compress, size_t _limit_size);
+    void InitData(char *log_path, size_t log_path_len, size_t limit_size, bool _compress);
 
     size_t GetLength();
 
@@ -43,7 +43,7 @@ public:
 
     void CallFileFlush(FileFlush *flush, Buffer *buffer);
 
-    void ChangeLogPath(char *path);
+    void ExpLogPath(char *path, size_t limit_size);
 
     bool IsCurrentLogFileOversize();
 
@@ -59,8 +59,9 @@ private:
 
     BufferHeader buffer_header;
     z_stream zStream{};
+//    size_t part_num = 1;
+//    size_t limit_size = 0;
     bool compress = false;
-    size_t limit_size = 0;
 
     void Clear();
 
@@ -75,4 +76,4 @@ private:
 };
 
 
-#endif //DOLIN_ZAP_BUFFER_H
+#endif //DOLIN_COMMON_BUFFER_H

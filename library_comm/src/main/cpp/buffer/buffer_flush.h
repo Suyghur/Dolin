@@ -1,9 +1,9 @@
 //
-// Created by #Suyghur, on 4/7/21.
+// Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_ZAP_BUFFER_FLUSH_H
-#define DOLIN_ZAP_BUFFER_FLUSH_H
+#ifndef DOLIN_COMMON_BUFFER_FLUSH_H
+#define DOLIN_COMMON_BUFFER_FLUSH_H
 
 
 #include <cstdio>
@@ -38,4 +38,4 @@ private:
 };
 
 
-#endif //DOLIN_ZAP_BUFFER_FLUSH_H
+#endif //DOLIN_COMMON_BUFFER_FLUSH_H

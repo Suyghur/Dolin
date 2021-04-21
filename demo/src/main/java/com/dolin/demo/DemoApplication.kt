@@ -30,6 +30,7 @@ class DemoApplication : Application() {
                 //缓存文件的过期时间
                 .setOverdueDay(3)
                 .setFileSizeLimitDay(1)
+                .setRecordCompressEnable(false)
                 .create()
         Zap.initialize(this, config)
     }

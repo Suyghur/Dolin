@@ -1,21 +1,32 @@
 package com.dolin.zap.impl
 
-import android.util.Log
 import com.dolin.zap.internal.IRecord
+import com.dolin.zap.util.LogFileUtils
 
 /**
  * @author #Suyghur.
  * Created on 4/7/21
  */
-class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String, compress: Boolean, limitSize: Int) : IRecord {
+class Record2MMap(private val folderPath: String, private val logDate: String,
+                  capacity: Int, private val limitSize: Int, compress: Boolean) : IRecord {
 
     //buffer指针
     private var ptr = 0L
+    private var bufferPath: String
+    private var logPath: String
+    private var num = 1
 
     init {
         System.loadLibrary("dolin-zap")
+        num = LogFileUtils.getLogFileNumByDate(folderPath, logDate)
+        bufferPath = "$folderPath/zap.cache"
+        logPath = if (num > 1) {
+            "$folderPath/$logDate/$logDate-p$num.zap"
+        } else {
+            "$folderPath/$logDate/$logDate.zap"
+        }
         try {
-            ptr = initNative(bufferPath, capacity, logPath, compress, limitSize)
+            ptr = initNative(bufferPath, logPath, capacity, limitSize, compress)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -34,10 +45,10 @@ class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String
     override fun asyncFlush() {
         if (ptr != 0L) {
             try {
-                Log.d("dolin_zap", "log path $logPath")
+                //自动扩容
                 if (isLogFileOverSizeNative(ptr)) {
-                    //新建文件扩展文件
-//                    changeLogPathNative()
+                    logPath = "$folderPath/$logDate/$logDate-p${num + 1}.zap"
+                    expLogFileNative(ptr, logPath, limitSize)
                 }
                 asyncFlushNative(ptr)
             } catch (e: Exception) {
@@ -46,10 +57,10 @@ class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String
         }
     }
 
-    override fun expLogFile(path: String, partNum: Int) {
+    override fun expLogFile(path: String, limitSize: Int) {
         if (ptr != 0L) {
             try {
-                expLogFileNative(ptr, path, partNum)
+                expLogFileNative(ptr, path, limitSize)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -70,16 +81,14 @@ class Record2MMap(bufferPath: String, capacity: Int, private val logPath: String
 
     private external fun asyncFlushNative(ptr: Long)
 
-    private external fun expLogFileNative(ptr: Long, path: String, partNum: Int)
+    private external fun expLogFileNative(ptr: Long, path: String, limitSize: Int)
 
     private external fun releaseNative(ptr: Long)
-
-    private external fun getPartNumNative(ptr: Long): Int
 
     private external fun isLogFileOverSizeNative(ptr: Long): Boolean
 
     companion object {
         @JvmStatic
-        private external fun initNative(bufferPath: String, capacity: Int, logPath: String, compress: Boolean, limitSize: Int): Long
+        private external fun initNative(bufferPath: String, logPath: String, capacity: Int, limitSize: Int, compress: Boolean): Long
     }
 }

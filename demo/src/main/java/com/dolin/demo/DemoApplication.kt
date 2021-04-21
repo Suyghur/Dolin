@@ -29,7 +29,9 @@ class DemoApplication : Application() {
                 .setRecordCompressEnable(true)
                 //缓存文件的过期时间
                 .setOverdueDay(3)
-                .setFileSizeLimitDay(1)
+                //缓存文件大小限制，超过则会自动扩容新文件
+                .setFileSizeLimitDay(15)
+                //缓存文件内容是否压缩
                 .setRecordCompressEnable(false)
                 .create()
         Zap.initialize(this, config)

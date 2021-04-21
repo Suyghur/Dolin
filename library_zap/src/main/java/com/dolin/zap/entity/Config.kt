@@ -25,7 +25,7 @@ class Config private constructor(builder: Builder) {
 
 
     init {
-        this.logFolderDir = builder.logDir
+        this.logFolderDir = builder.folderDir
         this.tag = builder.tag
         this.logcatLevel = builder.logcatLevel
         this.recordLevel = builder.recordLevel
@@ -46,7 +46,7 @@ class Config private constructor(builder: Builder) {
     }
 
     class Builder {
-        internal var logDir = ""
+        internal var folderDir = ""
         internal var tag = ""
         internal var logcatLevel = Level.DEBUG
         internal var recordLevel = Level.DEBUG
@@ -58,12 +58,12 @@ class Config private constructor(builder: Builder) {
         /**
          * 日志存储路径，默认是应用的私有目录下dolin文件夹
          */
-        fun setLogDir(logDir: String): Builder {
-            this.logDir = logDir
+        fun setFolderDir(folderDir: String): Builder {
+            this.folderDir = folderDir
             return this
         }
 
-        fun setDefaultTag(tag: String): Builder {
+        fun setLogTag(tag: String): Builder {
             this.tag = tag
             return this
         }

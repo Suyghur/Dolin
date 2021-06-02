@@ -1,0 +1,82 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+def PUBLISH_GROUP_ID = "io.github.suyghur.dolin"
+def PUBLISH_ARTIFACT_ID = "zap"
+def PUBLISH_VERSION = "0.0.1"
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+def ossrhUsername = properties.getProperty("SonaType.user")
+def ossrhPassword = properties.getProperty("SonaType.pwd")
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('source')
+    if (project.plugins.findPlugin('com.android.library')) {
+        from android.sourceSets.main.java.srcDirs
+    } else {
+        form sourceSets.main.java.srcDirs
+    }
+}
+
+artifacts {
+    archives androidSourcesJar
+}
+
+signing {
+    required {
+        gradle.taskGraph.hasTask("uploadArchives")
+    }
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment {
+                MavenDeployment deployment -> signing.signPom(deployment)
+            }
+
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.groupId = PUBLISH_GROUP_ID
+            pom.artifactId = PUBLISH_ARTIFACT_ID
+            pom.version = PUBLISH_VERSION
+
+            pom.project {
+                name "${PUBLISH_GROUP_ID}:${PUBLISH_ARTIFACT_ID}"
+                packaging 'aar'
+                description 'a log framework of Android'
+                url 'https://github.com/Suyghur'
+
+                scm {
+                    connection 'scm:git:github.com/Suyghur/Dolin.git'
+                    developerConnection 'scm:git:ssh://github.com/Suyghur/Dolin.git'
+                    url 'https://github.com/Suyghur/Dolin'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'Suyghur'
+                        name 'Suyghur'
+                        email 'suyghurmjp@outlook.com'
+                    }
+                }
+            }
+        }
+    }
+}

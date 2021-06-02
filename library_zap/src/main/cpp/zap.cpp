@@ -9,7 +9,7 @@
 #include "third_part/buffer/buffer.h"
 #include "third_part/buffer/file_flush.h"
 #include "third_part/buffer/buffer_header.h"
-#include "third_part/buffer/common_log.h"
+#include "third_part/kit/common_log.h"
 
 static FileFlush *pFileFlush = nullptr;
 

@@ -59,7 +59,8 @@ private:
 
     BufferHeader buffer_header;
     z_stream zStream{};
-
+//    size_t part_num = 1;
+//    size_t limit_size = 0;
     bool compress = false;
 
     void Clear();

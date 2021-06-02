@@ -1,0 +1,17 @@
+def SDK_BASE_NAME = 'dolin_zap'
+def SDK_VERSION = '1.0.0'
+def SEPARATOR = '_'
+def SDK_DST_PATH = 'build/jar/'
+def ZIP_FILE = file('build/intermediates/aar_main_jar/release/classes.jar')
+
+task deleteBaseBuild(type: Delete) {
+    delete SDK_DST_PATH
+}
+
+task makeJar(type: Jar) {
+    from zipTree(ZIP_FILE)
+    baseName = SDK_BASE_NAME + SEPARATOR + SDK_VERSION
+    destinationDir = file(SDK_DST_PATH)
+}
+
+makeJar.dependsOn(deleteBaseBuild, build)

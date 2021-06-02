@@ -19,6 +19,7 @@ class ZapActivity : Activity(), View.OnClickListener {
             Item(1, "INFO日志"),
             Item(2, "WARNING日志"),
             Item(3, "ERROR日志"),
+            Item(4, "目录测试"),
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

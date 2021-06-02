@@ -3,7 +3,7 @@ buildscript {
 
     ext.COMM_LIB_DEV_ENABLE = true
     // 混淆开关
-    ext.MINIFY_ENABLE = false
+    ext.MINIFY_ENABLE = true
     // ndk版本
     ext.NDK_VERSION = '21.3.6528147'
     // kotlin版本

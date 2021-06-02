@@ -1,15 +1,13 @@
-package com.dolin.zap.entity
+package com.dolin.zap.entity;
 
 /**
  * @author #Suyghur.
- * Created on 4/7/21
+ * Created on 2021/05/19
  */
-enum class Level {
+public enum Level {
     NONE,
     DEBUG,
     INFO,
     WARNING,
     ERROR,
 }
-
-

@@ -25,9 +25,8 @@ import java.util.Locale;
 public class ZapPrint implements IPrint {
 
     private static final int MAX_LENGTH_OF_SINGLE_MESSAGE = 4063;
-    private boolean hasinitialized = false;
+    private boolean hasInitialized = false;
     private String tag = "";
-    private String logFolderDir = "";
     private Level logcatLevel = Level.DEBUG;
     private Level recordLevel = Level.DEBUG;
     private Record2MMap record2MMap = null;
@@ -49,15 +48,16 @@ public class ZapPrint implements IPrint {
     }
 
     public void initialize(final Application application, final Config config) {
-        if (hasinitialized) {
+        if (hasInitialized) {
             return;
         }
         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
+        String logFolderDir = "";
         if (TextUtils.isEmpty(config.logFolderDir)) {
-            this.logFolderDir = LogFileUtils.getLogFolderDir(application);
+            logFolderDir = LogFileUtils.getLogFolderDir(application);
         } else {
-            this.logFolderDir = config.logFolderDir;
+            logFolderDir = config.logFolderDir;
         }
 
         if (TextUtils.isEmpty(config.tag)) {
@@ -84,6 +84,7 @@ public class ZapPrint implements IPrint {
             }
         }).start();
 
+        hasInitialized = true;
     }
 
 

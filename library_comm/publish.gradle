@@ -2,7 +2,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 def PUBLISH_GROUP_ID = "io.github.suyghur.dolin"
-def PUBLISH_ARTIFACT_ID = "zap"
+def PUBLISH_ARTIFACT_ID = "comm"
 def PUBLISH_VERSION = "1.0.0"
 
 Properties properties = new Properties()

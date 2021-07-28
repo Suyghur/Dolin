@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.dolin.common.util.DeviceInfoUtils
+import com.dolin.comm.util.DeviceInfoUtils
 import com.dolin.zap.Zap
 import kotlin.system.exitProcess
 

@@ -20,6 +20,13 @@ android {
 
     ndkVersion NDK_VERSION
 
+    packagingOptions {
+        exclude 'lib/arm64-v8a/libdolin-comm.so'
+        exclude 'lib/armeabi-v7a/libdolin-comm.so'
+        exclude 'lib/x86/libdolin-comm.so'
+        exclude 'lib/x86_64/libdolin-comm.so'
+    }
+
     buildTypes {
         release {
             minifyEnabled MINIFY_ENABLE
@@ -50,20 +57,11 @@ android {
             path "CMakeLists.txt"
         }
     }
-
-//    sourceSets {
-//        main {
-//            // let gradle pack the shared library into apk
-//            jniLibs.srcDirs = ['src/main/jniLibs']
-//        }
-//    }
 }
 
 dependencies {
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
-//    implementation 'androidx.core:core-ktx:1.3.2'
-//    implementation project(':library_comm')
+    implementation project(':library_comm')
 }
 
-//apply from: 'publish.gradle'
+apply from: 'publish.gradle'
 apply from: 'buildJar.gradle'

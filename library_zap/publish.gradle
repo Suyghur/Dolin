@@ -1,9 +1,11 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-def PUBLISH_GROUP_ID = "io.github.suyghur.dolin"
-def PUBLISH_ARTIFACT_ID = "zap"
-def PUBLISH_VERSION = "1.0.0"
+ext {
+    PUBLISH_GROUP_ID = 'io.github.suyghur.dolin'
+    PUBLISH_ARTIFACT_ID = 'zap'
+    PUBLISH_VERSION = '1.0.1'
+}
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -18,65 +20,89 @@ task androidSourcesJar(type: Jar) {
     } else {
         form sourceSets.main.java.srcDirs
     }
+    exclude "**/R.class"
+    exclude "**/BuildConfig.class"
 }
 
-artifacts {
-    archives androidSourcesJar
-}
+publishing {
+    publications {
+        release(MavenPublication) {
+            // The coordinates of the library, being set from variables that
+            // we'll set up in a moment
+            groupId PUBLISH_GROUP_ID
+            artifactId PUBLISH_ARTIFACT_ID
+            version PUBLISH_VERSION
 
-signing {
-    required {
-        gradle.taskGraph.hasTask("uploadArchives")
-    }
-    sign configurations.archives
-}
+            // Two artifacts, the `aar` and the sources
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+            artifact androidSourcesJar
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment {
-                MavenDeployment deployment -> signing.signPom(deployment)
-            }
-
-            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.groupId = PUBLISH_GROUP_ID
-            pom.artifactId = PUBLISH_ARTIFACT_ID
-            pom.version = PUBLISH_VERSION
-
-            pom.project {
-                name "${PUBLISH_GROUP_ID}:${PUBLISH_ARTIFACT_ID}"
-                packaging 'aar'
-                description 'a log framework of Android'
-                url 'https://github.com/Suyghur'
-
-                scm {
-                    connection 'scm:git:github.com/Suyghur/Dolin.git'
-                    developerConnection 'scm:git:ssh://github.com/Suyghur/Dolin.git'
-                    url 'https://github.com/Suyghur/Dolin'
-                }
-
+            // Self-explanatory metadata for the most part
+            pom {
+                name = "${PUBLISH_GROUP_ID}:${PUBLISH_ARTIFACT_ID}"
+                description = 'a log framework of Android'
+                // If your project has a dedicated site, use its URL here
+                url = 'https://github.com/Suyghur/Dolin'
                 licenses {
                     license {
-                        name 'The Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        //协议类型，一般默认Apache License2.0的话不用改：
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
-
                 developers {
                     developer {
-                        id 'Suyghur'
-                        name 'Suyghur'
-                        email 'suyghurmjp@outlook.com'
+                        id = 'Suyghur'
+                        name = 'Suyghur'
+                        email = 'suyghurmjp@outlook.com'
+                    }
+                }
+                // Version control info, if you're using GitHub, follow the format as seen here
+                scm {
+                    //修改成你的Git地址：
+                    connection = 'scm:git:github.com/Suyghur/Dolin.git'
+                    developerConnection = 'scm:git:ssh://github.com/Suyghur/Dolin.git'
+                    //分支地址：
+                    url = 'https://github.com/Suyghur/Dolin'
+                }
+                // A slightly hacky fix so that your POM will include any transitive dependencies
+                // that your library builds upon
+                withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+
+                    project.configurations.implementation.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
                     }
                 }
             }
         }
     }
+    repositories {
+        // The repository to publish to, Sonatype/MavenCentral
+        maven {
+            // This is an arbitrary name, you may also use "mavencentral" or
+            // any other name that's descriptive for you
+            name = "mavencentral"
+
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            // You only need this if you want to publish snapshots, otherwise just set the URL
+            // to the release repo directly
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            // The username and password we've fetched earlier
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
 }
+signing {
+    sign publishing.publications
+}
+
+publishReleasePublicationToMavencentralRepository.dependsOn(assemble)

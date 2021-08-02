@@ -1,6 +1,9 @@
 package com.dolin.comm.util;
 
 import android.content.Context;
+import android.provider.Settings;
+
+import com.dolin.comm.CommBridge;
 
 /**
  * @author #Suyghur.
@@ -9,19 +12,24 @@ import android.content.Context;
 public class DeviceInfoUtils {
 
     public static String getAndroidDeviceId(Context context) {
-        return "";
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
-    public static String getDeviceBrand() {
-        return "";
+
+    public static String getDeviceManufacturer(){
+        return CommBridge.nativeInvoke("GetDeviceManufacturer");
     }
 
-    public static String getModel() {
-        return "";
+    public static String getMobileBrand() {
+        return CommBridge.nativeInvoke("GetMobileBrand");
+    }
+
+    public static String getDeviceModel() {
+        return CommBridge.nativeInvoke("GetDeviceModel");
     }
 
     public static String getDeviceSoftWareVersion() {
-        return "";
+        return CommBridge.nativeInvoke("GetDeviceSoftwareVersion");
     }
 
     public static String getCpuCount() {
@@ -29,14 +37,14 @@ public class DeviceInfoUtils {
     }
 
     public static String getCpuAbi() {
-        return "";
+        return CommBridge.nativeInvoke("GetCpuAbi");
     }
 
     public static String getRAM() {
         return "";
     }
 
-    public static int getAvaliMem() {
+    public static int getAvailMem(Context context) {
         return 0;
     }
 }

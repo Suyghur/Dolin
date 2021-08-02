@@ -55,12 +55,10 @@ public class LogFileUtils {
 
     private static boolean isFileOverdue(File file, long overdueDayMs, SimpleDateFormat format) {
         String time = file.getName();
-        Log.d("dolin_zap", "time : " + time);
         try {
             Date date = format.parse(time);
             if (date != null) {
                 long ts = date.getTime();
-                Log.d("dolin_zap", "ts : " + ts);
                 return (System.currentTimeMillis() - ts) > overdueDayMs;
             }
         } catch (ParseException e) {

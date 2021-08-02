@@ -2,6 +2,7 @@ package com.dolin.demo
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.dolin.comm.util.DeviceInfoUtils
+import com.dolin.crashlytics.Crashlytics
 import com.dolin.zap.Zap
 import kotlin.system.exitProcess
 
@@ -21,8 +23,8 @@ class DemoActivity : Activity(), View.OnClickListener {
     private lateinit var textView: TextView
 
     private val events: MutableList<Item> = mutableListOf(
-            Item(0, "Zap日志测试"),
-            Item(1, "申请多个危险权限")
+        Item(0, "Zap日志测试"),
+        Item(1, "抛出一个Java层崩溃")
     )
 
 
@@ -51,29 +53,30 @@ class DemoActivity : Activity(), View.OnClickListener {
     private fun initDeviceInfo() {
         val sb = StringBuilder()
         sb.append("Android ID：").append(DeviceInfoUtils.getAndroidDeviceId(this)).append("\n")
-        sb.append("厂商：").append(DeviceInfoUtils.getDeviceBrand()).append("\n")
-        sb.append("型号：").append(DeviceInfoUtils.getModel()).append("\n")
+        sb.append("厂商：").append(DeviceInfoUtils.getMobileBrand()).append("\n")
+        sb.append("型号：").append(DeviceInfoUtils.getDeviceModel()).append("\n")
         sb.append("系统版本：").append(DeviceInfoUtils.getDeviceSoftWareVersion()).append("\n")
         sb.append("cpu核数：").append(DeviceInfoUtils.getCpuCount()).append("\n")
-        sb.append("cpu架构：").append(DeviceInfoUtils.getCpuABI()).append("\n")
+        sb.append("cpu架构：").append(DeviceInfoUtils.getCpuAbi()).append("\n")
         sb.append("本机内存：").append(DeviceInfoUtils.getRAM()).append("\n")
-        sb.append("本机剩余内存：").append(DeviceInfoUtils.getAvailMem(this)).append("M")
+        sb.append("本机剩余内存：").append(DeviceInfoUtils.getAvailMem(this)).append("M\n")
+        sb.append("系统SDK版本：${Build.VERSION.SDK_INT}")
         textView.text = sb.toString()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             AlertDialog.Builder(this)
-                    .setTitle("退出应用")
-                    .setCancelable(false)
-                    .setMessage("是否退出")
-                    .setPositiveButton("确认") { dialog, _ ->
-                        dialog?.dismiss()
-                        finish()
-                    }
-                    .setNegativeButton("取消") { dialog, _ ->
-                        dialog?.dismiss()
-                    }.show()
+                .setTitle("退出应用")
+                .setCancelable(false)
+                .setMessage("是否退出")
+                .setPositiveButton("确认") { dialog, _ ->
+                    dialog?.dismiss()
+                    finish()
+                }
+                .setNegativeButton("取消") { dialog, _ ->
+                    dialog?.dismiss()
+                }.show()
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -89,6 +92,7 @@ class DemoActivity : Activity(), View.OnClickListener {
         v?.apply {
             when (tag as Int) {
                 0 -> ZapActivity.start(this@DemoActivity)
+                1 -> Crashlytics.getInstance().testJavaCrash(false)
             }
         }
     }

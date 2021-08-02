@@ -3,7 +3,6 @@
 //
 
 #include "buffer_header.h"
-#include "../kit/common_log.h"
 
 dolin_common::BufferHeader::BufferHeader(void *data, size_t size) : data_ptr((char *) data), data_size(size) {}
 
@@ -76,13 +75,6 @@ dolin_common::Header *dolin_common::BufferHeader::GetHeader() {
 
         char compress = (data_ptr + sizeof(char) + sizeof(size_t) + sizeof(size_t) + log_path_len + sizeof(size_t))[0];
         header->compress = compress == 1;
-
-
-        LOGD("JNI-> log_len : %d", log_len);
-        LOGD("JNI-> log_path_len : %d", log_path_len);
-        LOGD("JNI-> log_path : %s", log_path);
-        LOGD("JNI-> limit_size : %d", limit_size);
-        LOGD("JNI-> compress : %c", compress);
     }
     return header;
 }

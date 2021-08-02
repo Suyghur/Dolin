@@ -14,10 +14,10 @@ cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../soLibs/comm/${ANDROID_ABI})
 
 include_directories(src/main/cpp/buffer)
-include_directories(src/main/cpp/kit)
+include_directories(src/main/cpp/kits)
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
 aux_source_directory(src/main/cpp/buffer DIR_SOURCE_BUFFER)
-aux_source_directory(src/main/cpp/kit DIR_SOURCE_KIT)
+aux_source_directory(src/main/cpp/kits DIR_SOURCE_KIT)
 add_library(
         dolin-comm
         SHARED

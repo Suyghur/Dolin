@@ -1,24 +1,26 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
-    // demo远程依赖
-    ext.REMOTE_LIBRARY = false
-    // 发布开关
-    ext.PUBLISH_ENABLE = true
-    // 混淆开关
-    ext.MINIFY_ENABLE = true
-    // ndk版本
-    ext.NDK_VERSION = '21.4.7075529'
-    // kotlin版本
-    ext.KOTLIN_VERSION = '1.4.20'
-    // compileSdkVersion
-    ext.COMPILE_SDK_VERSION = 30
-    // buildToolsVersion
-    ext.BUILD_TOOLS_VERSION = '30.0.3'
-    // minSdkVersion
-    ext.MIN_SDK_VERSION = 16
-    // targetSdkVersion
-    ext.TARGET_SDK_VERSION = 30
+    ext {
+        // demo远程依赖
+        REMOTE_LIBRARY = false
+        // 发布开关
+        PUBLISH_ENABLE = false
+        // 混淆开关
+        MINIFY_ENABLE = true
+        // ndk版本
+        NDK_VERSION = '21.4.7075529'
+        // kotlin版本
+        KOTLIN_VERSION = '1.5.21'
+        // compileSdkVersion
+        COMPILE_SDK_VERSION = 30
+        // buildToolsVersion
+        BUILD_TOOLS_VERSION = '30.0.3'
+        // minSdkVersion
+        MIN_SDK_VERSION = 16
+        // targetSdkVersion
+        TARGET_SDK_VERSION = 30
+    }
 
     repositories {
         google()

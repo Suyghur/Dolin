@@ -3,7 +3,6 @@
 //
 
 #include "buffer.h"
-#include "../kit/common_log.h"
 
 Buffer::Buffer(char *ptr, size_t buffer_size) : buffer_ptr(ptr), buffer_size(buffer_size), buffer_header(buffer_ptr, buffer_size) {}
 

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.dolin.crashlytics.handler.JavaCrashHandler;
+import com.dolin.crashlytics.internal.ICrashHandler;
 
 /**
  * @author #Suyghur.
@@ -19,8 +20,8 @@ public class Crashlytics {
         return CrashlyticsHolder.INSTANCE;
     }
 
-    public void initialize(Application application) {
-        JavaCrashHandler.getInstance().initialize(application,false,null);
+    public void initialize(Application application, ICrashHandler callback) {
+        JavaCrashHandler.getInstance().initialize(application,callback);
     }
 
     public void testJavaCrash(boolean runInNewThread) throws RuntimeException {

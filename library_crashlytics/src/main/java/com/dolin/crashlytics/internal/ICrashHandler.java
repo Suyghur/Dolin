@@ -6,5 +6,5 @@ package com.dolin.crashlytics.internal;
  */
 public interface ICrashHandler {
 
-    void onCrash();
+    void onCrash(String logPath,String stackInfo);
 }

@@ -15,7 +15,9 @@ class DemoApplication : Application() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        Crashlytics.getInstance().initialize(this)
+        Crashlytics.getInstance().initialize(this) { logPath, stackInfo ->
+            //TODO 发生会崩时回调，进行网络请求，上报崩溃日志
+        }
     }
 
     override fun onCreate() {

@@ -30,7 +30,7 @@ class DemoApplication : Application() {
             //缓存日志最低等级
             .setRecordLevel(Level.DEBUG)
             //是否开启压缩缓存日志内容
-            .setCompressEnable(true)
+            .setCompressEnable(false)
             //缓存文件的过期时间
             .setOverdueDay(3)
             //缓存文件大小限制，超过则会自动扩容新文件

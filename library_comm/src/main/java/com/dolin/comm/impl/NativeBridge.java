@@ -1,10 +1,10 @@
-package com.dolin.comm;
+package com.dolin.comm.impl;
 
 /**
  * @author #Suyghur.
  * Created on 2021/07/28
  */
-public class CommBridge {
+public class NativeBridge {
 
     static {
         System.loadLibrary("dolin-comm");

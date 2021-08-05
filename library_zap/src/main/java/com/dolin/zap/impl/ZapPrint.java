@@ -4,6 +4,7 @@ import android.app.Application;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.dolin.comm.impl.R4LogHandler;
 import com.dolin.zap.entity.Config;
 import com.dolin.zap.entity.Level;
 import com.dolin.zap.entity.ZapData;
@@ -29,7 +30,7 @@ public class ZapPrint implements IPrint {
     private String tag = "";
     private Level logcatLevel = Level.DEBUG;
     private Level recordLevel = Level.DEBUG;
-    private Record2MMap record2MMap = null;
+    private R4LogHandler r4logHandler = null;
     private DateFileFormatter dateFileFormatter = null;
 
     private ZapPrint() {
@@ -73,8 +74,8 @@ public class ZapPrint implements IPrint {
         String logPath = LogFileUtils.getLogDir(logFolderDir, date);
 
         if (config.recordEnable) {
-            record2MMap = new Record2MMap(bufferPath, logPath, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable);
-            ZapLifecycle.getInstance().registerZapLifeCallback(application, record2MMap);
+            r4logHandler = new R4LogHandler(bufferPath, logPath, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable);
+            ZapLifecycle.getInstance().registerZapLifeCallback(application, r4logHandler);
         }
 
         new Thread(new Runnable() {
@@ -204,16 +205,16 @@ public class ZapPrint implements IPrint {
     }
 
     private void doRecord(ZapData data) {
-        if (record2MMap != null) {
-            record2MMap.write(dateFileFormatter.format(data.level, data.tag, data.msg));
+        if (r4logHandler != null) {
+            r4logHandler.write(dateFileFormatter.format(data.level, data.tag, data.msg));
         }
     }
 
     public void recycle() {
-        if (record2MMap != null) {
+        if (r4logHandler != null) {
             ZapLifecycle.getInstance().unregisterZapLifeCallback();
-            record2MMap.asyncFlush();
-            record2MMap.release();
+            r4logHandler.asyncFlush();
+            r4logHandler.release();
         }
     }
 

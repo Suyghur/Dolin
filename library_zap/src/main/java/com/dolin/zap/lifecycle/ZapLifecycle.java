@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
-import com.dolin.zap.impl.Record2MMap;
+import com.dolin.comm.impl.R4LogHandler;
 
 /**
  * @author #Suyghur.
@@ -15,7 +15,7 @@ public class ZapLifecycle {
     private static volatile ZapLifecycle mInstance = null;
 
     private Application application = null;
-    private Record2MMap record2MMap = null;
+    private R4LogHandler r4LogHandler = null;
 
 
     private final Application.ActivityLifecycleCallbacks callback = new Application.ActivityLifecycleCallbacks() {
@@ -36,8 +36,8 @@ public class ZapLifecycle {
 
         @Override
         public void onActivityPaused(Activity activity) {
-            if (record2MMap != null) {
-                record2MMap.asyncFlush();
+            if (r4LogHandler != null) {
+                r4LogHandler.asyncFlush();
             }
         }
 
@@ -73,9 +73,9 @@ public class ZapLifecycle {
         return mInstance;
     }
 
-    public void registerZapLifeCallback(Application application, Record2MMap record2MMap) {
+    public void registerZapLifeCallback(Application application, R4LogHandler r4LogHandler) {
         this.application = application;
-        this.record2MMap = record2MMap;
+        this.r4LogHandler = r4LogHandler;
         application.registerActivityLifecycleCallbacks(callback);
     }
 
@@ -84,8 +84,8 @@ public class ZapLifecycle {
             application.unregisterActivityLifecycleCallbacks(callback);
             this.application = null;
         }
-        if (record2MMap != null) {
-            this.record2MMap = null;
+        if (r4LogHandler != null) {
+            this.r4LogHandler = null;
         }
     }
 }

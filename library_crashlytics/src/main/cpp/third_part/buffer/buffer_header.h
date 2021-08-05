@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace dolin_common {
+namespace dolin_r4log {
     static const char kMagicHeader = '\x11';
 
     struct Header {

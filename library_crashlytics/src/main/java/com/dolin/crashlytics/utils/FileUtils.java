@@ -1,6 +1,9 @@
 package com.dolin.crashlytics.utils;
 
+import android.content.Context;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 
 /**
@@ -8,6 +11,26 @@ import java.io.FileReader;
  * Created on 2021/08/02
  */
 public class FileUtils {
+
+    public static String getLogFolderDir(Context context) {
+        File folder = context.getExternalFilesDir("dolin/crashlytics");
+        if (folder == null) {
+            folder = new File(context.getFilesDir(), "dolin/crashlytics");
+        }
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        return folder.getAbsolutePath();
+    }
+
+    public static String getLogDir(String folderPath, String date) {
+        File folder = new File(folderPath + File.separator + date);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        return folder.getAbsolutePath();
+    }
+
 
     public static String getFileContent(String pathName, int limit) {
         StringBuilder sb = new StringBuilder();

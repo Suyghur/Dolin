@@ -12,7 +12,7 @@
 #include "buffer_header.h"
 #include "file_flush.h"
 
-using namespace dolin_common;
+using namespace dolin_r4log;
 
 class Buffer {
 public:

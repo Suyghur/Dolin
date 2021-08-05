@@ -2,8 +2,8 @@
 // Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_COMMON_FILE_FLUSH_H
-#define DOLIN_COMMON_FILE_FLUSH_H
+#ifndef DOLIN_FILE_FLUSH_H
+#define DOLIN_FILE_FLUSH_H
 
 
 #include "buffer_flush.h"
@@ -33,4 +33,4 @@ private:
 };
 
 
-#endif //DOLIN_COMMON_FILE_FLUSH_H
+#endif //DOLIN_FILE_FLUSH_H

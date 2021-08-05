@@ -4,11 +4,11 @@
 
 #include "buffer_header.h"
 
-dolin_common::BufferHeader::BufferHeader(void *data, size_t size) : data_ptr((char *) data), data_size(size) {}
+dolin_r4log::BufferHeader::BufferHeader(void *data, size_t size) : data_ptr((char *) data), data_size(size) {}
 
-dolin_common::BufferHeader::~BufferHeader() = default;
+dolin_r4log::BufferHeader::~BufferHeader() = default;
 
-void dolin_common::BufferHeader::InitHeader(dolin_common::Header &header) {
+void dolin_r4log::BufferHeader::InitHeader(dolin_r4log::Header &header) {
     if ((sizeof(char) + sizeof(size_t) + sizeof(size_t) + header.log_path_len) > data_size) {
         return;
     }
@@ -33,25 +33,25 @@ void dolin_common::BufferHeader::InitHeader(dolin_common::Header &header) {
 /**
  * 获取原始头（不加长度）
  */
-void *dolin_common::BufferHeader::GetOriginPtr() {
+void *dolin_r4log::BufferHeader::GetOriginPtr() {
     return data_ptr;
 }
 
 /**
  * 获取头部信息（包含头信息长度）
  */
-void *dolin_common::BufferHeader::GetDataPtr() {
+void *dolin_r4log::BufferHeader::GetDataPtr() {
     return data_ptr + GetHeaderLen();
 }
 
 /**
  * 获取写入信息（包含头信息长度和日志长度）
  */
-void *dolin_common::BufferHeader::GetWritePtr() {
+void *dolin_r4log::BufferHeader::GetWritePtr() {
     return data_ptr + GetHeaderLen() + GetLogLen();
 }
 
-dolin_common::Header *dolin_common::BufferHeader::GetHeader() {
+dolin_r4log::Header *dolin_r4log::BufferHeader::GetHeader() {
     auto *header = new Header();
     if (IsAvailable()) {
         header->magic = kMagicHeader;
@@ -79,20 +79,20 @@ dolin_common::Header *dolin_common::BufferHeader::GetHeader() {
     return header;
 }
 
-size_t dolin_common::BufferHeader::GetHeaderLen() {
+size_t dolin_r4log::BufferHeader::GetHeaderLen() {
     if (IsAvailable()) {
         return CalculateHeaderLen(GetLogPathLen());
     }
     return 0;
 }
 
-void dolin_common::BufferHeader::SetLogLen(size_t len) {
+void dolin_r4log::BufferHeader::SetLogLen(size_t len) {
     if (IsAvailable()) {
         memcpy(data_ptr + sizeof(char), &len, sizeof(size_t));
     }
 }
 
-size_t dolin_common::BufferHeader::GetLogLen() {
+size_t dolin_r4log::BufferHeader::GetLogLen() {
     if (IsAvailable()) {
         size_t len = 0;
         memcpy(&len, data_ptr + sizeof(char), sizeof(size_t));
@@ -104,7 +104,7 @@ size_t dolin_common::BufferHeader::GetLogLen() {
     return 0;
 }
 
-size_t dolin_common::BufferHeader::GetLogPathLen() {
+size_t dolin_r4log::BufferHeader::GetLogPathLen() {
     if (IsAvailable()) {
         size_t len = 0;
         memcpy(&len, data_ptr + sizeof(char) + sizeof(size_t), sizeof(size_t));
@@ -116,7 +116,7 @@ size_t dolin_common::BufferHeader::GetLogPathLen() {
     return 0;
 }
 
-char *dolin_common::BufferHeader::GetLogPath() {
+char *dolin_r4log::BufferHeader::GetLogPath() {
     if (IsAvailable()) {
         size_t log_path_len = GetLogPathLen();
         if (log_path_len > 0) {
@@ -130,7 +130,7 @@ char *dolin_common::BufferHeader::GetLogPath() {
 }
 
 
-size_t dolin_common::BufferHeader::GetLimitSize() {
+size_t dolin_r4log::BufferHeader::GetLimitSize() {
     size_t size = 0;
     if (IsAvailable()) {
         memcpy(&size, data_ptr + sizeof(char) + sizeof(size_t) + sizeof(size_t) + GetLogPathLen(), sizeof(size_t));
@@ -139,18 +139,18 @@ size_t dolin_common::BufferHeader::GetLimitSize() {
 }
 
 
-bool dolin_common::BufferHeader::IsCompress() {
+bool dolin_r4log::BufferHeader::IsCompress() {
     if (IsAvailable()) {
         return ((data_ptr + sizeof(char) + sizeof(size_t) + sizeof(size_t) + GetLogPathLen() + sizeof(size_t))[0]) == 1;
     }
     return false;
 }
 
-bool dolin_common::BufferHeader::IsAvailable() {
+bool dolin_r4log::BufferHeader::IsAvailable() {
     return data_ptr[0] == kMagicHeader;
 }
 
-size_t dolin_common::BufferHeader::CalculateHeaderLen(size_t path_len) {
+size_t dolin_r4log::BufferHeader::CalculateHeaderLen(size_t path_len) {
     return sizeof(char) + sizeof(size_t) + sizeof(size_t) + path_len + sizeof(size_t) + sizeof(char);
 }
 

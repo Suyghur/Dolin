@@ -10,6 +10,8 @@ public class NativeBridge {
         System.loadLibrary("dolin-crashlytics");
     }
 
+    private long ptr = 0L;
+
     private NativeBridge() {
 
     }
@@ -18,6 +20,15 @@ public class NativeBridge {
     public static NativeBridge getBridge() {
         return NativeBridgeHolder.INSTANCE;
     }
+
+    public void init(String bufferPath, String logFilePath, int capacity, int limitSize, boolean compress) {
+        this.ptr = initNative(bufferPath, logFilePath, capacity, limitSize, compress);
+    }
+
+    public void write(String msg) {
+        writeNative(ptr, msg);
+    }
+
 
     private native long initNative(String bufferPath, String logFilePath, int capacity, int limitSize, boolean compress);
 

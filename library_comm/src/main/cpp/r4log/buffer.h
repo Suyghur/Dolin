@@ -2,8 +2,9 @@
 // Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_COMMON_BUFFER_H
-#define DOLIN_COMMON_BUFFER_H
+#ifndef DOLIN_BUFFER_H
+#define DOLIN_BUFFER_H
+
 
 #include <string>
 #include <mutex>
@@ -12,7 +13,7 @@
 #include "buffer_header.h"
 #include "file_flush.h"
 
-using namespace dolin_common;
+using namespace dolin_r4log;
 
 class Buffer {
 public:
@@ -76,4 +77,4 @@ private:
 };
 
 
-#endif //DOLIN_COMMON_BUFFER_H
+#endif //DOLIN_BUFFER_H

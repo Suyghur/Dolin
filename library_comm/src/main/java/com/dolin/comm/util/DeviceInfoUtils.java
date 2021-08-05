@@ -3,7 +3,7 @@ package com.dolin.comm.util;
 import android.content.Context;
 import android.provider.Settings;
 
-import com.dolin.comm.CommBridge;
+import com.dolin.comm.impl.NativeBridge;
 
 /**
  * @author #Suyghur.
@@ -17,19 +17,19 @@ public class DeviceInfoUtils {
 
 
     public static String getDeviceManufacturer(){
-        return CommBridge.nativeInvoke("GetDeviceManufacturer");
+        return NativeBridge.nativeInvoke("GetDeviceManufacturer");
     }
 
     public static String getMobileBrand() {
-        return CommBridge.nativeInvoke("GetMobileBrand");
+        return NativeBridge.nativeInvoke("GetMobileBrand");
     }
 
     public static String getDeviceModel() {
-        return CommBridge.nativeInvoke("GetDeviceModel");
+        return NativeBridge.nativeInvoke("GetDeviceModel");
     }
 
     public static String getDeviceSoftWareVersion() {
-        return CommBridge.nativeInvoke("GetDeviceSoftwareVersion");
+        return NativeBridge.nativeInvoke("GetDeviceSoftwareVersion");
     }
 
     public static String getCpuCount() {
@@ -37,7 +37,7 @@ public class DeviceInfoUtils {
     }
 
     public static String getCpuAbi() {
-        return CommBridge.nativeInvoke("GetCpuAbi");
+        return NativeBridge.nativeInvoke("GetCpuAbi");
     }
 
     public static String getRAM() {

@@ -32,6 +32,8 @@ class DemoActivity : Activity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         initView()
         initDeviceInfo()
+        Crashlytics.getInstance().setCustomKV("device_id", "my_device_id_123")
+        Crashlytics.getInstance().setCustomKV("user_id", "my_user_id_456")
     }
 
     private fun initView() {

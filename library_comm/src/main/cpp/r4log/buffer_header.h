@@ -2,12 +2,12 @@
 // Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_COMMON_BUFFER_HEADER_H
-#define DOLIN_COMMON_BUFFER_HEADER_H
+#ifndef DOLIN_BUFFER_HEADER_H
+#define DOLIN_BUFFER_HEADER_H
 
 #include <string>
 
-namespace dolin_common {
+namespace dolin_r4log {
     static const char kMagicHeader = '\x11';
 
     struct Header {
@@ -60,4 +60,4 @@ namespace dolin_common {
 }
 
 
-#endif //DOLIN_COMMON_BUFFER_HEADER_H
+#endif //DOLIN_BUFFER_HEADER_H

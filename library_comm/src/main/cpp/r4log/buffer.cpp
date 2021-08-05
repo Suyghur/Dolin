@@ -14,7 +14,7 @@ void Buffer::InitData(char *log_path, size_t log_path_len, size_t limit_size, bo
     std::lock_guard<std::recursive_mutex> lck_release(log_mtx);
     memset(buffer_ptr, '\0', buffer_size);
 
-    dolin_common::Header header{};
+    dolin_r4log::Header header{};
     header.magic = kMagicHeader;
     header.log_path_len = log_path_len;
     header.log_path = log_path;

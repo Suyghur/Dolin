@@ -13,17 +13,20 @@ cmake_minimum_required(VERSION 3.4.1)
 #设置库文件的输出目录
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../soLibs/comm/${ANDROID_ABI})
 
-include_directories(src/main/cpp/buffer)
-include_directories(src/main/cpp/kits)
-aux_source_directory(src/main/cpp/ DIR_SOURCE)
-aux_source_directory(src/main/cpp/buffer DIR_SOURCE_BUFFER)
-aux_source_directory(src/main/cpp/kits DIR_SOURCE_KIT)
+include_directories(src/main/cpp/r4log)
+include_directories(src/main/cpp/comm)
+#######################################
+# libdolin-comm.so
+#######################################
+aux_source_directory(src/main/cpp/comm COMM_SRC)
+#aux_source_directory(src/main/cpp/ DIR_SOURCE)
+#aux_source_directory(src/main/cpp/buffer DIR_SOURCE_BUFFER)
+#aux_source_directory(src/main/cpp/comm DIR_SOURCE_KIT)
+
 add_library(
         dolin-comm
         SHARED
-        ${DIR_SOURCE}
-        ${DIR_SOURCE_BUFFER}
-        ${DIR_SOURCE_KIT}
+        ${COMM_SRC}
 )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -44,6 +47,27 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         dolin-comm
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib})
+
+
+#######################################
+# libdolin-comm.so
+#######################################
+aux_source_directory(src/main/cpp/r4log R4LOG_SRC)
+add_library(
+        dolin-r4log
+        SHARED
+        ${R4LOG_SRC}
+)
+
+# Specifies libraries CMake should link to your target library. You
+# can link multiple libraries, such as libraries you define in this
+# build script, prebuilt third-party libraries, or system libraries.
+
+target_link_libraries( # Specifies the target library.
+        dolin-r4log
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

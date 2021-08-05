@@ -1,7 +1,8 @@
-package com.dolin.zap.impl;
+package com.dolin.comm.impl;
 
-import com.dolin.zap.internal.IRecord;
-import com.dolin.zap.util.LogFileUtils;
+
+import com.dolin.comm.internal.IRecord;
+import com.dolin.comm.util.LogFileUtils;
 
 import java.io.File;
 
@@ -9,7 +10,7 @@ import java.io.File;
  * @author #Suyghur.
  * Created on 2021/05/19
  */
-public class Record2MMap implements IRecord {
+public class R4LogHandler implements IRecord {
 
     private long ptr = 0L;
     private String logPath = "";
@@ -19,10 +20,10 @@ public class Record2MMap implements IRecord {
     private int num = 1;
 
     static {
-        System.loadLibrary("dolin-zap");
+        System.loadLibrary("dolin-r4log");
     }
 
-    public Record2MMap(String bufferPath, String logPath, String logDate, int capacity, int limitSize, boolean compress) {
+    public R4LogHandler(String bufferPath, String logPath, String logDate, int capacity, int limitSize, boolean compress) {
         this.num = LogFileUtils.getLogFileNumByDate(logPath, logDate);
         this.logPath = logPath;
         this.logDate = logDate;
@@ -100,4 +101,5 @@ public class Record2MMap implements IRecord {
     private native void releaseNative(long ptr);
 
     private native boolean isLogFileOverSizeNative(long ptr);
+
 }

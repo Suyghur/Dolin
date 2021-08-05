@@ -3,7 +3,6 @@ package com.dolin.crashlytics;
 import android.app.Application;
 
 import com.dolin.crashlytics.handler.JavaCrashHandler;
-import com.dolin.crashlytics.impl.NativeBridge;
 import com.dolin.crashlytics.internal.ICrashHandler;
 import com.dolin.crashlytics.utils.FileUtils;
 

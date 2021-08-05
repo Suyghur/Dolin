@@ -4,7 +4,6 @@ import android.app.Application;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.dolin.comm.impl.R4LogHandler;
 import com.dolin.zap.entity.Config;
 import com.dolin.zap.entity.Level;
 import com.dolin.zap.entity.ZapData;
@@ -27,10 +26,11 @@ public class ZapPrint implements IPrint {
 
     private static final int MAX_LENGTH_OF_SINGLE_MESSAGE = 4063;
     private boolean hasInitialized = false;
+    private boolean recordEnable = true;
     private String tag = "";
     private Level logcatLevel = Level.DEBUG;
     private Level recordLevel = Level.DEBUG;
-    private R4LogHandler r4logHandler = null;
+    //    private R4LogHandler r4logHandler = null;
     private DateFileFormatter dateFileFormatter = null;
 
     private ZapPrint() {
@@ -52,6 +52,11 @@ public class ZapPrint implements IPrint {
         if (hasInitialized) {
             return;
         }
+
+        this.logcatLevel = config.logcatLevel;
+        this.recordLevel = config.recordLevel;
+        this.recordEnable = config.recordEnable;
+
         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         String logFolderDir = "";
@@ -67,15 +72,12 @@ public class ZapPrint implements IPrint {
             this.tag = config.tag;
         }
 
-        this.logcatLevel = config.logcatLevel;
-        this.recordLevel = config.recordLevel;
-
         String bufferPath = logFolderDir + File.separator + "zap.cache";
         String logPath = LogFileUtils.getLogDir(logFolderDir, date);
 
-        if (config.recordEnable) {
-            r4logHandler = new R4LogHandler(bufferPath, logPath, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable);
-            ZapLifecycle.getInstance().registerZapLifeCallback(application, r4logHandler);
+        if (recordEnable) {
+            ZapRecord.getInstance().init(bufferPath, logPath, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable);
+            ZapLifecycle.getInstance().registerZapLifeCallback(application);
         }
 
         new Thread(new Runnable() {
@@ -205,17 +207,17 @@ public class ZapPrint implements IPrint {
     }
 
     private void doRecord(ZapData data) {
-        if (r4logHandler != null) {
-            r4logHandler.write(dateFileFormatter.format(data.level, data.tag, data.msg));
+        if (recordEnable) {
+            ZapRecord.getInstance().write(dateFileFormatter.format(data.level, data.tag, data.msg));
         }
     }
 
     public void recycle() {
-        if (r4logHandler != null) {
-            ZapLifecycle.getInstance().unregisterZapLifeCallback();
-            r4logHandler.asyncFlush();
-            r4logHandler.release();
+        ZapLifecycle.getInstance().unregisterZapLifeCallback();
+        if (recordEnable) {
+            ZapRecord.getInstance().asyncFlush();
         }
+        ZapRecord.getInstance().release();
     }
 
     private static final class ZapPrintHolder {

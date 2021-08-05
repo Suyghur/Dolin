@@ -78,4 +78,7 @@ dependencies {
     implementation project(':library_comm')
     implementation project(':library_zap')
     implementation project(':library_crashlytics')
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+
 }

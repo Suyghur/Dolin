@@ -1,105 +1,26 @@
 package com.dolin.comm.impl;
 
 
-import com.dolin.comm.internal.IRecord;
-import com.dolin.comm.util.LogFileUtils;
-
-import java.io.File;
-
 /**
  * @author #Suyghur.
  * Created on 2021/05/19
  */
-public class R4LogHandler implements IRecord {
-
-    private long ptr = 0L;
-    private String logPath = "";
-    private String logDate = "";
-    private String logFilePath = "";
-    private int limitSize = 0;
-    private int num = 1;
+public class R4LogHandler{
 
     static {
         System.loadLibrary("dolin-r4log");
     }
 
-    public R4LogHandler(String bufferPath, String logPath, String logDate, int capacity, int limitSize, boolean compress) {
-        this.num = LogFileUtils.getLogFileNumByDate(logPath, logDate);
-        this.logPath = logPath;
-        this.logDate = logDate;
-        this.limitSize = limitSize;
-        if (num > 1) {
-            this.logFilePath = logPath + File.separator + logDate + "-p" + num + ".zap";
-        } else {
-            this.logFilePath = logPath + File.separator + logDate + ".zap";
-        }
-        try {
-            this.ptr = initNative(bufferPath, logFilePath, capacity, limitSize, compress);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public native long initNative(String bufferPath, String logFilePath, int capacity, int limitSize, boolean compress);
 
-    @Override
-    public void write(String msg) {
-        if (ptr != 0L) {
-            try {
-                writeNative(ptr, msg);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public native void writeNative(long ptr, String msg);
 
-    @Override
-    public void asyncFlush() {
-        if (ptr != 0L) {
-            try {
-                //自动扩容
-                if (isLogFileOverSizeNative(ptr)) {
-                    this.num += 1;
-                    this.logFilePath = logPath + File.separator + logDate + "-p" + num + ".zap";
-                    expLogFileNative(ptr, logFilePath, limitSize);
-                }
-                asyncFlushNative(ptr);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public native void asyncFlushNative(long ptr);
 
-    @Override
-    public void expLogFile(String path, int limitSize) {
-        if (ptr != 0L) {
-            try {
-                expLogFileNative(ptr, path, limitSize);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public native void expLogFileNative(long ptr, String path, int limitSize);
 
-    @Override
-    public void release() {
-        if (ptr != 0L) {
-            try {
-                releaseNative(ptr);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public native void releaseNative(long ptr);
 
-    private static native long initNative(String bufferPath, String logFilePath, int capacity, int limitSize, boolean compress);
-
-    private native void writeNative(long ptr, String msg);
-
-    private native void asyncFlushNative(long ptr);
-
-    private native void expLogFileNative(long ptr, String path, int limitSize);
-
-    private native void releaseNative(long ptr);
-
-    private native boolean isLogFileOverSizeNative(long ptr);
+    public native boolean isLogFileOverSizeNative(long ptr);
 
 }

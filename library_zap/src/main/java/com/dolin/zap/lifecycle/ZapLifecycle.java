@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
-import com.dolin.comm.impl.R4LogHandler;
+import com.dolin.zap.impl.ZapRecord;
 
 /**
  * @author #Suyghur.
@@ -15,7 +15,6 @@ public class ZapLifecycle {
     private static volatile ZapLifecycle mInstance = null;
 
     private Application application = null;
-    private R4LogHandler r4LogHandler = null;
 
 
     private final Application.ActivityLifecycleCallbacks callback = new Application.ActivityLifecycleCallbacks() {
@@ -36,9 +35,7 @@ public class ZapLifecycle {
 
         @Override
         public void onActivityPaused(Activity activity) {
-            if (r4LogHandler != null) {
-                r4LogHandler.asyncFlush();
-            }
+            ZapRecord.getInstance().asyncFlush();
         }
 
         @Override
@@ -73,9 +70,8 @@ public class ZapLifecycle {
         return mInstance;
     }
 
-    public void registerZapLifeCallback(Application application, R4LogHandler r4LogHandler) {
+    public void registerZapLifeCallback(Application application) {
         this.application = application;
-        this.r4LogHandler = r4LogHandler;
         application.registerActivityLifecycleCallbacks(callback);
     }
 
@@ -83,9 +79,6 @@ public class ZapLifecycle {
         if (application != null) {
             application.unregisterActivityLifecycleCallbacks(callback);
             this.application = null;
-        }
-        if (r4LogHandler != null) {
-            this.r4LogHandler = null;
         }
     }
 }

@@ -5,7 +5,6 @@ import android.os.Process;
 import android.util.Log;
 
 import com.dolin.comm.util.AppInfoUtils;
-import com.dolin.crashlytics.impl.NativeBridge;
 import com.dolin.crashlytics.internal.ICrashHandler;
 import com.dolin.crashlytics.monitor.ActivityMonitor;
 import com.dolin.crashlytics.utils.LogUtils;

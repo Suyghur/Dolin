@@ -57,7 +57,7 @@ static char *OpenMMap(int buffer_fd, size_t buffer_size, FileFlush *fileFlush) {
     return map_ptr;
 }
 
-static jlong InitNative(JNIEnv *env, jclass thiz, jstring buffer_path, jstring log_path, jint capacity, jint limit_size, jboolean compress) {
+static jlong InitNative(JNIEnv *env, jobject thiz, jstring buffer_path, jstring log_path, jint capacity, jint limit_size, jboolean compress) {
 
     const char *_buffer_path = env->GetStringUTFChars(buffer_path, JNI_FALSE);
     const char *_log_path = env->GetStringUTFChars(log_path, JNI_FALSE);

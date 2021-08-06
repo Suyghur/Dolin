@@ -20,10 +20,14 @@ public:
 
     void StopFlush();
 
+    char *rename_path = nullptr;
+
 private:
     void AsyncLogThread();
 
     static ssize_t Flush(BufferFlush *buffer);
+
+    static ssize_t Flush(BufferFlush *buffer, const char *rename_path);
 
     bool exit = false;
     std::vector<BufferFlush *> async_buffer;

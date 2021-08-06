@@ -75,6 +75,16 @@ public class ZapRecord implements IRecord {
     }
 
     @Override
+    public void asyncFlush(String path) {
+
+    }
+
+    @Override
+    public void changeLogPath(String path) {
+
+    }
+
+    @Override
     public void expLogFile(String path, int limitSize) {
         if (ptr != 0L && handler != null) {
             try {

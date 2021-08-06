@@ -5,7 +5,7 @@ package com.dolin.comm.impl;
  * @author #Suyghur.
  * Created on 2021/05/19
  */
-public class R4LogHandler{
+public class R4LogHandler {
 
     static {
         System.loadLibrary("dolin-r4log");
@@ -16,6 +16,8 @@ public class R4LogHandler{
     public native void writeNative(long ptr, String msg);
 
     public native void asyncFlushNative(long ptr);
+
+    public native void asyncFlushNative2(long ptr, String path);
 
     public native void expLogFileNative(long ptr, String path, int limitSize);
 

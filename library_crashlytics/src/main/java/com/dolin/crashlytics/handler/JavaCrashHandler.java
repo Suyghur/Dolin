@@ -2,11 +2,12 @@ package com.dolin.crashlytics.handler;
 
 import android.app.Application;
 import android.os.Process;
-import android.util.Log;
 
 import com.dolin.comm.util.AppInfoUtils;
+import com.dolin.crashlytics.impl.CrashRecord;
 import com.dolin.crashlytics.internal.ICrashHandler;
 import com.dolin.crashlytics.monitor.ActivityMonitor;
+import com.dolin.crashlytics.utils.FileUtils;
 import com.dolin.crashlytics.utils.LogUtils;
 
 import java.io.PrintWriter;
@@ -14,6 +15,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -29,7 +31,9 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
     private String processName = "";
     private String packageName = "";
     private String versionName = "";
+    private String logPath = "";
     private Map<String, String> customMap = null;
+    private Date startTime = null;
     private final List<Pattern> dumpAllThreadsWhiteList = new ArrayList<Pattern>() {
         {
             add(Pattern.compile("^main$"));
@@ -37,7 +41,6 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
             add(Pattern.compile(".*Finalizer.*"));
         }
     };
-    private final Date startTime = new Date();
 
     private JavaCrashHandler() {
 
@@ -47,13 +50,17 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
         return JavaCrashHandlerHolder.INSTANCE;
     }
 
-    public void initialize(Application application, Map<String, String> customMap, ICrashHandler crashHandler) {
+    public void initialize(Application application, Map<String, String> customMap, Date startTime, ICrashHandler crashHandler) {
         this.crashHandler = crashHandler;
         this.customMap = customMap;
+        this.startTime = startTime;
         this.exceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
         this.processName = AppInfoUtils.getProcessName(application);
         this.packageName = application.getPackageName();
         this.versionName = AppInfoUtils.getVersionName(application);
+        String logFolderDir = FileUtils.getLogFolderDir(application);
+        this.logPath = String.format(Locale.getDefault(), "%s/%s_%020d_%s__%s%s", logFolderDir, "crash", startTime.getTime() * 1000, AppInfoUtils.getVersionName(application), AppInfoUtils.getProcessName(application), ".crashlytics");
+
         try {
             Thread.setDefaultUncaughtExceptionHandler(this);
         } catch (Exception e) {
@@ -67,11 +74,11 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
             Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
         }
         try {
-            Log.d("dolin_crashlytics", throwable.toString());
             handleException(thread, throwable);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        CrashRecord.getInstance().release();
         if (intercept) {
             if (exceptionHandler != null) {
                 exceptionHandler.uncaughtException(thread, throwable);
@@ -87,10 +94,9 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
         Date crashTime = new Date();
 
         //notify the java crash
-        //create log file
 
         //get stack info
-        StringBuilder sb = new StringBuilder("record info by crashlytics\n");
+        StringBuilder sb = new StringBuilder();
         try {
             sb.append(getStackInfo(crashTime, thread, throwable)).append("\n");
             sb.append(LogUtils.SEP_OTHER_INFO).append("\n");
@@ -101,20 +107,21 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
             sb.append(LogUtils.getNetworkInfo()).append("\n");
             sb.append(LogUtils.SEP_OTHER_INFO).append("\n");
             sb.append(LogUtils.getMemoryInfo()).append("\n");
-            sb.append(LogUtils.SEP_OTHER_INFO).append("\n");
-            sb.append("foreground:\n").append((ActivityMonitor.getInstance().isApplicationForeground() ? "yes" : "no")).append("\n\n");
             sb.append(getOtherThreadsInfo(thread)).append("\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-//        NativeBridge.getBridge().write(sb.toString());
-        Log.i("dolin_crashlytics", sb.toString());
-//        crashHandler.onCrash("", sb.toString());
-
         //write info to log file
+        CrashRecord.getInstance().write(sb.toString());
+//        CrashRecord.getInstance().asyncFlush();
+
+//        CrashRecord.getInstance().changeLogPath(logPath);
+        CrashRecord.getInstance().asyncFlush(this.logPath);
+
 
         //callback
+        crashHandler.onCrash("", "");
     }
 
     private String getStackInfo(Date crashTime, Thread thread, Throwable throwable) {
@@ -123,6 +130,7 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
         throwable.printStackTrace(pw);
         String stackInfo = sw.toString();
         return LogUtils.getLogHeader(startTime, crashTime, "java crash", packageName, versionName)
+                + "Foreground: " + (ActivityMonitor.getInstance().isApplicationForeground() ? "yes" : "no") + "\n"
                 + LogUtils.SEP_OTHER_INFO + "\n"
                 + getCustomKVInfo(customMap) + "\n"
                 + LogUtils.SEP_OTHER_INFO + "\n"

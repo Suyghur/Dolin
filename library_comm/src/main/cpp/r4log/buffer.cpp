@@ -116,7 +116,7 @@ void Buffer::CallFileFlush(FileFlush *flush, Buffer *buffer) {
         if (compress && Z_NULL != zStream.state) {
             deflateEnd(&zStream);
         }
-        auto *buffer_flush = new BufferFlush(log_file_ptr);
+        auto *buffer_flush = new BufferFlush(log_file_ptr, GetLogPath());
         buffer_flush->Write(data_ptr, GetLength());
         buffer_flush->ReleaseThiz(buffer);
         Clear();
@@ -131,7 +131,6 @@ void Buffer::ExpLogPath(char *path, size_t limit_size) {
         CallFileFlush();
     }
     InitData(path, strlen(path), limit_size, compress);
-
 }
 
 void Buffer::Clear() {
@@ -175,5 +174,3 @@ size_t Buffer::GetCurrentLogFileSize() {
     }
     return size;
 }
-
-

@@ -10,6 +10,10 @@ public interface IRecord {
 
     void asyncFlush();
 
+    void asyncFlush(String path);
+
+    void changeLogPath(String path);
+
     void expLogFile(String path, int limitSize);
 
     void release();

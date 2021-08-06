@@ -27,7 +27,6 @@ void dolin_r4log::BufferHeader::InitHeader(dolin_r4log::Header &header) {
         compress = 1;
     }
     memcpy(data_ptr + sizeof(char) + sizeof(size_t) + sizeof(size_t) + header.log_path_len + sizeof(size_t) + sizeof(size_t), &compress, sizeof(char));
-
 }
 
 /**

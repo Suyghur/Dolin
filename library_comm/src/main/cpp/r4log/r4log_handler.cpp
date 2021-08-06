@@ -21,6 +21,27 @@
 
 static std::map<long, FileFlush *> gFileFlushMap;
 
+
+static char *Jstring2CStr(JNIEnv *env, jstring jstr) {
+    char *cstr = nullptr;
+    jclass clz = env->FindClass("java/lang/String");
+    jstring encode_model = env->NewStringUTF("UTF-8");
+    jmethodID mid = env->GetMethodID(clz, "getBytes", "(Ljava/lang/String;)[B");
+    auto byte_array = (jbyteArray) env->CallObjectMethod(jstr, mid, encode_model);
+    jsize alen = env->GetArrayLength(byte_array);
+    jbyte *byte = env->GetByteArrayElements(byte_array, JNI_FALSE);
+    if (alen > 0) {
+        cstr = (char *) malloc(alen + 1); //new char[alen+1];
+        memcpy(cstr, byte, alen);
+        cstr[alen] = 0;
+    }
+    env->ReleaseByteArrayElements(byte_array, byte, JNI_FALSE);
+    env->DeleteLocalRef(clz);
+    env->DeleteLocalRef(encode_model);
+    env->DeleteLocalRef(byte_array);
+    return cstr;
+}
+
 static void WriteDirty2File(int buffer_fd, FileFlush *fileFlush) {
     struct stat file_stat{};
     if (fstat(buffer_fd, &file_stat) >= 0) {
@@ -115,6 +136,26 @@ static void AsyncFlushNative(JNIEnv *env, jobject thiz, jlong ptr) {
     buffer->CallFileFlush(gFileFlushMap[ptr]);
 }
 
+static void AsyncFlushNative2(JNIEnv *env, jobject thiz, jlong ptr, jstring path) {
+//    char *rename_path = env->GetStringUTFChars(path, JNI_FALSE);
+    auto *buffer = reinterpret_cast<Buffer *>(ptr);
+//    if (pFileFlush != nullptr) {
+//        buffer->CallFileFlush(pFileFlush);
+//    }
+    auto *fileFlush = gFileFlushMap[ptr];
+    char *path_ = Jstring2CStr(env, path);
+    fileFlush->rename_path = path_;
+    buffer->CallFileFlush(gFileFlushMap[ptr]);
+    delete path_;
+}
+
+//static void ChangeLogPath(JNIEnv *env, jobject thiz, jlong ptr, jstring path) {
+//    const char *log_path = env->GetStringUTFChars(path, JNI_FALSE);
+//    auto *buffer = reinterpret_cast<Buffer *>(ptr);
+//    buffer->ChangeLogPath(const_cast<char *>(log_path));
+//    env->ReleaseStringUTFChars(path, log_path);
+//}
+
 static void ExpLogFileNative(JNIEnv *env, jobject thiz, jlong ptr, jstring path, jint limit_size) {
     const char *log_path = env->GetStringUTFChars(path, JNI_FALSE);
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
@@ -143,6 +184,8 @@ static JNINativeMethod gMethods[] = {
         {"initNative",              "(Ljava/lang/String;Ljava/lang/String;IIZ)J", (void *) InitNative},
         {"writeNative",             "(JLjava/lang/String;)V",                     (void *) WriteNative},
         {"asyncFlushNative",        "(J)V",                                       (void *) AsyncFlushNative},
+        {"asyncFlushNative2",       "(JLjava/lang/String;)V",                     (void *) AsyncFlushNative2},
+//        {"changeLogPath",           "(JLjava/lang/String;)V",                     (void *) ChangeLogPath},
         {"expLogFileNative",        "(JLjava/lang/String;I)V",                    (void *) ExpLogFileNative},
         {"releaseNative",           "(J)V",                                       (void *) ReleaseNative},
         {"isLogFileOverSizeNative", "(J)Z",                                       (void *) IsLogFileOverSizeNative}};

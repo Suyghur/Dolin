@@ -6,9 +6,17 @@
 #include <cstring>
 #include "buffer_flush.h"
 
-BufferFlush::BufferFlush(FILE *log_file, size_t size) : capacity(size), log_file_ptr(log_file) {}
+BufferFlush::BufferFlush(FILE *log_file, char *path, size_t size) : capacity(size), log_file_ptr(log_file), path(path) {}
 
 BufferFlush::~BufferFlush() {
+    if (path != nullptr) {
+        delete[] path;
+    }
+
+    if (write_ptr != nullptr) {
+        delete[] write_ptr;
+    }
+
     if (data_ptr != nullptr) {
         delete[] data_ptr;
     }
@@ -75,4 +83,8 @@ void BufferFlush::ReleaseThiz(void *buffer) {
 
 size_t BufferFlush::EmptySize() {
     return capacity - GetLength();
+}
+
+char *BufferFlush::GetLogPath() {
+    return path;
 }

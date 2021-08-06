@@ -10,7 +10,7 @@
 class BufferFlush {
 
 public:
-    BufferFlush(FILE *log_file, size_t size = 128);
+    BufferFlush(FILE *log_file, char *path, size_t size = 128);
 
     ~BufferFlush();
 
@@ -24,6 +24,8 @@ public:
 
     FILE *GetLogFile();
 
+    char *GetLogPath();
+
     void ReleaseThiz(void *buffer);
 
 private:
@@ -31,6 +33,7 @@ private:
     void *release_ptr = nullptr;
     char *data_ptr = nullptr;
     char *write_ptr = nullptr;
+    char *path = nullptr;
     size_t capacity;
 
     size_t EmptySize();

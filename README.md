@@ -9,6 +9,6 @@
 
 [A log framework of Android](library_zap/README.md)
 
-## Crashlytics
+## Hawkeye
 
-[A crash and ANR catcher framework of Android](library_crashlytics/README.md)
+[A crash and ANR catcher framework of Android](library_hawkeye/README.md)

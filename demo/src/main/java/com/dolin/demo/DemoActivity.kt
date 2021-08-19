@@ -10,7 +10,6 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.dolin.comm.util.DeviceInfoUtils
-import com.dolin.crashlytics.Crashlytics
 import com.dolin.zap.Zap
 import kotlin.system.exitProcess
 
@@ -24,7 +23,7 @@ class DemoActivity : Activity(), View.OnClickListener {
 
     private val events: MutableList<Item> = mutableListOf(
         Item(0, "Zap日志测试"),
-        Item(1, "抛出一个Java层崩溃")
+        Item(1, "Hawkeye崩溃测试")
     )
 
 
@@ -32,8 +31,6 @@ class DemoActivity : Activity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         initView()
         initDeviceInfo()
-        Crashlytics.getInstance().setCustomKV("device_id", "my_device_id_123")
-        Crashlytics.getInstance().setCustomKV("user_id", "my_user_id_456")
     }
 
     private fun initView() {
@@ -43,8 +40,9 @@ class DemoActivity : Activity(), View.OnClickListener {
         layout.addView(textView)
         for (event in events) {
             with(Button(this)) {
-                tag = event.id
+                isAllCaps = false
                 text = event.text
+                tag = event.id
                 setOnClickListener(this@DemoActivity)
                 layout.addView(this)
             }
@@ -94,7 +92,7 @@ class DemoActivity : Activity(), View.OnClickListener {
         v?.apply {
             when (tag as Int) {
                 0 -> ZapActivity.start(this@DemoActivity)
-                1 -> Crashlytics.getInstance().testJavaCrash(false)
+                1 -> CrashActivity.start(this@DemoActivity)
             }
         }
     }

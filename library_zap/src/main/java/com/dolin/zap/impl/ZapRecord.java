@@ -1,8 +1,8 @@
 package com.dolin.zap.impl;
 
-import com.dolin.comm.impl.R4LogHandler;
-import com.dolin.comm.internal.IRecord;
-import com.dolin.comm.util.LogFileUtils;
+
+import com.dolin.zap.internal.IRecord;
+import com.dolin.zap.util.ZapFileUtils;
 
 import java.io.File;
 
@@ -18,7 +18,11 @@ public class ZapRecord implements IRecord {
     private String logFilePath = "";
     private int limitSize = 0;
     private int num = 1;
-    private R4LogHandler handler = null;
+
+    static {
+        System.loadLibrary("dolin-zap");
+    }
+//    private R4LogHandler handler = null;
 
     private ZapRecord() {
 
@@ -29,7 +33,7 @@ public class ZapRecord implements IRecord {
     }
 
     public void init(String bufferPath, String logPath, String logDate, int capacity, int limitSize, boolean compress) {
-        this.num = LogFileUtils.getLogFileNumByDate(logPath, logDate);
+        this.num = ZapFileUtils.getLogFileNumByDate(logPath, logDate);
         this.logPath = logPath;
         this.logDate = logDate;
         this.limitSize = limitSize;
@@ -39,8 +43,7 @@ public class ZapRecord implements IRecord {
             this.logFilePath = logPath + File.separator + logDate + ".zap";
         }
         try {
-            this.handler = new R4LogHandler();
-            this.ptr = handler.initNative(bufferPath, logFilePath, capacity, limitSize, compress);
+            this.ptr = initNative(bufferPath, logFilePath, capacity, limitSize, compress);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -48,9 +51,9 @@ public class ZapRecord implements IRecord {
 
     @Override
     public void write(String msg) {
-        if (ptr != 0L && handler != null) {
+        if (ptr != 0L) {
             try {
-                handler.writeNative(ptr, msg);
+                writeNative(ptr, msg);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -59,15 +62,15 @@ public class ZapRecord implements IRecord {
 
     @Override
     public void asyncFlush() {
-        if (ptr != 0L && handler != null) {
+        if (ptr != 0L) {
             try {
                 //自动扩容
-                if (handler.isLogFileOverSizeNative(ptr)) {
+                if (isLogFileOverSizeNative(ptr)) {
                     this.num += 1;
                     this.logFilePath = logPath + File.separator + logDate + "-p" + num + ".zap";
-                    handler.expLogFileNative(ptr, logFilePath, limitSize);
+                    expLogFileNative(ptr, logFilePath, limitSize);
                 }
-                handler.asyncFlushNative(ptr);
+                asyncFlushNative(ptr);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -86,9 +89,9 @@ public class ZapRecord implements IRecord {
 
     @Override
     public void expLogFile(String path, int limitSize) {
-        if (ptr != 0L && handler != null) {
+        if (ptr != 0L) {
             try {
-                handler.expLogFileNative(ptr, path, limitSize);
+                expLogFileNative(ptr, path, limitSize);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -97,17 +100,27 @@ public class ZapRecord implements IRecord {
 
     @Override
     public void release() {
-        if (handler != null) {
-            try {
-                if (ptr != 0L) {
-                    handler.releaseNative(ptr);
-                }
-                handler = null;
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            if (ptr != 0L) {
+                releaseNative(ptr);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+
+    private native long initNative(String bufferPath, String logFilePath, int capacity, int limitSize, boolean compress);
+
+    private native void writeNative(long ptr, String msg);
+
+    private native void asyncFlushNative(long ptr);
+
+    private native void expLogFileNative(long ptr, String path, int limitSize);
+
+    private native void releaseNative(long ptr);
+
+    private native boolean isLogFileOverSizeNative(long ptr);
 
     private static class ZapRecordHolder {
         private static final ZapRecord INSTANCE = new ZapRecord();

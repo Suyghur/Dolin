@@ -1,0 +1,69 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
+    ndkVersion NDK_VERSION
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION
+        targetSdkVersion TARGET_SDK_VERSION
+
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++11 -frtti -fexceptions -lz -g'
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            }
+        }
+    }
+
+
+//    packagingOptions {
+//        exclude 'lib/arm64-v8a/libdolin-comm.so'
+//        exclude 'lib/armeabi-v7a/libdolin-comm.so'
+//        exclude 'lib/x86/libdolin-comm.so'
+//        exclude 'lib/x86_64/libdolin-comm.so'
+//    }
+
+    buildTypes {
+        release {
+            minifyEnabled MINIFY_ENABLE
+            proguardFiles 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        buildConfig = false
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
+    dexOptions {
+        preDexLibraries = false
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+            version '3.10.2'
+        }
+    }
+}
+
+dependencies {
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
+//    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation project(':library_comm')
+}
+
+apply from: 'publish.gradle'

@@ -4,7 +4,7 @@ apply plugin: 'signing'
 ext {
     PUBLISH_GROUP_ID = 'io.github.suyghur.dolin'
     PUBLISH_ARTIFACT_ID = 'zap'
-    PUBLISH_VERSION = '1.0.1'
+    PUBLISH_VERSION = '1.0.1-alpha'
 }
 
 Properties properties = new Properties()

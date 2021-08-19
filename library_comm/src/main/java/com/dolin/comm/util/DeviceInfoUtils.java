@@ -15,8 +15,7 @@ public class DeviceInfoUtils {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
-
-    public static String getDeviceManufacturer(){
+    public static String getDeviceManufacturer() {
         return NativeBridge.nativeInvoke("GetDeviceManufacturer");
     }
 

@@ -15,11 +15,10 @@ import com.dolin.zap.Zap
 class ZapActivity : Activity(), View.OnClickListener {
 
     private val events: MutableList<Item> = mutableListOf(
-            Item(0, "DEBUG日志"),
-            Item(1, "INFO日志"),
-            Item(2, "WARNING日志"),
-            Item(3, "ERROR日志"),
-            Item(4, "目录测试"),
+        Item(0, "DEBUG日志"),
+        Item(1, "INFO日志"),
+        Item(2, "WARNING日志"),
+        Item(3, "ERROR日志")
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +27,7 @@ class ZapActivity : Activity(), View.OnClickListener {
         layout.orientation = LinearLayout.VERTICAL
         for (event in events) {
             with(Button(this)) {
+                isAllCaps = false
                 tag = event.id
                 text = event.text
                 setOnClickListener(this@ZapActivity)

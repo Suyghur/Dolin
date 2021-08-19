@@ -12,12 +12,12 @@ android {
         minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
 
-//        externalNativeBuild {
-//            cmake {
-//                cppFlags '-std=c++11 -frtti -fexceptions -lz'
-//                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-//            }
-//        }
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++11 -frtti -fexceptions -lz'
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            }
+        }
     }
 
 //    packagingOptions {
@@ -52,15 +52,20 @@ android {
         preDexLibraries = false
     }
 
-//    externalNativeBuild {
-//        cmake {
-//            path "CMakeLists.txt"
-//        }
-//    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+            version '3.10.2'
+        }
+    }
 }
 
 dependencies {
-    implementation project(':library_comm')
+//    if (PUBLISH_ENABLE) {
+//        implementation 'io.github.suyghur.dolin:comm:1.0.1-alpha'
+//    } else {
+//        implementation project(':library_comm')
+//    }
 }
 
 apply from: 'publish.gradle'

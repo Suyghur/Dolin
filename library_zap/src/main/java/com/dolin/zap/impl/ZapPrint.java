@@ -10,7 +10,7 @@ import com.dolin.zap.entity.ZapData;
 import com.dolin.zap.format.DateFileFormatter;
 import com.dolin.zap.internal.IPrint;
 import com.dolin.zap.lifecycle.ZapLifecycle;
-import com.dolin.zap.util.LogFileUtils;
+import com.dolin.zap.util.ZapFileUtils;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -30,7 +30,6 @@ public class ZapPrint implements IPrint {
     private String tag = "";
     private Level logcatLevel = Level.DEBUG;
     private Level recordLevel = Level.DEBUG;
-    //    private R4LogHandler r4logHandler = null;
     private DateFileFormatter dateFileFormatter = null;
 
     private ZapPrint() {
@@ -61,7 +60,7 @@ public class ZapPrint implements IPrint {
 
         String logFolderDir = "";
         if (TextUtils.isEmpty(config.logFolderDir)) {
-            logFolderDir = LogFileUtils.getLogFolderDir(application);
+            logFolderDir = ZapFileUtils.getLogFolderDir(application);
         } else {
             logFolderDir = config.logFolderDir;
         }
@@ -73,7 +72,7 @@ public class ZapPrint implements IPrint {
         }
 
         String bufferPath = logFolderDir + File.separator + "zap.cache";
-        String logPath = LogFileUtils.getLogDir(logFolderDir, date);
+        String logPath = ZapFileUtils.getLogDir(logFolderDir, date);
 
         if (recordEnable) {
             ZapRecord.getInstance().init(bufferPath, logPath, date, 1024 * 400, config.fileSizeLimitDayByte, config.compressEnable);
@@ -83,7 +82,7 @@ public class ZapPrint implements IPrint {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                LogFileUtils.cleanOverdueLog(application, config.overdueDayMs);
+                ZapFileUtils.cleanOverdueLog(application, config.overdueDayMs);
             }
         }).start();
 

@@ -113,7 +113,7 @@
 
 -keep class com.dolin.zap.Version{public <fields>;public <methods>;}
 -keep class com.dolin.zap.Zap{public <fields>;public <methods>;}
--keep class com.dolin.zap.impl.Record2MMap{*;}
+-keep class com.dolin.zap.impl.ZapRecord{*;}
 -keep class com.dolin.zap.entity.Level{*;}
 -keep class com.dolin.zap.entity.Config{public <fields>;public <methods>;}
 -keep class com.dolin.zap.entity.Config$Builder{public <fields>;public <methods>;}

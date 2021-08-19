@@ -77,7 +77,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation project(':library_comm')
     implementation project(':library_zap')
-    implementation project(':library_crashlytics')
+    implementation project(':library_hawkeye')
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 

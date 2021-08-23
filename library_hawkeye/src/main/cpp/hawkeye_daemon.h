@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-typedef void (*hawkeye_daemon_crash_callback)(const char *log_file, void *args);
+typedef void (*hawkeye_daemon_crash_callback)(const char *log_path, void *args);
 
 typedef void (*hawkeye_daemon_start_stop_callback)(void *args);
 

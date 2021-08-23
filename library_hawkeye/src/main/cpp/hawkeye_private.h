@@ -40,7 +40,7 @@ typedef void *(*unwinder_init_func_ptr)(pid_t pid);
 
 typedef void (*unwinder_release_func_ptr)(void *data);
 
-typedef void (*unwinder_func_ptr)(int outfile, pid_t tid, struct ucontext *context, void *data);
+typedef void (*unwinder_func_ptr)(int log_fd, pid_t tid, struct ucontext *context, void *data);
 
 #ifndef HAWKEYE_MAX_FRAMES
 #define HAWKEYE_MAX_FRAMES 128

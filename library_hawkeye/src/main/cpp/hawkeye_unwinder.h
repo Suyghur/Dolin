@@ -24,10 +24,10 @@ public:
 
     static void ReleaseUnwinder(void *data);
 
-    static void DoUnwind(int out_file, pid_t tid, struct ucontext *context, void *data);
+    static void DoUnwind(int log_fd, pid_t tid, struct ucontext *context, void *data);
 
 private:
-    static void __DoUnwind(int out_file, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
+    static void __DoUnwind(int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
                            const std::shared_ptr<unwindstack::Memory> &memory);
 
 };

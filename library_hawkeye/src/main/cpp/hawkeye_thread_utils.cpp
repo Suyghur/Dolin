@@ -2,18 +2,11 @@
 // Created by #Suyghur, on 2021/08/19.
 //
 
-#include <string.h>
-#include <sys/socket.h>
 #include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "hawkeye_thread_utils.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-size_t GetThreads(pid_t pid, pid_t *out, size_t size) {
-    // should have sufficient space to save "/proc/2147483647/task" including \0
+size_t ThreadUtils::GetThreads(pid_t pid, pid_t *out, size_t size) {
+// should have sufficient space to save "/proc/2147483647/task" including \0
     char path[22];
     snprintf(path, sizeof(path), "/proc/%d/task", (int) pid);
 
@@ -38,7 +31,3 @@ size_t GetThreads(pid_t pid, pid_t *out, size_t size) {
     closedir(dir);
     return it - out;
 }
-
-#ifdef __cplusplus
-}
-#endif

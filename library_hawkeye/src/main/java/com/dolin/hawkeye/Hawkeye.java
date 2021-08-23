@@ -3,6 +3,7 @@ package com.dolin.hawkeye;
 import android.app.Application;
 
 import com.dolin.comm.util.AppInfoUtils;
+import com.dolin.hawkeye.handler.BoostCrashHandler;
 import com.dolin.hawkeye.handler.JavaCrashHandler;
 import com.dolin.hawkeye.handler.NativeCrashHandler;
 import com.dolin.hawkeye.internal.ICrashHandler;
@@ -79,6 +80,10 @@ public class Hawkeye {
         } else {
             throw new RuntimeException("test java exception");
         }
+    }
+
+    public void testNativeCrash(){
+        BoostCrashHandler.getInstance().testNativeCrash();
     }
 
     private static class HawkeyeHolder {

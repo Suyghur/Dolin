@@ -7,7 +7,7 @@
 #include <iostream>
 #include "hawkeye_mmap_buffer.h"
 #include <unistd.h>
-#include "log.h"
+#include "hawkeye_log.h"
 
 
 MmapBuffer::MmapBuffer() = default;

@@ -44,6 +44,7 @@ class CrashActivity : Activity(), View.OnClickListener {
             when (tag as Int) {
                 0 -> Hawkeye.getInstance().testJavaCrash(false)
                 1 -> Hawkeye.getInstance().testJavaCrash(true)
+                2 -> Hawkeye.getInstance().testNativeCrash()
             }
         }
     }

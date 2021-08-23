@@ -25,7 +25,18 @@ struct hawkeye_core_context {
     int old_dumpable;
 };
 
-void PerformSignalCallback(int signo, struct siginfo *siginfo, void *ctx);
+class HawkeyeCore {
+public:
+    static bool InitCore(const char *socket_name);
+
+    static bool ReleaseCore();
+
+
+
+private:
+    static void __SignalHandler(int signo, struct siginfo *siginfo, void *ctx);
+
+};
 
 
 #ifdef __cplusplus

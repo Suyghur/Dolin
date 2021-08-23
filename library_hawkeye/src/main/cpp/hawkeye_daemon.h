@@ -12,9 +12,9 @@
 extern "C" {
 #endif
 
-typedef void (*daemon_crash_callback)(const char *log_file, void *args);
+typedef void (*hawkeye_daemon_crash_callback)(const char *log_file, void *args);
 
-typedef void (*daemon_start_stop_callback)(void *args);
+typedef void (*hawkeye_daemon_start_stop_callback)(void *args);
 
 
 struct hawkeye_daemon_context {
@@ -23,7 +23,7 @@ struct hawkeye_daemon_context {
 
     unwinder_release_func_ptr unwinder_release;
 
-    unwind_func_ptr unwind_func;
+    unwinder_func_ptr unwinder_func;
 
     char *log_file;
 
@@ -31,16 +31,16 @@ struct hawkeye_daemon_context {
 
     pthread_t daemon_thread;
 
-    daemon_crash_callback crash_callback;
-    daemon_start_stop_callback start_callback;
-    daemon_start_stop_callback stop_callback;
+    hawkeye_daemon_start_stop_callback start_callback;
+    hawkeye_daemon_start_stop_callback stop_callback;
+    hawkeye_daemon_crash_callback crash_callback;
 
     void *callback_arg;
 
     struct sockaddr_un socket_address;
 };
 
-class Daemon {
+class HawkeyeDaemon {
 public:
 
     static bool PtraceAttach(pid_t tid);
@@ -53,8 +53,9 @@ public:
 
     static void *DaemonFunction(void *args);
 
-    static bool StartDaemon(const char *socket_name, const char *log_file, daemon_start_stop_callback start_callback,
-                            daemon_crash_callback crash_callback, daemon_start_stop_callback stop_callback);
+    static bool StartDaemon(const char *socket_name, const char *log_file, hawkeye_daemon_start_stop_callback start_callback,
+                            hawkeye_daemon_crash_callback crash_callback, hawkeye_daemon_start_stop_callback stop_callback,
+                            void *callback_arg);
 
     static bool StopDaemon();
 
@@ -63,7 +64,6 @@ public:
 private:
     static const int SOCKET_BACKLOG = 1;
 
-    struct hawkeye_daemon_context *daemon_context = nullptr;
 };
 
 #ifdef __cplusplus

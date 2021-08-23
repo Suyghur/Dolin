@@ -4,8 +4,8 @@
 
     <application android:allowBackup="true">
         <service
-            android:name=".HawkeyeDaemonService"
-            android:exported="false"
+            android:name=".HawkeyeMonitorService"
+            android:exported="true"
             android:process=":hawkeyedaemon" />
     </application>
 </manifest>

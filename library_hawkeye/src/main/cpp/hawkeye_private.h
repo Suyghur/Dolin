@@ -23,7 +23,7 @@ static const int SIGNALS_TO_CATCH[] = {
 };
 
 /// Count of signals to catch
-static const int NUM_SIGNALS_TO_CATCH = sizeof_array(SIGNALS_TO_CATCH);
+static const int NUM_SIGNALS_TO_CATCH = SIZEOF_ARRAY(SIGNALS_TO_CATCH);
 
 /// Struct for message that is sent from signal handler to daemon
 struct hawkeye_crash_message {
@@ -38,15 +38,15 @@ struct hawkeye_crash_message {
 
 typedef void *(*unwinder_init_func_ptr)(pid_t pid);
 
-typedef void (*unwind_func_ptr)(int log_file, pid_t tid, struct ucontext *ctx, void *data);
-
 typedef void (*unwinder_release_func_ptr)(void *data);
 
-#ifndef DOLIN_HAWKEYE_MAX_FRAMES
-#define HAWKEYE_FRAMES 128
+typedef void (*unwinder_func_ptr)(int outfile, pid_t tid, struct ucontext *context, void *data);
+
+#ifndef HAWKEYE_MAX_FRAMES
+#define HAWKEYE_MAX_FRAMES 128
 #endif
 
-#ifndef DOLIN_HAWKEYE_MAX_FUNCTION_NAME_LENGTH
+#ifndef HAWKEYE_MAX_FUNCTION_NAME_LENGTH
 #define HAWKEYE_MAX_FUNCTION_NAME_LENGTH 128
 #endif
 

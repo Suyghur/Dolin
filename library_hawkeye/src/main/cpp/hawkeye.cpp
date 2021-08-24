@@ -16,34 +16,35 @@
 extern "C" {
 #endif
 
-
-JavaVM *javaVm = nullptr;
+JavaVM *gJavaVm = nullptr;
 
 typedef struct {
-    jclass jClz;
-    jmethodID jCallbackId;
-    JNIEnv *daemon_thread_env;
-} jCallback_arg_t;
+    jclass clz;
+    jmethodID mid;
+    JNIEnv *env;
+} callback_context;
+
 
 /// Called on daemon start from its background thread.
-static void DaemonStart(void *argvoid) {
-
-    auto *const arg = static_cast<jCallback_arg_t *const>(argvoid);
-    javaVm->AttachCurrentThread(&arg->daemon_thread_env, nullptr);
+static void OnDaemonStart(void *argvoid) {
+    LOGD("OnDaemonStart");
+    auto *const ctx = static_cast<callback_context *const>(argvoid);
+    gJavaVm->AttachCurrentThread(&ctx->env, nullptr);
 }
 
 /// Called when a crash report is generated. From background thread.
 static void OnCrash(const char *log_file, void *argvoid) {
-    auto *const arg = static_cast<jCallback_arg_t *const> (argvoid);
-    const jstring _log_file = arg->daemon_thread_env->NewStringUTF(log_file);
-    arg->daemon_thread_env->CallStaticVoidMethod(arg->jClz, arg->jCallbackId, _log_file);
-    arg->daemon_thread_env->DeleteLocalRef(_log_file);
+    LOGD("OnCrash");
+    auto *const ctx = static_cast<callback_context *const>(argvoid);
+    jstring _log_file = ctx->env->NewStringUTF(log_file);
+    ctx->env->CallStaticVoidMethod(ctx->clz, ctx->mid, _log_file);
+    ctx->env->DeleteLocalRef(_log_file);
 }
 
 /// Called on daemon stop from its background thread.
-static void DaemonStop(void *argvoid) {
-//    auto *const arg = static_cast<jCallback_arg_t *const> (argvoid);
-    javaVm->DetachCurrentThread();
+static void OnDaemonStop(void *argvoid) {
+    LOGD("OnDaemonStop");
+    gJavaVm->DetachCurrentThread();
 }
 
 static jboolean InitCxxCrashMonitor(JNIEnv *env, jobject clz, jstring socket_name) {
@@ -56,13 +57,18 @@ static jboolean InitCxxCrashMonitor(JNIEnv *env, jobject clz, jstring socket_nam
     return success;
 }
 
-static jboolean InitCxxCrashDaemon(JNIEnv *env, jobject clz, jstring socket_name, jstring log_path) {
+static jboolean ZygoteCxxCrashDaemon(JNIEnv *env, jclass clz, jstring socket_name, jstring log_path) {
     const char *_socket_name = socket_name ? env->GetStringUTFChars(socket_name, JNI_FALSE) : nullptr;
     const char *_log_path = log_path ? env->GetStringUTFChars(log_path, JNI_FALSE) : nullptr;
-    auto *const callback_arg = static_cast<jCallback_arg_t *const>(calloc(1, sizeof(jCallback_arg_t)));
-    callback_arg->jClz = env->FindClass("com/dolin/hawkeye/handler/BoostCrashHandler");
-    callback_arg->jCallbackId = env->GetStaticMethodID(callback_arg->jClz, "onCxxCrashCallback", "(Ljava/lang/String;)V");
-    const bool success = HawkeyeDaemon::StartDaemon(_socket_name, _log_path, &DaemonStart, &OnCrash, &DaemonStop, callback_arg);
+
+    auto *const ctx = static_cast<callback_context *const>(calloc(1, sizeof(callback_context)));
+    ctx->clz = static_cast<jclass>(env->NewGlobalRef(clz));
+
+//    ctx->clz = static_cast<jclass>(clz);
+//    ctx->clz = env->FindClass("com/dolin/hawkeye/handler/BoostCrashHandler");
+    ctx->mid = env->GetStaticMethodID(ctx->clz, "onCxxCrashCallback", "(Ljava/lang/String;)V");
+
+    const bool success = HawkeyeDaemon::StartDaemon(_socket_name, _log_path, &OnDaemonStart, &OnCrash, &OnDaemonStop, ctx);
 
     if (_socket_name) {
         env->ReleaseStringUTFChars(socket_name, _socket_name);
@@ -73,19 +79,32 @@ static jboolean InitCxxCrashDaemon(JNIEnv *env, jobject clz, jstring socket_name
     return success;
 }
 
+static jboolean ReleaseCxxCrashDaemon(JNIEnv *env, jobject clz) {
+    if (HawkeyeDaemon::StopDaemon()) {
+        return JNI_TRUE;
+    }
+    return JNI_FALSE;
+}
+
 static void TestCxxCrash(JNIEnv *env, jobject clz) {
     volatile int *ptr = nullptr;
     *ptr = 1;
 }
 
-static jlong Record2Buffer(JNIEnv *env, jobject clz, jstring buffer_path, jstring content) {
+
+static jlong InitTempBuffer(JNIEnv *env, jobject clz, jstring buffer_path, jint capacity) {
     const char *_buffer_path = env->GetStringUTFChars(buffer_path, JNI_FALSE);
-    const char *_content = env->GetStringUTFChars(content, JNI_FALSE);
-    auto *buffer_ptr = new MmapBuffer();
-    buffer_ptr->WriteBuffer(_buffer_path, _content);
+    auto buffer_size = static_cast<size_t>(capacity);
+    auto buffer_ptr = new MmapBuffer(_buffer_path, buffer_size);
     env->ReleaseStringUTFChars(buffer_path, _buffer_path);
-    env->ReleaseStringUTFChars(content, _content);
     return reinterpret_cast<long >(buffer_ptr);
+}
+
+static void Record2Buffer(JNIEnv *env, jobject clz, jlong buffer_ptr, jstring content) {
+    auto *_buffer_ptr = reinterpret_cast<MmapBuffer *>(buffer_ptr);
+    const char *_content = env->GetStringUTFChars(content, JNI_FALSE);
+    _buffer_ptr->WriteBuffer(_content);
+    env->ReleaseStringUTFChars(content, _content);
 }
 
 static void ReleaseBuffer(JNIEnv *env, jobject clz, jlong buffer_ptr) {
@@ -95,11 +114,13 @@ static void ReleaseBuffer(JNIEnv *env, jobject clz, jlong buffer_ptr) {
 }
 
 static JNINativeMethod gMethods[] = {
-        {"initCxxCrashMonitor", "(Ljava/lang/String;)Z",                   (void *) InitCxxCrashMonitor},
-        {"initCxxCrashDaemon",  "(Ljava/lang/String;Ljava/lang/String;)Z", (void *) InitCxxCrashDaemon},
-        {"testCxxCrash",        "()V",                                     (void *) TestCxxCrash},
-        {"record2Buffer",       "(Ljava/lang/String;Ljava/lang/String;)J", (void *) Record2Buffer},
-        {"releaseBuffer",       "(J)V",                                    (void *) ReleaseBuffer},
+        {"initCxxCrashMonitor",   "(Ljava/lang/String;)Z",                   (void *) InitCxxCrashMonitor},
+        {"zygoteCxxCrashDaemon",  "(Ljava/lang/String;Ljava/lang/String;)Z", (void *) ZygoteCxxCrashDaemon},
+        {"releaseCxxCrashDaemon", "()Z",                                     (void *) ReleaseCxxCrashDaemon},
+        {"testCxxCrash",          "()V",                                     (void *) TestCxxCrash},
+        {"initTempBuffer",        "(Ljava/lang/String;I)J",                  (void *) InitTempBuffer},
+        {"record2Buffer",         "(JLjava/lang/String;)V",                  (void *) Record2Buffer},
+        {"releaseBuffer",         "(J)V",                                    (void *) ReleaseBuffer},
 };
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -111,7 +132,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (env->RegisterNatives(clz, gMethods, sizeof(gMethods) / sizeof(gMethods[0])) < 0) {
         return JNI_ERR;
     }
-    javaVm = vm;
+    gJavaVm = vm;
     return JNI_VERSION_1_6;
 }
 

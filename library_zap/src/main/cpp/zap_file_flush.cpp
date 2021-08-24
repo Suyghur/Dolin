@@ -64,10 +64,10 @@ ssize_t FileFlush::Flush(BufferFlush *buffer) {
 
 //ssize_t FileFlush::Flush(BufferFlush *buffer, const char *rename_path) {
 //    ssize_t written = 0;
-//    FILE *log_file = buffer->GetLogFile();
-//    if (log_file != nullptr && buffer->GetLength() > 0) {
-//        written = fwrite(buffer->GetPtr(), buffer->GetLength(), 1, log_file);
-//        fflush(log_file);
+//    FILE *log_folder_path = buffer->GetLogFile();
+//    if (log_folder_path != nullptr && buffer->GetLength() > 0) {
+//        written = fwrite(buffer->GetPtr(), buffer->GetLength(), 1, log_folder_path);
+//        fflush(log_folder_path);
 //        if (rename_path != nullptr) {
 //            rename(buffer->GetLogPath(), rename_path);
 //        }

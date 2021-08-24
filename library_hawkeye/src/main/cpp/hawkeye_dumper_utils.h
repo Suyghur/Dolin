@@ -9,6 +9,9 @@
 #include <sys/ucontext.h>
 #include <stdint.h>
 
+#define SEP_HEAD "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***\n"
+#define SEP_OTHER_INFO "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---\n"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

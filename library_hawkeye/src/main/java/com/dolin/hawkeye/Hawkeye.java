@@ -9,8 +9,6 @@ import com.dolin.hawkeye.handler.NativeCrashHandler;
 import com.dolin.hawkeye.internal.ICrashHandler;
 import com.dolin.hawkeye.monitor.ActivityMonitor;
 
-import org.json.JSONObject;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +35,7 @@ public class Hawkeye {
         if (!AppInfoUtils.getProcessName(application).equals(application.getPackageName())) {
             return;
         }
+        BoostCrashHandler.getInstance().initTempFile(application,1024*400);
         ActivityMonitor.getInstance().initialize(application);
         JavaCrashHandler.getInstance().initialize(application, customMap, callback);
         NativeCrashHandler.getInstance().initialize(application, customMap, callback);
@@ -82,7 +81,7 @@ public class Hawkeye {
         }
     }
 
-    public void testNativeCrash(){
+    public void testNativeCrash() {
         BoostCrashHandler.getInstance().testNativeCrash();
     }
 

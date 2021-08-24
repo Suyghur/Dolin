@@ -1,8 +1,13 @@
 package com.dolin.hawkeye.handler;
 
-import android.util.Log;
+import android.content.Context;
 
 import androidx.annotation.Keep;
+
+import com.dolin.hawkeye.monitor.ActivityMonitor;
+import com.dolin.hawkeye.utils.FileUtils;
+
+import java.util.Locale;
 
 /**
  * @author #Suyghur.
@@ -16,6 +21,7 @@ public class BoostCrashHandler {
 
     private long ptr = 0L;
     private String bufferPath = "";
+//    private static IHawkeyeRemoteCallback cxxCrashCallback = null;
 
     private BoostCrashHandler() {
 
@@ -25,41 +31,63 @@ public class BoostCrashHandler {
         return CrashlyticsImplHolder.INSTANCE;
     }
 
+    public void initTempFile(Context context, int capacity) {
+        String tempFile = String.format(Locale.getDefault(), "%s/%s", FileUtils.getLogFolderDir(context), "java_log.temp");
+        this.ptr = initTempBuffer(tempFile, capacity);
+    }
+
     public boolean initNativeCrashMonitor(String socketName) {
         return initCxxCrashMonitor(socketName);
     }
 
-    public boolean initNativeCrashDaemon(String socketName, String logPath) {
-        return initCxxCrashDaemon(socketName, logPath);
+    public boolean zygoteNativeCrashDaemon(String socketName, String logPath) {
+//        cxxCrashCallback = callback;
+        return zygoteCxxCrashDaemon(socketName, logPath);
+    }
+
+    public boolean releaseNativeCrashDaemon() {
+        return releaseCxxCrashDaemon();
     }
 
     public void testNativeCrash() {
         testCxxCrash();
     }
 
-    public void record(String path, String content) {
-        this.ptr = record2Buffer(path, content);
+    public void record(String content) {
+        record2Buffer(ptr, content);
     }
 
     public void release() {
         if (ptr != 0L) {
             releaseBuffer(ptr);
         }
+        releaseNativeCrashDaemon();
     }
 
     @Keep
     private static void onCxxCrashCallback(String logPath) {
-        Log.d("dolin_hawkeye", "onCxxCrashCallback, log path: " + logPath);
+//        try {
+//            if (cxxCrashCallback != null) {
+//                cxxCrashCallback.onCrashCallback(logPath);
+//            }
+//        } catch (RemoteException e) {
+//            e.printStackTrace();
+//        }
+        ActivityMonitor.getInstance().finishAllActivities();
     }
 
 
     private native boolean initCxxCrashMonitor(String socketName);
 
-    private native boolean initCxxCrashDaemon(String socketName, String logPath);
+    private static native boolean zygoteCxxCrashDaemon(String socketName, String logPath);
+
+    private native boolean releaseCxxCrashDaemon();
 
     private native void testCxxCrash();
 
-    private native long record2Buffer(String bufferPath, String content);
+    private native long initTempBuffer(String bufferPath, int capacity);
+
+    private native void record2Buffer(long bufferPtr, String content);
 
     private native void releaseBuffer(long bufferPtr);
 

@@ -81,6 +81,7 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
                 exceptionHandler.uncaughtException(thread, throwable);
             }
         } else {
+            Log.d("dolin_hawkeye", "11111");
             ActivityMonitor.getInstance().finishAllActivities();
             Process.killProcess(Process.myPid());
             System.exit(0);
@@ -110,7 +111,7 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
 
         //write info to log file
         String logPath = String.format(Locale.getDefault(), "%s/%s_%020d%s", logFolderDir, "java-crash", crashTime.getTime() * 1000, ".crash");
-        BoostCrashHandler.getInstance().record(logPath, sb.toString());
+        BoostCrashHandler.getInstance().record(sb.toString());
 //        CrashRecord.getInstance().asyncFlush();
 
 //        CrashRecord.getInstance().changeLogPath(logPath);
@@ -126,8 +127,8 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
         PrintWriter pw = new PrintWriter(sw);
         throwable.printStackTrace(pw);
         String stackInfo = sw.toString();
-        return LogUtils.getLogHeader(startTime, crashTime, "java crash", packageName, versionName)
-                + "Foreground: " + (ActivityMonitor.getInstance().isApplicationForeground() ? "yes" : "no") + "\n"
+        boolean isForeground = ActivityMonitor.getInstance().isApplicationForeground();
+        return LogUtils.getLogHeader(startTime, crashTime, "java", packageName, versionName, isForeground)
                 + LogUtils.SEP_OTHER_INFO + "\n"
                 + getCustomKVInfo(customMap) + "\n"
                 + LogUtils.SEP_OTHER_INFO + "\n"

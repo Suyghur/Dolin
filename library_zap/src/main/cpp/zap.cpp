@@ -62,9 +62,6 @@ static jlong InitNative(JNIEnv *env, jobject thiz, jstring buffer_path, jstring 
     int buffer_fd = open(_buffer_path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     //buffer ["路径的长度","路径","内容"], 参考mmkv格式
     auto *file_flush = new FileFlush();
-//    if (pFileFlush == nullptr) {
-//        pFileFlush = new FileFlush();
-//    }
     //加上头信息占用的大小
     buffer_size = buffer_size + BufferHeader::CalculateHeaderLen(strlen(_log_path));
     char *buffer_ptr = OpenMMap(buffer_fd, buffer_size, file_flush);
@@ -83,7 +80,6 @@ static jlong InitNative(JNIEnv *env, jobject thiz, jstring buffer_path, jstring 
     buffer->map_buffer = map_buffer;
 
     pFileFlush = file_flush;
-//    gFileFlushMap[reinterpret_cast<long >(buffer)] = file_flush;
 
     env->ReleaseStringUTFChars(buffer_path, _buffer_path);
     env->ReleaseStringUTFChars(log_path, _log_path);
@@ -99,7 +95,6 @@ static void WriteNative(JNIEnv *env, jobject thiz, jlong ptr, jstring msg) {
         if (pFileFlush != nullptr) {
             buffer->CallFileFlush(pFileFlush);
         }
-//        buffer->CallFileFlush(gFileFlushMap[ptr]);
     }
     buffer->Append(_msg, (size_t) msg_len);
     env->ReleaseStringUTFChars(msg, _msg);

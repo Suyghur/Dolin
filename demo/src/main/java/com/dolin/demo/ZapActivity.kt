@@ -37,6 +37,14 @@ class ZapActivity : Activity(), View.OnClickListener {
         setContentView(layout)
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     override fun onClick(v: View?) {
         v?.apply {
             when (tag as Int) {

@@ -38,7 +38,7 @@ void Unwinder::DoUnwind(int log_fd, pid_t tid, struct ucontext *context, void *d
 
 void Unwinder::__DoUnwind(int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
                           const std::shared_ptr<unwindstack::Memory> &memory) {
-// string for function name.
+    // string for function name.
     std::string unw_function_name;
     for (size_t frame_num = 0; frame_num < HAWKEYE_MAX_FRAMES; frame_num++) {
         // looking for a map info item for pc on this unwinding step.

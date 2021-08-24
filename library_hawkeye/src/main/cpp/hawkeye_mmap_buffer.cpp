@@ -10,27 +10,33 @@
 #include "hawkeye_log.h"
 
 
-MmapBuffer::MmapBuffer() = default;
-
-MmapBuffer::~MmapBuffer() = default;
-
-void MmapBuffer::WriteBuffer(const char *path, const char *content) {
-    if (path == nullptr || content == nullptr) {
+MmapBuffer::MmapBuffer(const char *path, size_t capacity) {
+    if (path == nullptr) {
         return;
+    }
+    size_t _capacity = 0;
+    if (capacity <= 1024 * 400) {
+        _capacity = 1024 * 400;
     }
     this->buffer_file_fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (buffer_file_fd < 0) {
         LOGE("open file %s failed", path);
         return;
     }
-    int len = strlen(content);
-    ftruncate(buffer_file_fd, len);
+    ftruncate(buffer_file_fd, _capacity);
     lseek(buffer_file_fd, 0, SEEK_SET);
-    this->buffer_ptr = (long *) mmap(nullptr, len, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_file_fd, 0);
+    this->buffer_ptr = (long *) mmap(nullptr, _capacity, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_file_fd, 0);
     if (buffer_ptr == MAP_FAILED) {
         return;
     }
-    this->content_len = len;
+    memset(buffer_ptr, '\0', _capacity);
+    msync(buffer_ptr, _capacity, MS_SYNC);
+}
+
+MmapBuffer::~MmapBuffer() = default;
+
+void MmapBuffer::WriteBuffer(const char *content) {
+    int len = strlen(content);
     memcpy(buffer_ptr, content, len);
     msync(buffer_ptr, len, MS_SYNC);
 }

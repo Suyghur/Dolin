@@ -33,7 +33,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled MINIFY_ENABLE
             proguardFiles 'proguard-rules.pro'
         }
     }

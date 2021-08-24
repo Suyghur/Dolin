@@ -5,7 +5,6 @@ import android.os.Debug;
 import android.system.Os;
 import android.text.TextUtils;
 
-import com.dolin.comm.util.DeviceInfoUtils;
 import com.dolin.hawkeye.Version;
 
 import java.io.BufferedReader;
@@ -30,23 +29,27 @@ public class LogUtils {
     private static final String MEM_INFO_FMT = "%21s %8s\n";
     private static final String MEM_INFO_FMT2 = "%21s %8s %21s %8s\n";
 
+    static final String SEP_HEAD = "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***";
     public static final String SEP_OTHER_INFO = "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---";
     private static final String TIME_FORMATTER_STR = "yyyy-MM-dd HH:mm:ss.SSSZ";
 
-    public static String getLogHeader(Date startTime, Date crashTime, String crashType, String packageName, String versionName) {
+    public static String getLogHeader(Date startTime, Date crashTime, String crashType, String packageName, String versionName, boolean isForeground) {
         DateFormat dateFormat = new SimpleDateFormat(TIME_FORMATTER_STR, Locale.getDefault());
-        return "Dolin-Crashlytics monitor : " + Version.FULL_VERSION + "\n"
-                + "Scene type: " + crashType + "\n"
-                + "Start time: " + dateFormat.format(startTime) + "\n"
-                + "Crash time: " + dateFormat.format(crashTime) + "\n"
-                + "PackageName: " + packageName + "\n"
-                + "Version: " + versionName + "\n"
-                + "API version: " + Build.VERSION.SDK_INT + "\n"
-                + "OS version: " + Build.VERSION.RELEASE + "\n"
-                + "ABIs: " + DeviceInfoUtils.getCpuAbi() + "\n"
-                + "Manufacturer: " + DeviceInfoUtils.getDeviceManufacturer() + "\n"
-                + "Brand: " + DeviceInfoUtils.getMobileBrand() + "\n"
-                + "Model: " + DeviceInfoUtils.getDeviceModel() + "\n";
+        return SEP_HEAD + "\n"
+                + "Dolin-Hawkeye monitor : '" + Version.FULL_VERSION + "'\n"
+                + "Scene type: '" + crashType + "'\n"
+                + "Start time: '" + dateFormat.format(startTime) + "'\n"
+                + "Crash time: '" + dateFormat.format(crashTime) + "'\n"
+                + "PackageName: '" + packageName + "'\n"
+                + "Version: '" + versionName + "'\n"
+                + "API version: '" + Build.VERSION.SDK_INT + "'\n"
+                + "OS version: '" + Build.VERSION.RELEASE + "'\n"
+                + "ABIs: '" + DeviceUtils.getAbiList() + "'\n"
+                + "Manufacturer: '" + Build.MANUFACTURER + "'\n"
+                + "Brand: '" + Build.BRAND + "'\n"
+                + "Model: '" + DeviceUtils.getDeviceModel() + "'\n"
+                + "Build fingerprint: '" + Build.FINGERPRINT + "'\n"
+                + "Foreground: '" + (isForeground ? "yes" : "no") + "'\n";
     }
 
     public static String getLogcat(int mainLines, int systemLines, int eventLines) {

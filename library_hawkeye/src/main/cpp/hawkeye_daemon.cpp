@@ -48,6 +48,7 @@ void HawkeyeDaemon::PtraceDetach(pid_t tid) {
 }
 
 bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
+    ///native-crash_00001629270036885000.crash
     if (!PtraceAttach(message->tid)) {
         return false;
     }
@@ -59,19 +60,19 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
             *it = 0;
         }
     }
-    int out_file = -1;
-    if (daemon_context->log_file) {
-        out_file = DumperUtils::DumpCreateFile(daemon_context->log_file);
+    int log_fd = -1;
+    if (daemon_context->log_folder_path) {
+        log_fd = DumperUtils::DumpCreateFile(daemon_context->log_folder_path);
     }
 
     // writing a crash dump header
-    DumperUtils::DumpHeader(out_file, message->pid, message->tid, message->signo, message->si_code, message->fault_addr, &message->context);
+    DumperUtils::DumpHeader(log_fd, message->pid, message->tid, message->signo, message->si_code, message->fault_addr, &message->context);
 
     // unwinder initialization, should be done before any thread unwinding.
     void *const unwinder_data = daemon_context->unwinder_init(message->tid);
 
     // stack unwinding for a main thread.
-    daemon_context->unwinder_func(out_file, message->tid, &message->context, unwinder_data);
+    daemon_context->unwinder_func(log_fd, message->tid, &message->context, unwinder_data);
 
     // processing other threads: printing a header and stack trace.
     for (pid_t *it = tids, *end = tids + tids_size; it != end; ++it) {
@@ -81,22 +82,22 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
         }
 
         // writing other thread header.
-        DumperUtils::DumpOtherThreadHeader(out_file, message->pid, *it);
+        DumperUtils::DumpOtherThreadHeader(log_fd, message->pid, *it);
 
         // stack unwinding for a secondary thread.
-        daemon_context->unwinder_func(out_file, *it, nullptr, unwinder_data);
+        daemon_context->unwinder_func(log_fd, *it, nullptr, unwinder_data);
     }
 
     // unwinder de-initialization
     daemon_context->unwinder_release(unwinder_data);
 
     // final line of crash dump.
-    DumperUtils::DumpWriteLine(out_file, " ");
+    DumperUtils::DumpWriteLine(log_fd, " ");
 
     // closing output file.
-    if (out_file >= 0) {
+    if (log_fd >= 0) {
         // closing file
-        close(out_file);
+        close(log_fd);
     }
 
     // detaching from all threads.
@@ -109,7 +110,7 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
         PtraceDetach(*it);
     }
 
-    return out_file >= 0;
+    return log_fd >= 0;
 }
 
 void HawkeyeDaemon::DaemonProcessClient(int client_socket) {
@@ -156,7 +157,7 @@ void HawkeyeDaemon::DaemonProcessClient(int client_socket) {
     // with a hang of application. In modern Android service has "a window of several minutes in which
     // it is still allowed to create and use services" so it won't be a problem.
     if (report_file_created && daemon_context->crash_callback) {
-        daemon_context->crash_callback(daemon_context->log_file, daemon_context->callback_arg);
+        daemon_context->crash_callback(daemon_context->log_folder_path, daemon_context->callback_arg);
     }
 }
 
@@ -228,7 +229,7 @@ void *HawkeyeDaemon::DaemonFunction(void *args) {
     return nullptr;
 }
 
-bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_file, hawkeye_daemon_start_stop_callback start_callback,
+bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_folder_path, hawkeye_daemon_start_stop_callback start_callback,
                                 hawkeye_daemon_crash_callback crash_callback, hawkeye_daemon_start_stop_callback stop_callback,
                                 void *callback_arg) {
     if (daemon_context) {
@@ -259,11 +260,11 @@ bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_file, h
     daemon_context->unwinder_func = &Unwinder::DoUnwind;
 
     // copying log file path if set.
-    if (log_file) {
-        size_t log_file_size = strlen(log_file);
-        if (log_file_size) {
-            daemon_context->log_file = static_cast<char *>(malloc(++log_file_size));
-            memcpy(daemon_context->log_file, log_file, log_file_size);
+    if (log_folder_path) {
+        size_t path_len = strlen(log_folder_path);
+        if (path_len) {
+            daemon_context->log_folder_path = static_cast<char *>(malloc(++path_len));
+            memcpy(daemon_context->log_folder_path, log_folder_path, path_len);
         }
     }
 
@@ -295,8 +296,8 @@ bool HawkeyeDaemon::StopDaemon() {
         close(daemon_context->interrupter[0]);
         close(daemon_context->interrupter[1]);
     }
-    if (daemon_context->log_file) {
-        free(daemon_context->log_file);
+    if (daemon_context->log_folder_path) {
+        free(daemon_context->log_folder_path);
     }
     free(daemon_context);
     daemon_context = nullptr;

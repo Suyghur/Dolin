@@ -17,9 +17,6 @@ class DemoApplication : Application() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        Hawkeye.getInstance().initialize(this) { logPath, stackInfo ->
-            //TODO 发生会崩时回调，进行网络请求，上报崩溃日志
-        }
     }
 
     override fun onCreate() {
@@ -39,5 +36,8 @@ class DemoApplication : Application() {
             .setFileSizeLimitDay(15)
             .create()
         Zap.initialize(this, config)
+        Hawkeye.getInstance().initialize(this) { logPath, stackInfo ->
+            //TODO 发生会崩时回调，进行网络请求，上报崩溃日志
+        }
     }
 }

@@ -25,6 +25,8 @@ struct hawkeye_daemon_context {
 
     unwinder_func_ptr unwinder_func;
 
+    char *log_folder_path;
+
     char *log_file;
 
     int interrupter[2];
@@ -53,7 +55,7 @@ public:
 
     static void *DaemonFunction(void *args);
 
-    static bool StartDaemon(const char *socket_name, const char *log_file, hawkeye_daemon_start_stop_callback start_callback,
+    static bool StartDaemon(const char *socket_name, const char *log_folder_path, hawkeye_daemon_start_stop_callback start_callback,
                             hawkeye_daemon_crash_callback crash_callback, hawkeye_daemon_start_stop_callback stop_callback,
                             void *callback_arg);
 

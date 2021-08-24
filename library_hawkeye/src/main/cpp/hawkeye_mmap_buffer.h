@@ -12,11 +12,11 @@ extern "C" {
 class MmapBuffer {
 public:
 
-    MmapBuffer();
+    MmapBuffer(const char *path, size_t capacity);
 
     ~MmapBuffer();
 
-    void WriteBuffer(const char *path, const char *content);
+    void WriteBuffer( const char *content);
 
     void CloseBuffer();
 

@@ -23,8 +23,6 @@
 struct hawkeye_core_context *core_context = nullptr;
 
 bool HawkeyeCore::InitCore(const char *socket_name) {
-    LOGD("InitCore socket name: %s", socket_name);
-
     if (core_context) {
         LOGE("Hawkeye core is already initialized.");
         return false;

@@ -3,9 +3,8 @@ package com.dolin.hawkeye;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
-
-import androidx.annotation.Nullable;
 
 import com.dolin.hawkeye.handler.BoostCrashHandler;
 
@@ -19,26 +18,48 @@ public class HawkeyeMonitorService extends Service {
 
     private static boolean mDaemonStarted = false;
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("dolin_hawkeye", "onStartCommand");
+//    private IHawkeyeRemoteCallback mCallback = null;
+//
+//
+//    private final IHawkeyeRemote.Stub binder = new IHawkeyeRemote.Stub() {
+//        @Override
+//        public void registerCallback(IHawkeyeRemoteCallback callback) throws RemoteException {
+//            if (mCallback == null) {
+//                mCallback = callback;
+//                startDaemon();
+//            }
+//        }
+//
+//        @Override
+//        public void unregisterCallback() throws RemoteException {
+//            if (mCallback != null) {
+//                mCallback = null;
+//            }
+//        }
+//    };
+
+    public void startDaemon() {
+        Log.d("dolin_hawkeye", "onDaemonStart");
         if (!mDaemonStarted) {
-            String socketName = getPackageName() + ".hawkeyedaemon";
+            String socketName = getPackageName() + ".monitor";
             String logPath = getExternalFilesDir("dolin/hawkeye") + File.separator + "test.hawkeye";
             mDaemonStarted = true;
-            if (BoostCrashHandler.getInstance().initNativeCrashDaemon(socketName, logPath)) {
+            if (BoostCrashHandler.getInstance().zygoteNativeCrashDaemon(socketName, logPath)) {
                 Log.d("dolin_hawkeye", "unwinding daemon is started with libunwindstack, log path: " + logPath);
-                onDaemonStart(logPath);
             } else {
                 Log.e("dolin_hawkeye", "Couldn't start unwinding daemon.");
             }
         } else {
             Log.e("dolin_hawkeye", "unwinding daemon is already started.");
         }
-        return Service.START_STICKY;
     }
 
-    @Nullable
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        startDaemon();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -48,11 +69,8 @@ public class HawkeyeMonitorService extends Service {
     public void onDestroy() {
         if (mDaemonStarted) {
             mDaemonStarted = false;
+            BoostCrashHandler.getInstance().releaseNativeCrashDaemon();
         }
         super.onDestroy();
-    }
-
-    private void onDaemonStart(String logPath) {
-        Log.d("dolin_hawkeye", "onDaemonStart");
     }
 }

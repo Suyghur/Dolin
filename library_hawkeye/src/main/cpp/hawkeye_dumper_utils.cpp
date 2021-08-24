@@ -66,7 +66,7 @@ void DumperUtils::DumpWriteLine(int fd, const char *format, ...) {
     // large, not counting the terminating null character.
     if (printed > 0) {
         if (printed >= HAWKEYE_LOG_BUFFER_SIZE) {
-            printed = HAWKEYE_LOG_BUFFER_SIZE;
+            printed = HAWKEYE_LOG_BUFFER_SIZE - 1;
         }
 
         // replacing last buffer character with new line.
@@ -84,7 +84,7 @@ void DumperUtils::DumpWriteLine(int fd, const char *format, ...) {
 
 void DumperUtils::DumpHeader(int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context) {
     // a special marker of crash report beginning
-    DumpWriteLine(log_fd, "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***");
+    DumpWriteLine(log_fd, SEP_HEAD);
 
     // this buffer we use to read data from system properties and to read other data from files.
     char str_buffer[PROP_VALUE_MAX];
@@ -154,7 +154,7 @@ void DumperUtils::DumpHeader(int log_fd, pid_t pid, pid_t tid, int signo, int si
 
 void DumperUtils::DumpOtherThreadHeader(int log_fd, pid_t pid, pid_t tid) {
     // a special marker about next (not crashed) thread data beginning.
-    DumpWriteLine(log_fd, "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---");
+    DumpWriteLine(log_fd, SEP_OTHER_INFO);
 
     // assuming 64 bytes is sufficient for a process name.
     char process_name_buffer[64];

@@ -113,4 +113,5 @@
 
 -keep class com.dolin.hawkeye.Version{public <fields>;public <methods>;}
 -keep class com.dolin.hawkeye.Hawkeye{public <fields>;public <methods>;}
+-keep class com.dolin.hawkeye.HawkeyeMonitorService{public <fields>;public <methods>;}
 -keep class com.dolin.hawkeye.handler.BoostCrashHandler{*;}

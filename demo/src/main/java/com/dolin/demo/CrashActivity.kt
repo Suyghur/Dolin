@@ -39,6 +39,14 @@ class CrashActivity : Activity(), View.OnClickListener {
         Hawkeye.getInstance().setCustomKV("user_id", "my_user_id_456")
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     override fun onClick(v: View?) {
         v?.apply {
             when (tag as Int) {

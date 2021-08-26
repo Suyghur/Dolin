@@ -37,7 +37,8 @@ int DumperUtils::DumpCreateFile(const char *path) {
 #define HAWKEYE_LOG_BUFFER_SIZE 256
 #endif
 
-void DumperUtils::DumpWriteLine(int fd, const char *format, ...) {
+
+void DumperUtils::Record2Buffer(MmapBuffer *mmap_ptr, const char *format, ...) {
     char buffer[HAWKEYE_LOG_BUFFER_SIZE];
 
     // writing to a log as is.
@@ -49,7 +50,7 @@ void DumperUtils::DumpWriteLine(int fd, const char *format, ...) {
     }
 
     // writing file to log may be disabled.
-    if (fd < 0) {
+    if (mmap_ptr == nullptr) {
         return;
     }
 
@@ -73,7 +74,48 @@ void DumperUtils::DumpWriteLine(int fd, const char *format, ...) {
         buffer[printed] = '\n';
 
         // writing to a file including \n character.
-        write(fd, buffer, (size_t) printed + 1);
+//        write(fd, buffer, (size_t) printed + 1);
+        mmap_ptr->Write(buffer);
+    }
+}
+
+void DumperUtils::DumpWriteLine(int log_fd, const char *format, ...) {
+    char buffer[HAWKEYE_LOG_BUFFER_SIZE];
+
+    // writing to a log as is.
+    {
+        va_list args;
+        va_start(args, format);
+        __android_log_vprint(ANDROID_LOG_ERROR, TAG, format, args);
+        va_end(args);
+    }
+
+    // writing file to log may be disabled.
+    if (log_fd < 0) {
+        return;
+    }
+
+    // writing to a buffer.
+    int printed;
+    {
+        va_list args;
+        va_start(args, format);
+        printed = vsnprintf(buffer, HAWKEYE_LOG_BUFFER_SIZE, format, args);
+        va_end(args);
+    }
+
+    // printed contains the number of characters that would have been written if n had been sufficiently
+    // large, not counting the terminating null character.
+    if (printed > 0) {
+        if (printed >= HAWKEYE_LOG_BUFFER_SIZE) {
+            printed = HAWKEYE_LOG_BUFFER_SIZE - 1;
+        }
+
+        // replacing last buffer character with new line.
+        buffer[printed] = '\n';
+
+        // writing to a file including \n character.
+        write(log_fd, buffer, (size_t) printed + 1);
     }
 }
 
@@ -81,7 +123,6 @@ void DumperUtils::DumpWriteLine(int fd, const char *format, ...) {
 //    DumperUtils::DumpWriteLine(out_file, " ");
 //    DumperUtils::DumpWriteLine(out_file, "backtrace: ");
 //}
-
 void DumperUtils::DumpHeader(int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context) {
     // a special marker of crash report beginning
     DumpWriteLine(log_fd, SEP_HEAD);
@@ -308,6 +349,7 @@ void DumperUtils::__DumpSignalInfo(int log_fd, int signo, int si_code, void *fau
     DumpWriteLine(log_fd, "signal %d (%s), code %d (%s), fault addr %s", signo, SignalUtils::GetSigName(signo), si_code,
                   SignalUtils::GetSigCode(signo, si_code), str_buffer);
 }
+
 
 
 

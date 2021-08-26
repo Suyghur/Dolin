@@ -7,6 +7,7 @@
 
 #include <signal.h>
 #include <ucontext.h>
+#include "hawkeye_mmap_buffer.h"
 #include "hawkeye_sizeof_array.h"
 
 /// Array of constants with signal numbers to catch.

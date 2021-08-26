@@ -35,7 +35,7 @@ public class Hawkeye {
         if (!AppInfoUtils.getProcessName(application).equals(application.getPackageName())) {
             return;
         }
-        BoostCrashHandler.getInstance().initTempFile(application,1024*400);
+        BoostCrashHandler.getInstance().initTempFile(application, 1024 * 400);
         ActivityMonitor.getInstance().initialize(application);
         JavaCrashHandler.getInstance().initialize(application, customMap, callback);
         NativeCrashHandler.getInstance().initialize(application, customMap, callback);

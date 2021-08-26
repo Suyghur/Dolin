@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/ucontext.h>
 #include <stdint.h>
+#include "hawkeye_mmap_buffer.h"
 
 #define SEP_HEAD "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***\n"
 #define SEP_OTHER_INFO "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---\n"
@@ -20,9 +21,13 @@ class DumperUtils {
 public:
     static int DumpCreateFile(const char *path);
 
-    static void DumpWriteLine(int fd, const char *format, ...);
+    static void Record2Buffer(MmapBuffer *mmap_ptr, const char *format, ...);
 
-    static void DumpHeader(int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context);
+    static void DumpWriteLine(int log_fd, const char *format, ...);
+
+//    static void DumpHeader(int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context);
+
+    static void DumpHeader( int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context);
 
     static void DumpOtherThreadHeader(int log_fd, pid_t pid, pid_t tid);
 

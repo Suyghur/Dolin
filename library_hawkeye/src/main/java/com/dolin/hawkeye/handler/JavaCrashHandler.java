@@ -2,7 +2,6 @@ package com.dolin.hawkeye.handler;
 
 import android.app.Application;
 import android.os.Process;
-import android.util.Log;
 
 import com.dolin.comm.util.AppInfoUtils;
 import com.dolin.hawkeye.internal.ICrashHandler;
@@ -75,13 +74,11 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        CrashRecord.getInstance().release();
         if (intercept) {
             if (exceptionHandler != null) {
                 exceptionHandler.uncaughtException(thread, throwable);
             }
         } else {
-            Log.d("dolin_hawkeye", "11111");
             ActivityMonitor.getInstance().finishAllActivities();
             Process.killProcess(Process.myPid());
             System.exit(0);
@@ -109,14 +106,14 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
             e.printStackTrace();
         }
 
-        //write info to log file
-        String logPath = String.format(Locale.getDefault(), "%s/%s_%020d%s", logFolderDir, "java-crash", crashTime.getTime() * 1000, ".crash");
+        // write info to log file
+        String logPath = String.format(Locale.getDefault(), "%s/%s_%020d%s", logFolderDir, "hawkeye", crashTime.getTime() * 1000, ".java.crash");
         BoostCrashHandler.getInstance().record(sb.toString());
+        BoostCrashHandler.getInstance().flush(logPath);
 //        CrashRecord.getInstance().asyncFlush();
 
 //        CrashRecord.getInstance().changeLogPath(logPath);
 //        CrashRecord.getInstance().asyncFlush(this.logPath);
-
 
         //callback
         crashHandler.onCrash("", "");

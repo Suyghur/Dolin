@@ -7,6 +7,7 @@
 
 #include <linux/un.h>
 #include "hawkeye_private.h"
+#include "hawkeye_mmap_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,9 +26,13 @@ struct hawkeye_daemon_context {
 
     unwinder_func_ptr unwinder_func;
 
-    char *log_folder_path;
+    char *log_folder_path = nullptr;
 
-    char *log_file;
+    char *log_file_path = nullptr;
+
+    MmapBuffer *buffer_ptr;
+
+    long *file_fd;
 
     int interrupter[2];
 
@@ -61,7 +66,7 @@ public:
 
     static bool StopDaemon();
 
-    static void *GetDaemonCallbacksArg();
+//    static void *GetDaemonCallbacksArg();
 
 private:
     static const int SOCKET_BACKLOG = 1;

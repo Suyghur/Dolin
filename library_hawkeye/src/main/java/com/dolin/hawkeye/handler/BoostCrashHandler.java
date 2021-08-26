@@ -19,10 +19,10 @@ public class BoostCrashHandler {
         System.loadLibrary("dolin-hawkeye");
     }
 
-    private long ptr = 0L;
-    private String bufferPath = "";
-//    private static IHawkeyeRemoteCallback cxxCrashCallback = null;
+    private long javaCrashPtr = 0L;
+    private long anrCrashPtr = 0L;
 
+    //    private static IHawkeyeRemoteCallback cxxCrashCallback = null;
     private BoostCrashHandler() {
 
     }
@@ -32,8 +32,10 @@ public class BoostCrashHandler {
     }
 
     public void initTempFile(Context context, int capacity) {
-        String tempFile = String.format(Locale.getDefault(), "%s/%s", FileUtils.getLogFolderDir(context), "java_log.temp");
-        this.ptr = initTempBuffer(tempFile, capacity);
+        String javaTempFile = String.format(Locale.getDefault(), "%s/%s", FileUtils.getLogFolderDir(context), "java_log.temp");
+        String anrTempFile = String.format(Locale.getDefault(), "%s/%s", FileUtils.getLogFolderDir(context), "anr_log.temp");
+        this.javaCrashPtr = initTempBuffer(javaTempFile, capacity);
+        this.anrCrashPtr = initTempBuffer(anrTempFile, capacity);
     }
 
     public boolean initNativeCrashMonitor(String socketName) {
@@ -54,12 +56,35 @@ public class BoostCrashHandler {
     }
 
     public void record(String content) {
-        record2Buffer(ptr, content);
+        record(content, false);
+    }
+
+    public void record(String content, boolean isAnr) {
+        if (isAnr) {
+            record2Buffer(anrCrashPtr, content);
+        } else {
+            record2Buffer(javaCrashPtr, content);
+        }
+    }
+
+    public void flush(String path) {
+        flush(path, false);
+    }
+
+    public void flush(String path, boolean isAnr) {
+        if (isAnr) {
+            flushLog2File(anrCrashPtr, path);
+        } else {
+            flushLog2File(javaCrashPtr, path);
+        }
     }
 
     public void release() {
-        if (ptr != 0L) {
-            releaseBuffer(ptr);
+        if (javaCrashPtr != 0L) {
+            releaseBuffer(javaCrashPtr);
+        }
+        if (anrCrashPtr != 0L) {
+            releaseBuffer(anrCrashPtr);
         }
         releaseNativeCrashDaemon();
     }
@@ -88,6 +113,8 @@ public class BoostCrashHandler {
     private native long initTempBuffer(String bufferPath, int capacity);
 
     private native void record2Buffer(long bufferPtr, String content);
+
+    private native void flushLog2File(long bufferPtr, String path);
 
     private native void releaseBuffer(long bufferPtr);
 

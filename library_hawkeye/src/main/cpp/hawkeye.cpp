@@ -63,9 +63,6 @@ static jboolean ZygoteCxxCrashDaemon(JNIEnv *env, jclass clz, jstring socket_nam
 
     auto *const ctx = static_cast<callback_context *const>(calloc(1, sizeof(callback_context)));
     ctx->clz = static_cast<jclass>(env->NewGlobalRef(clz));
-
-//    ctx->clz = static_cast<jclass>(clz);
-//    ctx->clz = env->FindClass("com/dolin/hawkeye/handler/BoostCrashHandler");
     ctx->mid = env->GetStaticMethodID(ctx->clz, "onCxxCrashCallback", "(Ljava/lang/String;)V");
 
     const bool success = HawkeyeDaemon::StartDaemon(_socket_name, _log_path, &OnDaemonStart, &OnCrash, &OnDaemonStop, ctx);
@@ -91,7 +88,6 @@ static void TestCxxCrash(JNIEnv *env, jobject clz) {
     *ptr = 1;
 }
 
-
 static jlong InitTempBuffer(JNIEnv *env, jobject clz, jstring buffer_path, jint capacity) {
     const char *_buffer_path = env->GetStringUTFChars(buffer_path, JNI_FALSE);
     auto buffer_size = static_cast<size_t>(capacity);
@@ -103,13 +99,19 @@ static jlong InitTempBuffer(JNIEnv *env, jobject clz, jstring buffer_path, jint 
 static void Record2Buffer(JNIEnv *env, jobject clz, jlong buffer_ptr, jstring content) {
     auto *_buffer_ptr = reinterpret_cast<MmapBuffer *>(buffer_ptr);
     const char *_content = env->GetStringUTFChars(content, JNI_FALSE);
-    _buffer_ptr->WriteBuffer(_content);
+    _buffer_ptr->Write(_content);
     env->ReleaseStringUTFChars(content, _content);
+}
+
+static void FlushLog2File(JNIEnv *env, jobject clz, jlong buffer_ptr, jstring path) {
+    auto *ptr = reinterpret_cast<MmapBuffer *>(buffer_ptr);
+    const char *_path = env->GetStringUTFChars(path, JNI_FALSE);
+    ptr->Flush(_path);
 }
 
 static void ReleaseBuffer(JNIEnv *env, jobject clz, jlong buffer_ptr) {
     auto *_buffer_ptr = reinterpret_cast<MmapBuffer *>(buffer_ptr);
-    _buffer_ptr->CloseBuffer();
+    _buffer_ptr->Close();
     delete _buffer_ptr;
 }
 
@@ -120,6 +122,7 @@ static JNINativeMethod gMethods[] = {
         {"testCxxCrash",          "()V",                                     (void *) TestCxxCrash},
         {"initTempBuffer",        "(Ljava/lang/String;I)J",                  (void *) InitTempBuffer},
         {"record2Buffer",         "(JLjava/lang/String;)V",                  (void *) Record2Buffer},
+        {"flushLog2File",         "(JLjava/lang/String;)V",                  (void *) FlushLog2File},
         {"releaseBuffer",         "(J)V",                                    (void *) ReleaseBuffer},
 };
 

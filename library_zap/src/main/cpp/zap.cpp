@@ -9,7 +9,7 @@
 #include "zap_buffer.h"
 #include "zap_file_flush.h"
 #include "zap_buffer_header.h"
-#include "log.h"
+#include "zap_log.h"
 #include <map>
 
 #ifdef __cplusplus

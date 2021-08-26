@@ -7,6 +7,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.dolin.hawkeye.handler.BoostCrashHandler;
+import com.dolin.hawkeye.utils.FileUtils;
 
 import java.io.File;
 
@@ -42,10 +43,10 @@ public class HawkeyeMonitorService extends Service {
         Log.d("dolin_hawkeye", "onDaemonStart");
         if (!mDaemonStarted) {
             String socketName = getPackageName() + ".monitor";
-            String logPath = getExternalFilesDir("dolin/hawkeye") + File.separator + "test.hawkeye";
+//            String logPath = getExternalFilesDir("dolin/hawkeye");
             mDaemonStarted = true;
-            if (BoostCrashHandler.getInstance().zygoteNativeCrashDaemon(socketName, logPath)) {
-                Log.d("dolin_hawkeye", "unwinding daemon is started with libunwindstack, log path: " + logPath);
+            if (BoostCrashHandler.getInstance().zygoteNativeCrashDaemon(socketName, FileUtils.getLogFolderDir(this))) {
+                Log.d("dolin_hawkeye", "unwinding daemon is started with libunwindstack.");
             } else {
                 Log.e("dolin_hawkeye", "Couldn't start unwinding daemon.");
             }

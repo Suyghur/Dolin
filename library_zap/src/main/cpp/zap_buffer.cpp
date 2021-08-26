@@ -3,6 +3,7 @@
 //
 
 #include "zap_buffer.h"
+#include "zap_log.h"
 
 Buffer::Buffer(char *ptr, size_t buffer_size) : buffer_ptr(ptr), buffer_size(buffer_size), buffer_header(buffer_ptr, buffer_size) {}
 
@@ -27,6 +28,9 @@ void Buffer::InitData(char *log_path, size_t log_path_len, size_t limit_size, bo
 
     data_ptr = (char *) buffer_header.GetDataPtr();
     write_ptr = (char *) buffer_header.GetWritePtr();
+
+//    LOGD("data_ptr: %d", strlen(data_ptr));
+//    LOGD("write_ptr: %d", strlen(write_ptr));
 
     OpenLogFile(log_path);
 }

@@ -5,6 +5,8 @@
 #ifndef DOLIN_HAWKEYE_MMAP_BUFFER_H
 #define DOLIN_HAWKEYE_MMAP_BUFFER_H
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,17 +18,23 @@ public:
 
     ~MmapBuffer();
 
-    void WriteBuffer( const char *content);
+    void Write(const char *content);
 
-    void CloseBuffer();
+    void Write(const char *content, bool appendable);
+
+    void Flush(const char *path);
+
+    void Close();
+
+    char *GetBufferPtr();
+
 
 private:
-    int content_len = 0;
-
     int buffer_file_fd = -1;
 
-    long *buffer_ptr = nullptr;
+    char *buffer_ptr = nullptr;
 
+    FILE *file_ptr = nullptr;
 };
 
 #ifdef __cplusplus

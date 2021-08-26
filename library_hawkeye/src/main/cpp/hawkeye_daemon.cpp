@@ -48,10 +48,13 @@ void HawkeyeDaemon::PtraceDetach(pid_t tid) {
 }
 
 bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
-    ///native-crash_00001629270036885000.crash
+    // hawkeye_00001629270036885000.native.crash
     if (!PtraceAttach(message->tid)) {
         return false;
     }
+    struct timeval tv = {};
+    gettimeofday(&tv, nullptr);
+    long crash_time = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
     pid_t tids[64];
     const size_t tids_size = ThreadUtils::GetThreads(message->pid, tids, SIZEOF_ARRAY(tids));
     for (pid_t *it = tids, *end = tids + tids_size; it != end; ++it) {
@@ -60,10 +63,15 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
             *it = 0;
         }
     }
+
     int log_fd = -1;
     if (daemon_context->log_folder_path) {
-        log_fd = DumperUtils::DumpCreateFile(daemon_context->log_folder_path);
+        daemon_context->log_file_path = static_cast<char *>(malloc(256 * sizeof(char)));
+        snprintf(daemon_context->log_file_path, 256 * sizeof(char), "%s/hawkeye_%020ld.native.crash", daemon_context->log_folder_path, crash_time);
+        LOGD("log_file_path: %s", daemon_context->log_file_path);
+        log_fd = DumperUtils::DumpCreateFile(daemon_context->log_file_path);
     }
+
 
     // writing a crash dump header
     DumperUtils::DumpHeader(log_fd, message->pid, message->tid, message->signo, message->si_code, message->fault_addr, &message->context);
@@ -113,28 +121,28 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
     return log_fd >= 0;
 }
 
-void HawkeyeDaemon::DaemonProcessClient(int client_socket) {
+void HawkeyeDaemon::DaemonProcessClient(int socket_fd) {
     struct hawkeye_crash_message message = {0, 0};
     ssize_t overall_read = 0;
     do {
         fd_set flag;
         FD_ZERO(&flag);
-        FD_SET(client_socket, &flag);
-        const int select_result = select(MAX(client_socket, daemon_context->interrupter[0]) + 1, &flag, NULL, NULL, NULL);
+        FD_SET(socket_fd, &flag);
+        const int select_result = select(MAX(socket_fd, daemon_context->interrupter[0]) + 1, &flag, NULL, NULL, NULL);
         if (select_result < 0) {
             LOGE("Select on recv error: %s (%d)", strerror(errno), errno);
-            close(client_socket);
+            close(socket_fd);
             return;
         }
         if (FD_ISSET(daemon_context->interrupter[0], &flag)) {
             // interrupting by pipe.
-            close(client_socket);
+            close(socket_fd);
             return;
         }
-        const ssize_t bytes_read = recv(client_socket, (char *) &message + overall_read, sizeof(struct hawkeye_crash_message) - overall_read, MSG_NOSIGNAL);
+        const ssize_t bytes_read = recv(socket_fd, (char *) &message + overall_read, sizeof(struct hawkeye_crash_message) - overall_read, MSG_NOSIGNAL);
         if (bytes_read < 0) {
             LOGE("Recv error: %s (%d)", strerror(errno), errno);
-            close(client_socket);
+            close(socket_fd);
             return;
         }
         overall_read += bytes_read;
@@ -146,10 +154,10 @@ void HawkeyeDaemon::DaemonProcessClient(int client_socket) {
     const bool report_file_created = DaemonCreateReport(&message);
 
     // writing 1 byte as response.
-    write(client_socket, "\0", 1);
+    write(socket_fd, "\0", 1);
 
     // closing a connection.
-    close(client_socket);
+    close(socket_fd);
 
     // running successful unwinding callback if it's set. We do it after detaching and disconnecting
     // from crashing process because at this point it can terminate. A callback may perform some
@@ -265,8 +273,16 @@ bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_folder_
         if (path_len) {
             daemon_context->log_folder_path = static_cast<char *>(malloc(++path_len));
             memcpy(daemon_context->log_folder_path, log_folder_path, path_len);
+
+            // init native_log.temp.
+            const char *buffer_name = "native_log.temp";
+            char *buffer_path = static_cast<char *>(malloc(256 * sizeof(char)));
+            snprintf(buffer_path, 256 * sizeof(char), "%s/%s", daemon_context->log_folder_path, buffer_name);
+            daemon_context->buffer_ptr = new MmapBuffer(buffer_path, 400 * 1024);
+            free(buffer_path);
         }
     }
+
 
     // creating interruption pipes.
     if (pipe(daemon_context->interrupter) < 0 ||
@@ -299,15 +315,21 @@ bool HawkeyeDaemon::StopDaemon() {
     if (daemon_context->log_folder_path) {
         free(daemon_context->log_folder_path);
     }
+    if (daemon_context->log_file_path) {
+        free(daemon_context->log_file_path);
+    }
+    if (daemon_context->buffer_ptr) {
+        daemon_context->buffer_ptr->Close();
+    }
     free(daemon_context);
     daemon_context = nullptr;
     return true;
 }
 
-void *HawkeyeDaemon::GetDaemonCallbacksArg() {
-    if (!daemon_context) {
-        return nullptr;
-    }
-    return daemon_context->callback_arg;
-}
+//void *HawkeyeDaemon::GetDaemonCallbacksArg() {
+//    if (!daemon_context) {
+//        return nullptr;
+//    }
+//    return daemon_context->callback_arg;
+//}
 

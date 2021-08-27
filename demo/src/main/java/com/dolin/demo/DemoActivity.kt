@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.dolin.comm.util.DeviceInfoUtils
+import com.dolin.hawkeye.Hawkeye
 import com.dolin.zap.Zap
 import kotlin.system.exitProcess
 
@@ -23,7 +24,8 @@ class DemoActivity : Activity(), View.OnClickListener {
 
     private val events: MutableList<Item> = mutableListOf(
         Item(0, "Zap日志测试"),
-        Item(1, "Hawkeye崩溃测试")
+        Item(1, "Hawkeye崩溃测试"),
+        Item(2, "Hawkeye崩溃测试")
     )
 
 
@@ -93,6 +95,7 @@ class DemoActivity : Activity(), View.OnClickListener {
             when (tag as Int) {
                 0 -> ZapActivity.start(this@DemoActivity)
                 1 -> CrashActivity.start(this@DemoActivity)
+                2 -> Hawkeye.getInstance().testNativeCrash()
             }
         }
     }

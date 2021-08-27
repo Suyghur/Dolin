@@ -98,7 +98,7 @@ public class BoostCrashHandler {
 //        } catch (RemoteException e) {
 //            e.printStackTrace();
 //        }
-        ActivityMonitor.getInstance().finishAllActivities();
+//        ActivityMonitor.getInstance().finishAllActivities();
     }
 
 

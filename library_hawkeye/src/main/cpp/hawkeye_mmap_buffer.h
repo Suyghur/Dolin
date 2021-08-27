@@ -20,7 +20,9 @@ public:
 
     void Write(const char *content);
 
-    void Write(const char *content, bool appendable);
+    void Write(const char *content,size_t content_len);
+
+    void Write(const char *content, size_t content_len,bool appendable);
 
     void Flush(const char *path);
 

@@ -7,6 +7,7 @@
 #include "hawkeye_private.h"
 #include "hawkeye_dumper_utils.h"
 
+
 void *Unwinder::InitUnwinder(pid_t pid) {
     // using RemoteMaps instance as an opaque data.
     auto *const maps = new unwindstack::RemoteMaps(pid);
@@ -20,7 +21,7 @@ void Unwinder::ReleaseUnwinder(void *data) {
     delete static_cast<unwindstack::RemoteMaps *>(data);
 }
 
-void Unwinder::DoUnwind(int log_fd, pid_t tid, struct ucontext *context, void *data) {
+void Unwinder::DoUnwind(MmapBuffer *mmap_ptr, int log_fd, pid_t tid, struct ucontext *context, void *data) {
     auto *const maps = static_cast<unwindstack::RemoteMaps *>(data);
     const std::shared_ptr<unwindstack::Memory> memory(new unwindstack::MemoryRemote(tid));
     std::unique_ptr<unwindstack::Regs> regs;
@@ -33,10 +34,10 @@ void Unwinder::DoUnwind(int log_fd, pid_t tid, struct ucontext *context, void *d
             return;
         }
     }
-    __DoUnwind(log_fd, regs, *maps, memory);
+    __DoUnwind(mmap_ptr, log_fd, regs, *maps, memory);
 }
 
-void Unwinder::__DoUnwind(int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
+void Unwinder::__DoUnwind(MmapBuffer *mmap_ptr, int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
                           const std::shared_ptr<unwindstack::Memory> &memory) {
     // string for function name.
     std::string unw_function_name;
@@ -44,14 +45,14 @@ void Unwinder::__DoUnwind(int log_fd, const std::unique_ptr<unwindstack::Regs> &
         // looking for a map info item for pc on this unwinding step.
         unwindstack::MapInfo *const map_info = maps.Find(regs->pc());
         if (!map_info) {
-            DumperUtils::DumpBacktraceLine(log_fd, (int) frame_num, (intptr_t) regs->pc(), nullptr, nullptr, 0);
+            DumperUtils::DumpBacktraceLine(mmap_ptr, log_fd, (int) frame_num, (intptr_t) regs->pc(), nullptr, nullptr, 0);
             break;
         }
 
         // loading data from ELF.
         unwindstack::Elf *const elf = map_info->GetElf(memory, true);
         if (!elf) {
-            DumperUtils::DumpBacktraceLine(log_fd, (int) frame_num, (intptr_t) regs->pc(), map_info->name.c_str(), nullptr, 0);
+            DumperUtils::DumpBacktraceLine(mmap_ptr, log_fd, (int) frame_num, (intptr_t) regs->pc(), map_info->name.c_str(), nullptr, 0);
             break;
         }
 
@@ -68,11 +69,11 @@ void Unwinder::__DoUnwind(int log_fd, const std::unique_ptr<unwindstack::Regs> &
         // getting function name and writing value to a log.
         uint64_t func_offset = 0;
         if (elf->GetFunctionName(rel_pc, &unw_function_name, &func_offset)) {
-            DumperUtils::DumpBacktraceLine(log_fd, (int) frame_num, (intptr_t) rel_pc, map_info->name.c_str(), unw_function_name.c_str(),
+            DumperUtils::DumpBacktraceLine(mmap_ptr, log_fd, (int) frame_num, (intptr_t) rel_pc, map_info->name.c_str(), unw_function_name.c_str(),
                                            (intptr_t) func_offset);
         } else {
             unw_function_name.clear();
-            DumperUtils::DumpBacktraceLine(log_fd, (int) frame_num, (intptr_t) rel_pc, map_info->name.c_str(), nullptr, 0);
+            DumperUtils::DumpBacktraceLine(mmap_ptr, log_fd, (int) frame_num, (intptr_t) rel_pc, map_info->name.c_str(), nullptr, 0);
         }
 
         // trying to switch to a next frame.

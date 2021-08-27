@@ -74,13 +74,14 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
 
 
     // writing a crash dump header
-    DumperUtils::DumpHeader(log_fd, message->pid, message->tid, message->signo, message->si_code, message->fault_addr, &message->context);
+    DumperUtils::DumpHeader(daemon_context->buffer_ptr, log_fd, message->pid, message->tid, message->signo, message->si_code, message->fault_addr,
+                            &message->context);
 
     // unwinder initialization, should be done before any thread unwinding.
     void *const unwinder_data = daemon_context->unwinder_init(message->tid);
 
     // stack unwinding for a main thread.
-    daemon_context->unwinder_func(log_fd, message->tid, &message->context, unwinder_data);
+    daemon_context->unwinder_func(daemon_context->buffer_ptr, log_fd, message->tid, &message->context, unwinder_data);
 
     // processing other threads: printing a header and stack trace.
     for (pid_t *it = tids, *end = tids + tids_size; it != end; ++it) {
@@ -90,22 +91,28 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
         }
 
         // writing other thread header.
-        DumperUtils::DumpOtherThreadHeader(log_fd, message->pid, *it);
+        DumperUtils::DumpOtherThreadHeader(daemon_context->buffer_ptr, log_fd, message->pid, *it);
 
         // stack unwinding for a secondary thread.
-        daemon_context->unwinder_func(log_fd, *it, nullptr, unwinder_data);
+        daemon_context->unwinder_func(daemon_context->buffer_ptr, log_fd, *it, nullptr, unwinder_data);
     }
 
     // unwinder de-initialization
     daemon_context->unwinder_release(unwinder_data);
 
     // final line of crash dump.
-    DumperUtils::DumpWriteLine(log_fd, " ");
+//    DumperUtils::DumpWriteLine(log_fd, " ");
+    DumperUtils::Record2Buffer(daemon_context->buffer_ptr, " ");
 
     // closing output file.
     if (log_fd >= 0) {
         // closing file
         close(log_fd);
+    }
+
+    if (daemon_context->buffer_ptr != nullptr) {
+        daemon_context->buffer_ptr->Flush(daemon_context->log_file_path);
+        daemon_context->buffer_ptr->Close();
     }
 
     // detaching from all threads.
@@ -273,7 +280,6 @@ bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_folder_
         if (path_len) {
             daemon_context->log_folder_path = static_cast<char *>(malloc(++path_len));
             memcpy(daemon_context->log_folder_path, log_folder_path, path_len);
-
             // init native_log.temp.
             const char *buffer_name = "native_log.temp";
             char *buffer_path = static_cast<char *>(malloc(256 * sizeof(char)));

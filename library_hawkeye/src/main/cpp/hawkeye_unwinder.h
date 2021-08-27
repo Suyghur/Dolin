@@ -12,6 +12,7 @@
 #include <unwindstack/Maps.h>
 #include <unwindstack/Memory.h>
 #include <unwindstack/Regs.h>
+#include "hawkeye_mmap_buffer.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -24,10 +25,10 @@ public:
 
     static void ReleaseUnwinder(void *data);
 
-    static void DoUnwind(int log_fd, pid_t tid, struct ucontext *context, void *data);
+    static void DoUnwind(MmapBuffer *mmap_ptr, int log_fd, pid_t tid, struct ucontext *context, void *data);
 
 private:
-    static void __DoUnwind(int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
+    static void __DoUnwind(MmapBuffer *mmap_ptr, int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
                            const std::shared_ptr<unwindstack::Memory> &memory);
 
 };

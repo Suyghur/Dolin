@@ -36,17 +36,26 @@ MmapBuffer::MmapBuffer(const char *path, size_t capacity) {
 MmapBuffer::~MmapBuffer() = default;
 
 void MmapBuffer::Write(const char *content) {
-    Write(content, true);
+    Write(content, 0, true);
 }
 
-void MmapBuffer::Write(const char *content, bool appendable) {
+void MmapBuffer::Write(const char *content, size_t content_len) {
+    Write(content, content_len, true);
+}
+
+void MmapBuffer::Write(const char *content, size_t content_len, bool appendable) {
     if (content == nullptr) {
         return;
     }
     if (appendable) {
         // 追加模式
         size_t now_len = strlen(buffer_ptr);
-        size_t new_capacity = now_len + strlen(content);
+        size_t new_capacity;
+        if (content_len == 0) {
+            new_capacity = now_len + strlen(content);
+        } else {
+            new_capacity = now_len + content_len;
+        }
         char *data_tmp = new char[new_capacity]{0};
         memcpy(data_tmp, buffer_ptr, now_len);
         strcpy(data_tmp + now_len, content);
@@ -55,7 +64,12 @@ void MmapBuffer::Write(const char *content, bool appendable) {
         free(data_tmp);
     } else {
         // 覆盖模式
-        size_t len = strlen(content);
+        size_t len;
+        if (content_len == 0) {
+            len = strlen(content);
+        } else {
+            len = content_len;
+        }
         memcpy(buffer_ptr, content, len);
         msync(buffer_ptr, len, MS_SYNC);
     }
@@ -85,3 +99,5 @@ void MmapBuffer::Close() {
 char *MmapBuffer::GetBufferPtr() {
     return this->buffer_ptr;
 }
+
+

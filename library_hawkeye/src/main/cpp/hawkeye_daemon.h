@@ -71,6 +71,8 @@ public:
 private:
     static const int SOCKET_BACKLOG = 1;
 
+    static bool _SetNonBlock(int fd);
+
 };
 
 #ifdef __cplusplus

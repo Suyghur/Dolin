@@ -6,7 +6,6 @@
 #include "hawkeye_private.h"
 #include "hawkeye_log.h"
 #include "hawkeye_signal_utils.h"
-#include "hawkeye_socket_utils.h"
 #include <csignal>
 #include <malloc.h>
 #include <unistd.h>
@@ -45,7 +44,7 @@ bool HawkeyeCore::InitCore(const char *socket_name) {
     prctl(PR_SET_DUMPABLE, 1);
 
     // filling in socket address.
-    SocketUtils::FillSockAddr(socket_name, &core_context->socket_address);
+    FillSockAddr(socket_name, &core_context->socket_address);
 
     // trying to register signal handler.
     if (!SignalUtils::RegisterSignalHandler(&__SignalHandler, core_context->old_handlers)) {

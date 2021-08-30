@@ -7,8 +7,16 @@
 
 #include <signal.h>
 #include <ucontext.h>
+#include <linux/un.h>
 #include "guard/mmap_guard.h"
-#include "hawkeye_sizeof_array.h"
+
+#define HAWKEYE_MAX_FRAMES 128
+#define HAWKEYE_MAX_FUNCTION_NAME_LENGTH 128
+#define SEP_HEAD "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***\n"
+#define SEP_OTHER_INFO "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---\n"
+
+/// Helper macro to get a size of array in elements count.
+#define SIZEOF_ARRAY(array) sizeof(array)/sizeof(array[0])
 
 /// Array of constants with signal numbers to catch.
 static const int SIGNALS_TO_CATCH[] = {
@@ -41,14 +49,20 @@ typedef void *(*unwinder_init_func_ptr)(pid_t pid);
 
 typedef void (*unwinder_release_func_ptr)(void *data);
 
-typedef void (*unwinder_func_ptr)(MmapGuard *mmap_ptr, int log_fd, pid_t tid, struct ucontext *context, void *data);
+typedef void (*unwinder_func_ptr)(MmapGuard *mmap_ptr, pid_t tid, struct ucontext *context, void *data);
 
-#ifndef HAWKEYE_MAX_FRAMES
-#define HAWKEYE_MAX_FRAMES 128
+
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
-#ifndef HAWKEYE_MAX_FUNCTION_NAME_LENGTH
-#define HAWKEYE_MAX_FUNCTION_NAME_LENGTH 128
+void FillSockAddr(const char *socket_name, struct sockaddr_un *out_address);
+
+size_t GetThreads(pid_t pid, pid_t *out, size_t size);
+
+
+#if defined(__cplusplus)
+}
 #endif
 
 #endif //DOLIN_HAWKEYE_PRIVATE_H

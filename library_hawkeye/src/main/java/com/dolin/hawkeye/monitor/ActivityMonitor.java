@@ -17,6 +17,7 @@ public class ActivityMonitor {
 
     private static final int MAX_ACTIVITY_NUM = 100;
 
+    //TODO there may case memory leaks.
     private LinkedList<Activity> activities = null;
     private boolean isAppForeground = false;
 

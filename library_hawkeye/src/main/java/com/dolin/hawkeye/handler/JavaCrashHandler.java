@@ -27,7 +27,7 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
 
     private ICrashHandler crashHandler = null;
     private Thread.UncaughtExceptionHandler exceptionHandler = null;
-    private boolean intercept = false;
+    private final boolean intercept = false;
     private String processName = "";
     private String packageName = "";
     private String versionName = "";

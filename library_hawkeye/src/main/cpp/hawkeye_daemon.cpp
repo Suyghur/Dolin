@@ -4,11 +4,8 @@
 
 #include "hawkeye_daemon.h"
 #include "hawkeye_log.h"
-#include "hawkeye_thread_utils.h"
 #include "hawkeye_dumper_utils.h"
-#include "hawkeye_socket_utils.h"
 #include "hawkeye_unwinder.h"
-#include "hawkeye_fd_utils.h"
 #include <malloc.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -56,7 +53,7 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
     gettimeofday(&tv, nullptr);
     long crash_time = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
     pid_t tids[64];
-    const size_t tids_size = ThreadUtils::GetThreads(message->pid, tids, SIZEOF_ARRAY(tids));
+    const size_t tids_size = GetThreads(message->pid, tids, SIZEOF_ARRAY(tids));
     for (pid_t *it = tids, *end = tids + tids_size; it != end; ++it) {
         // attaching errors for background threads are not fatal, just skipping such threads by setting tid to 0.
         if (!PtraceAttach(*it)) {
@@ -74,14 +71,13 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
 
 
     // writing a crash dump header
-    DumperUtils::DumpHeader(daemon_context->mmap_guard, log_fd, message->pid, message->tid, message->signo, message->si_code, message->fault_addr,
-                            &message->context);
+    DumperUtils::DumpHeader(daemon_context->mmap_guard, message->pid, message->tid, message->signo, message->si_code, message->fault_addr, &message->context);
 
     // unwinder initialization, should be done before any thread unwinding.
     void *const unwinder_data = daemon_context->unwinder_init(message->tid);
 
     // stack unwinding for a main thread.
-    daemon_context->unwinder_func(daemon_context->mmap_guard, log_fd, message->tid, &message->context, unwinder_data);
+    daemon_context->unwinder_func(daemon_context->mmap_guard, message->tid, &message->context, unwinder_data);
 
     // processing other threads: printing a header and stack trace.
     for (pid_t *it = tids, *end = tids + tids_size; it != end; ++it) {
@@ -91,17 +87,16 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
         }
 
         // writing other thread header.
-        DumperUtils::DumpOtherThreadHeader(daemon_context->mmap_guard, log_fd, message->pid, *it);
+        DumperUtils::DumpOtherThreadHeader(daemon_context->mmap_guard, message->pid, *it);
 
         // stack unwinding for a secondary thread.
-        daemon_context->unwinder_func(daemon_context->mmap_guard, log_fd, *it, nullptr, unwinder_data);
+        daemon_context->unwinder_func(daemon_context->mmap_guard, *it, nullptr, unwinder_data);
     }
 
     // unwinder de-initialization
     daemon_context->unwinder_release(unwinder_data);
 
     // final line of crash dump.
-//    DumperUtils::DumpWriteLine(log_fd, " ");
     DumperUtils::Record2Buffer(daemon_context->mmap_guard, " ");
 
     // closing output file.
@@ -268,7 +263,7 @@ bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_folder_
     daemon_context->callback_arg = callback_arg;
 
     // filling in socket address.
-    SocketUtils::FillSockAddr(socket_name, &daemon_context->socket_address);
+    FillSockAddr(socket_name, &daemon_context->socket_address);
 
     // checking if unwinder is supported. setting unwind function.
     daemon_context->unwinder_init = &Unwinder::InitUnwinder;
@@ -292,8 +287,7 @@ bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_folder_
 
 
     // creating interruption pipes.
-    if (pipe(daemon_context->interrupter) < 0 ||
-        !FDUtils::SetNonBlock(daemon_context->interrupter[0] || !FDUtils::SetNonBlock(daemon_context->interrupter[1]))) {
+    if (pipe(daemon_context->interrupter) < 0 || !_SetNonBlock(daemon_context->interrupter[0] || !_SetNonBlock(daemon_context->interrupter[1]))) {
         StopDaemon();
         return false;
     }
@@ -340,4 +334,21 @@ bool HawkeyeDaemon::StopDaemon() {
 //    }
 //    return daemon_context->callback_arg;
 //}
+
+bool HawkeyeDaemon::_SetNonBlock(int fd) {
+    int socket_flags = fcntl(fd, F_GETFL);
+    if (socket_flags == -1) {
+        LOGE("Couldn't get fcntl flags, error: %s (%d)", strerror(errno), errno);
+        return false;
+    }
+    if (socket_flags & O_NONBLOCK) {
+        return true;
+    }
+    socket_flags |= O_NONBLOCK;
+    if (fcntl(fd, F_SETFL, socket_flags) == -1) {
+        LOGE("Couldn't set fcntl flags, error: %s (%d)", strerror(errno), errno);
+        return false;
+    }
+    return true;
+}
 

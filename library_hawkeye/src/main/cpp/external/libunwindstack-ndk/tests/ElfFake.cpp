@@ -29,46 +29,46 @@
 
 namespace unwindstack {
 
-std::deque<FunctionData> ElfInterfaceFake::functions_;
-std::deque<StepData> ElfInterfaceFake::steps_;
+    std::deque <FunctionData> ElfInterfaceFake::functions_;
+    std::deque <StepData> ElfInterfaceFake::steps_;
 
-bool ElfInterfaceFake::GetFunctionName(uint64_t, uint64_t, std::string* name, uint64_t* offset) {
-  if (functions_.empty()) {
-    return false;
-  }
-  auto entry = functions_.front();
-  functions_.pop_front();
-  *name = entry.name;
-  *offset = entry.offset;
-  return true;
-}
+    bool ElfInterfaceFake::GetFunctionName(uint64_t, uint64_t, std::string *name, uint64_t *offset) {
+        if (functions_.empty()) {
+            return false;
+        }
+        auto entry = functions_.front();
+        functions_.pop_front();
+        *name = entry.name;
+        *offset = entry.offset;
+        return true;
+    }
 
-bool ElfInterfaceFake::GetGlobalVariable(const std::string& global, uint64_t* offset) {
-  auto entry = globals_.find(global);
-  if (entry == globals_.end()) {
-    return false;
-  }
-  *offset = entry->second;
-  return true;
-}
+    bool ElfInterfaceFake::GetGlobalVariable(const std::string &global, uint64_t *offset) {
+        auto entry = globals_.find(global);
+        if (entry == globals_.end()) {
+            return false;
+        }
+        *offset = entry->second;
+        return true;
+    }
 
-bool ElfInterfaceFake::Step(uint64_t, uint64_t, Regs* regs, Memory*, bool* finished) {
-  if (steps_.empty()) {
-    return false;
-  }
-  auto entry = steps_.front();
-  steps_.pop_front();
+    bool ElfInterfaceFake::Step(uint64_t, uint64_t, Regs *regs, Memory *, bool *finished) {
+        if (steps_.empty()) {
+            return false;
+        }
+        auto entry = steps_.front();
+        steps_.pop_front();
 
-  if (entry.pc == 0 && entry.sp == 0 && !entry.finished) {
-    // Pretend as though there is no frame.
-    return false;
-  }
+        if (entry.pc == 0 && entry.sp == 0 && !entry.finished) {
+            // Pretend as though there is no frame.
+            return false;
+        }
 
-  RegsFake* fake_regs = reinterpret_cast<RegsFake*>(regs);
-  fake_regs->set_pc(entry.pc);
-  fake_regs->set_sp(entry.sp);
-  *finished = entry.finished;
-  return true;
-}
+        RegsFake *fake_regs = reinterpret_cast<RegsFake *>(regs);
+        fake_regs->set_pc(entry.pc);
+        fake_regs->set_sp(entry.sp);
+        *finished = entry.finished;
+        return true;
+    }
 
 }  // namespace unwindstack

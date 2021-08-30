@@ -29,85 +29,94 @@ namespace unwindstack {
 
 // Special flag to indicate a map is in /dev/. However, a map in
 // /dev/ashmem/... does not set this flag.
-static constexpr int MAPS_FLAGS_DEVICE_MAP = 0x8000;
+    static constexpr int MAPS_FLAGS_DEVICE_MAP = 0x8000;
 // Special flag to indicate that this map represents an elf file
 // created by ART for use with the gdb jit debug interface.
 // This should only ever appear in offline maps data.
-static constexpr int MAPS_FLAGS_JIT_SYMFILE_MAP = 0x4000;
+    static constexpr int MAPS_FLAGS_JIT_SYMFILE_MAP = 0x4000;
 
-class Maps {
- public:
-  Maps() = default;
-  virtual ~Maps();
+    class Maps {
+    public:
+        Maps() = default;
 
-  MapInfo* Find(uint64_t pc);
+        virtual ~Maps();
 
-  virtual bool Parse();
+        MapInfo *Find(uint64_t pc);
 
-  virtual const std::string GetMapsFile() const { return ""; }
+        virtual bool Parse();
 
-  void Add(uint64_t start, uint64_t end, uint64_t offset, uint64_t flags, const std::string& name,
-           uint64_t load_bias);
+        virtual const std::string GetMapsFile() const { return ""; }
 
-  void Sort();
+        void Add(uint64_t start, uint64_t end, uint64_t offset, uint64_t flags, const std::string &name,
+                 uint64_t load_bias);
 
-  typedef std::vector<MapInfo*>::iterator iterator;
-  iterator begin() { return maps_.begin(); }
-  iterator end() { return maps_.end(); }
+        void Sort();
 
-  typedef std::vector<MapInfo*>::const_iterator const_iterator;
-  const_iterator begin() const { return maps_.begin(); }
-  const_iterator end() const { return maps_.end(); }
+        typedef std::vector<MapInfo *>::iterator iterator;
 
-  size_t Total() { return maps_.size(); }
+        iterator begin() { return maps_.begin(); }
 
-  MapInfo* Get(size_t index) {
-    if (index >= maps_.size()) return nullptr;
-    return maps_[index];
-  }
+        iterator end() { return maps_.end(); }
 
- protected:
-  std::vector<MapInfo*> maps_;
-};
+        typedef std::vector<MapInfo *>::const_iterator const_iterator;
 
-class RemoteMaps : public Maps {
- public:
-  RemoteMaps(pid_t pid) : pid_(pid) {}
-  virtual ~RemoteMaps() = default;
+        const_iterator begin() const { return maps_.begin(); }
 
-  virtual const std::string GetMapsFile() const override;
+        const_iterator end() const { return maps_.end(); }
 
- private:
-  pid_t pid_;
-};
+        size_t Total() { return maps_.size(); }
 
-class LocalMaps : public RemoteMaps {
- public:
-  LocalMaps() : RemoteMaps(getpid()) {}
-  virtual ~LocalMaps() = default;
-};
+        MapInfo *Get(size_t index) {
+            if (index >= maps_.size()) return nullptr;
+            return maps_[index];
+        }
 
-class BufferMaps : public Maps {
- public:
-  BufferMaps(const char* buffer) : buffer_(buffer) {}
-  virtual ~BufferMaps() = default;
+    protected:
+        std::vector<MapInfo *> maps_;
+    };
 
-  bool Parse() override;
+    class RemoteMaps : public Maps {
+    public:
+        RemoteMaps(pid_t pid) : pid_(pid) {}
 
- private:
-  const char* buffer_;
-};
+        virtual ~RemoteMaps() = default;
 
-class FileMaps : public Maps {
- public:
-  FileMaps(const std::string& file) : file_(file) {}
-  virtual ~FileMaps() = default;
+        virtual const std::string GetMapsFile() const override;
 
-  const std::string GetMapsFile() const override { return file_; }
+    private:
+        pid_t pid_;
+    };
 
- protected:
-  const std::string file_;
-};
+    class LocalMaps : public RemoteMaps {
+    public:
+        LocalMaps() : RemoteMaps(getpid()) {}
+
+        virtual ~LocalMaps() = default;
+    };
+
+    class BufferMaps : public Maps {
+    public:
+        BufferMaps(const char *buffer) : buffer_(buffer) {}
+
+        virtual ~BufferMaps() = default;
+
+        bool Parse() override;
+
+    private:
+        const char *buffer_;
+    };
+
+    class FileMaps : public Maps {
+    public:
+        FileMaps(const std::string &file) : file_(file) {}
+
+        virtual ~FileMaps() = default;
+
+        const std::string GetMapsFile() const override { return file_; }
+
+    protected:
+        const std::string file_;
+    };
 
 }  // namespace unwindstack
 

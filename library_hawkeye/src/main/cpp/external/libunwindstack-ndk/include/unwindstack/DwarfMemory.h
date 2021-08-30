@@ -22,54 +22,60 @@
 namespace unwindstack {
 
 // Forward declarations.
-class Memory;
+    class Memory;
 
-class DwarfMemory {
- public:
-  DwarfMemory(Memory* memory) : memory_(memory) {}
-  virtual ~DwarfMemory() = default;
+    class DwarfMemory {
+    public:
+        DwarfMemory(Memory *memory) : memory_(memory) {}
 
-  bool ReadBytes(void* dst, size_t num_bytes);
+        virtual ~DwarfMemory() = default;
 
-  template <typename SignedType>
-  bool ReadSigned(uint64_t* value);
+        bool ReadBytes(void *dst, size_t num_bytes);
 
-  bool ReadULEB128(uint64_t* value);
+        template<typename SignedType>
+        bool ReadSigned(uint64_t *value);
 
-  bool ReadSLEB128(int64_t* value);
+        bool ReadULEB128(uint64_t *value);
 
-  template <typename AddressType>
-  size_t GetEncodedSize(uint8_t encoding);
+        bool ReadSLEB128(int64_t *value);
 
-  bool AdjustEncodedValue(uint8_t encoding, uint64_t* value);
+        template<typename AddressType>
+        size_t GetEncodedSize(uint8_t encoding);
 
-  template <typename AddressType>
-  bool ReadEncodedValue(uint8_t encoding, uint64_t* value);
+        bool AdjustEncodedValue(uint8_t encoding, uint64_t *value);
 
-  uint64_t cur_offset() { return cur_offset_; }
-  void set_cur_offset(uint64_t cur_offset) { cur_offset_ = cur_offset; }
+        template<typename AddressType>
+        bool ReadEncodedValue(uint8_t encoding, uint64_t *value);
 
-  void set_pc_offset(uint64_t offset) { pc_offset_ = offset; }
-  void clear_pc_offset() { pc_offset_ = static_cast<uint64_t>(-1); }
+        uint64_t cur_offset() { return cur_offset_; }
 
-  void set_data_offset(uint64_t offset) { data_offset_ = offset; }
-  void clear_data_offset() { data_offset_ = static_cast<uint64_t>(-1); }
+        void set_cur_offset(uint64_t cur_offset) { cur_offset_ = cur_offset; }
 
-  void set_func_offset(uint64_t offset) { func_offset_ = offset; }
-  void clear_func_offset() { func_offset_ = static_cast<uint64_t>(-1); }
+        void set_pc_offset(uint64_t offset) { pc_offset_ = offset; }
 
-  void set_text_offset(uint64_t offset) { text_offset_ = offset; }
-  void clear_text_offset() { text_offset_ = static_cast<uint64_t>(-1); }
+        void clear_pc_offset() { pc_offset_ = static_cast<uint64_t>(-1); }
 
- private:
-  Memory* memory_;
-  uint64_t cur_offset_ = 0;
+        void set_data_offset(uint64_t offset) { data_offset_ = offset; }
 
-  uint64_t pc_offset_ = static_cast<uint64_t>(-1);
-  uint64_t data_offset_ = static_cast<uint64_t>(-1);
-  uint64_t func_offset_ = static_cast<uint64_t>(-1);
-  uint64_t text_offset_ = static_cast<uint64_t>(-1);
-};
+        void clear_data_offset() { data_offset_ = static_cast<uint64_t>(-1); }
+
+        void set_func_offset(uint64_t offset) { func_offset_ = offset; }
+
+        void clear_func_offset() { func_offset_ = static_cast<uint64_t>(-1); }
+
+        void set_text_offset(uint64_t offset) { text_offset_ = offset; }
+
+        void clear_text_offset() { text_offset_ = static_cast<uint64_t>(-1); }
+
+    private:
+        Memory *memory_;
+        uint64_t cur_offset_ = 0;
+
+        uint64_t pc_offset_ = static_cast<uint64_t>(-1);
+        uint64_t data_offset_ = static_cast<uint64_t>(-1);
+        uint64_t func_offset_ = static_cast<uint64_t>(-1);
+        uint64_t text_offset_ = static_cast<uint64_t>(-1);
+    };
 
 }  // namespace unwindstack
 

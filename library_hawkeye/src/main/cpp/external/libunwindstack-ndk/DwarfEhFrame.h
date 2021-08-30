@@ -24,25 +24,26 @@
 
 namespace unwindstack {
 
-template <typename AddressType>
-class DwarfEhFrame : public DwarfSectionImpl<AddressType> {
- public:
-  DwarfEhFrame(Memory* memory) : DwarfSectionImpl<AddressType>(memory) {}
-  virtual ~DwarfEhFrame() = default;
+    template<typename AddressType>
+    class DwarfEhFrame : public DwarfSectionImpl<AddressType> {
+    public:
+        DwarfEhFrame(Memory *memory) : DwarfSectionImpl<AddressType>(memory) {}
 
-  uint64_t GetCieOffsetFromFde32(uint32_t pointer) override {
-    return this->memory_.cur_offset() - pointer - 4;
-  }
+        virtual ~DwarfEhFrame() = default;
 
-  uint64_t GetCieOffsetFromFde64(uint64_t pointer) override {
-    return this->memory_.cur_offset() - pointer - 8;
-  }
+        uint64_t GetCieOffsetFromFde32(uint32_t pointer) override {
+            return this->memory_.cur_offset() - pointer - 4;
+        }
 
-  uint64_t AdjustPcFromFde(uint64_t pc) override {
-    // The eh_frame uses relative pcs.
-    return pc + this->memory_.cur_offset() - 4;
-  }
-};
+        uint64_t GetCieOffsetFromFde64(uint64_t pointer) override {
+            return this->memory_.cur_offset() - pointer - 8;
+        }
+
+        uint64_t AdjustPcFromFde(uint64_t pc) override {
+            // The eh_frame uses relative pcs.
+            return pc + this->memory_.cur_offset() - 4;
+        }
+    };
 
 }  // namespace unwindstack
 

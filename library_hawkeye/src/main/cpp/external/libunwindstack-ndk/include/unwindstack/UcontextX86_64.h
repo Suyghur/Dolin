@@ -35,47 +35,47 @@
 
 namespace unwindstack {
 
-struct x86_64_stack_t {
-  uint64_t ss_sp;    // void __user*
-  int32_t ss_flags;  // int
-  int32_t pad;
-  uint64_t ss_size;  // size_t
-};
+    struct x86_64_stack_t {
+        uint64_t ss_sp;    // void __user*
+        int32_t ss_flags;  // int
+        int32_t pad;
+        uint64_t ss_size;  // size_t
+    };
 
-struct x86_64_mcontext_t {
-  uint64_t r8;
-  uint64_t r9;
-  uint64_t r10;
-  uint64_t r11;
-  uint64_t r12;
-  uint64_t r13;
-  uint64_t r14;
-  uint64_t r15;
-  uint64_t rdi;
-  uint64_t rsi;
-  uint64_t rbp;
-  uint64_t rbx;
-  uint64_t rdx;
-  uint64_t rax;
-  uint64_t rcx;
-  uint64_t rsp;
-  uint64_t rip;
-  uint64_t efl;
-  uint64_t csgsfs;
-  uint64_t err;
-  uint64_t trapno;
-  uint64_t oldmask;
-  uint64_t cr2;
-  // Only care about the registers, skip everything else.
-};
+    struct x86_64_mcontext_t {
+        uint64_t r8;
+        uint64_t r9;
+        uint64_t r10;
+        uint64_t r11;
+        uint64_t r12;
+        uint64_t r13;
+        uint64_t r14;
+        uint64_t r15;
+        uint64_t rdi;
+        uint64_t rsi;
+        uint64_t rbp;
+        uint64_t rbx;
+        uint64_t rdx;
+        uint64_t rax;
+        uint64_t rcx;
+        uint64_t rsp;
+        uint64_t rip;
+        uint64_t efl;
+        uint64_t csgsfs;
+        uint64_t err;
+        uint64_t trapno;
+        uint64_t oldmask;
+        uint64_t cr2;
+        // Only care about the registers, skip everything else.
+    };
 
-struct x86_64_ucontext_t {
-  uint64_t uc_flags;  // unsigned long
-  uint64_t uc_link;   // struct ucontext*
-  x86_64_stack_t uc_stack;
-  x86_64_mcontext_t uc_mcontext;
-  // Nothing else is used, so don't define it.
-};
+    struct x86_64_ucontext_t {
+        uint64_t uc_flags;  // unsigned long
+        uint64_t uc_link;   // struct ucontext*
+        x86_64_stack_t uc_stack;
+        x86_64_mcontext_t uc_mcontext;
+        // Nothing else is used, so don't define it.
+    };
 
 }  // namespace unwindstack
 

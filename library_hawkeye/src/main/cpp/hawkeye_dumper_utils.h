@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/ucontext.h>
 #include <stdint.h>
-#include "hawkeye_mmap_buffer.h"
+#include "guard/mmap_guard.h"
 
 #define SEP_HEAD "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***\n"
 #define SEP_OTHER_INFO "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---\n"
@@ -22,24 +22,24 @@ public:
 
     static int DumpCreateFile(const char *path);
 
-    static void Record2Buffer(MmapBuffer *mmap_ptr, const char *format, ...);
+    static void Record2Buffer(MmapGuard *mmap_ptr, const char *format, ...);
 
     static void DumpWriteLine(int log_fd, const char *format, ...);
 
-    static void DumpHeader(MmapBuffer *mmap_ptr, int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context);
+    static void DumpHeader(MmapGuard *mmap_ptr, int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context);
 
-    static void DumpOtherThreadHeader(MmapBuffer *mmap_ptr, int log_fd, pid_t pid, pid_t tid);
+    static void DumpOtherThreadHeader(MmapGuard *mmap_ptr, int log_fd, pid_t pid, pid_t tid);
 
-    static void DumpBacktraceLine(MmapBuffer *mmap_ptr,int log_fd, int counter, intptr_t pc, const char *map_name, const char *func_name, intptr_t func_offset);
+    static void DumpBacktraceLine(MmapGuard *mmap_ptr, int log_fd, int counter, intptr_t pc, const char *map_name, const char *func_name, intptr_t func_offset);
 
 private:
     static ssize_t __ReadFile(const char *file_name, char *out_buffer, size_t buffer_size);
 
-    static void __DumpOtherThreadRegistersByPtrace(MmapBuffer *mmap_ptr, int log_fd, pid_t tid);
+    static void __DumpOtherThreadRegistersByPtrace(MmapGuard *mmap_ptr, int log_fd, pid_t tid);
 
-    static void __WriteProcessAndThreadInfo(MmapBuffer *mmap_ptr, int log_fd, pid_t pid, pid_t tid, char *process_name_buffer, size_t process_name_buffer_size);
+    static void __WriteProcessAndThreadInfo(MmapGuard *mmap_ptr, int log_fd, pid_t pid, pid_t tid, char *process_name_buffer, size_t process_name_buffer_size);
 
-    static void __DumpSignalInfo(MmapBuffer *mmap_ptr, int log_fd, int signo, int si_code, void *faultaddr, char *str_buffer, size_t str_buffer_size);
+    static void __DumpSignalInfo(MmapGuard *mmap_ptr, int log_fd, int signo, int si_code, void *faultaddr, char *str_buffer, size_t str_buffer_size);
 
 };
 

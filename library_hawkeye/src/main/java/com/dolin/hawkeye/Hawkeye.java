@@ -2,12 +2,12 @@ package com.dolin.hawkeye;
 
 import android.app.Application;
 
-import com.dolin.comm.util.AppInfoUtils;
 import com.dolin.hawkeye.handler.BoostCrashHandler;
 import com.dolin.hawkeye.handler.JavaCrashHandler;
 import com.dolin.hawkeye.handler.NativeCrashHandler;
 import com.dolin.hawkeye.internal.ICrashHandler;
 import com.dolin.hawkeye.monitor.ActivityMonitor;
+import com.dolin.hawkeye.utils.AppUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class Hawkeye {
     }
 
     public void initialize(Application application, ICrashHandler callback) {
-        if (!AppInfoUtils.getProcessName(application).equals(application.getPackageName())) {
+        if (!AppUtils.getProcessName(application).equals(application.getPackageName())) {
             return;
         }
         BoostCrashHandler.getInstance().initTempFile(application, 1024 * 400);

@@ -21,7 +21,7 @@ void Unwinder::ReleaseUnwinder(void *data) {
     delete static_cast<unwindstack::RemoteMaps *>(data);
 }
 
-void Unwinder::DoUnwind(MmapBuffer *mmap_ptr, int log_fd, pid_t tid, struct ucontext *context, void *data) {
+void Unwinder::DoUnwind(MmapGuard *mmap_ptr, int log_fd, pid_t tid, struct ucontext *context, void *data) {
     auto *const maps = static_cast<unwindstack::RemoteMaps *>(data);
     const std::shared_ptr<unwindstack::Memory> memory(new unwindstack::MemoryRemote(tid));
     std::unique_ptr<unwindstack::Regs> regs;
@@ -37,7 +37,7 @@ void Unwinder::DoUnwind(MmapBuffer *mmap_ptr, int log_fd, pid_t tid, struct ucon
     __DoUnwind(mmap_ptr, log_fd, regs, *maps, memory);
 }
 
-void Unwinder::__DoUnwind(MmapBuffer *mmap_ptr, int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
+void Unwinder::__DoUnwind(MmapGuard *mmap_ptr, int log_fd, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
                           const std::shared_ptr<unwindstack::Memory> &memory) {
     // string for function name.
     std::string unw_function_name;

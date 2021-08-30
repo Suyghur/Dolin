@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.Keep;
 
-import com.dolin.hawkeye.monitor.ActivityMonitor;
 import com.dolin.hawkeye.utils.FileUtils;
 
 import java.util.Locale;

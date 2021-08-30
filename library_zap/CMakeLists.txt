@@ -55,7 +55,7 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         dolin-zap
-#        dolin-comm
+        #        dolin-comm
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

@@ -26,52 +26,53 @@
 namespace unwindstack {
 
 // Forward declarations.
-class Memory;
+    class Memory;
 
-template <typename AddressType>
-class DwarfEhFrameWithHdr : public DwarfEhFrame<AddressType> {
- public:
-  // Add these so that the protected members of DwarfSectionImpl
-  // can be accessed without needing a this->.
-  using DwarfSectionImpl<AddressType>::memory_;
-  using DwarfSectionImpl<AddressType>::fde_count_;
-  using DwarfSectionImpl<AddressType>::entries_offset_;
-  using DwarfSectionImpl<AddressType>::entries_end_;
-  using DwarfSectionImpl<AddressType>::last_error_;
+    template<typename AddressType>
+    class DwarfEhFrameWithHdr : public DwarfEhFrame<AddressType> {
+    public:
+        // Add these so that the protected members of DwarfSectionImpl
+        // can be accessed without needing a this->.
+        using DwarfSectionImpl<AddressType>::memory_;
+        using DwarfSectionImpl<AddressType>::fde_count_;
+        using DwarfSectionImpl<AddressType>::entries_offset_;
+        using DwarfSectionImpl<AddressType>::entries_end_;
+        using DwarfSectionImpl<AddressType>::last_error_;
 
-  struct FdeInfo {
-    AddressType pc;
-    uint64_t offset;
-  };
+        struct FdeInfo {
+            AddressType pc;
+            uint64_t offset;
+        };
 
-  DwarfEhFrameWithHdr(Memory* memory) : DwarfEhFrame<AddressType>(memory) {}
-  virtual ~DwarfEhFrameWithHdr() = default;
+        DwarfEhFrameWithHdr(Memory *memory) : DwarfEhFrame<AddressType>(memory) {}
 
-  bool Init(uint64_t offset, uint64_t size) override;
+        virtual ~DwarfEhFrameWithHdr() = default;
 
-  bool GetFdeOffsetFromPc(uint64_t pc, uint64_t* fde_offset) override;
+        bool Init(uint64_t offset, uint64_t size) override;
 
-  const DwarfFde* GetFdeFromIndex(size_t index) override;
+        bool GetFdeOffsetFromPc(uint64_t pc, uint64_t *fde_offset) override;
 
-  const FdeInfo* GetFdeInfoFromIndex(size_t index);
+        const DwarfFde *GetFdeFromIndex(size_t index) override;
 
-  bool GetFdeOffsetSequential(uint64_t pc, uint64_t* fde_offset);
+        const FdeInfo *GetFdeInfoFromIndex(size_t index);
 
-  bool GetFdeOffsetBinary(uint64_t pc, uint64_t* fde_offset, uint64_t total_entries);
+        bool GetFdeOffsetSequential(uint64_t pc, uint64_t *fde_offset);
 
- protected:
-  uint8_t version_;
-  uint8_t ptr_encoding_;
-  uint8_t table_encoding_;
-  size_t table_entry_size_;
+        bool GetFdeOffsetBinary(uint64_t pc, uint64_t *fde_offset, uint64_t total_entries);
 
-  uint64_t ptr_offset_;
+    protected:
+        uint8_t version_;
+        uint8_t ptr_encoding_;
+        uint8_t table_encoding_;
+        size_t table_entry_size_;
 
-  uint64_t entries_data_offset_;
-  uint64_t cur_entries_offset_ = 0;
+        uint64_t ptr_offset_;
 
-  std::unordered_map<uint64_t, FdeInfo> fde_info_;
-};
+        uint64_t entries_data_offset_;
+        uint64_t cur_entries_offset_ = 0;
+
+        std::unordered_map<uint64_t, FdeInfo> fde_info_;
+    };
 
 }  // namespace unwindstack
 

@@ -35,28 +35,28 @@
 
 namespace unwindstack {
 
-struct arm_stack_t {
-  uint32_t ss_sp;    // void __user*
-  int32_t ss_flags;  // int
-  uint32_t ss_size;  // size_t
-};
+    struct arm_stack_t {
+        uint32_t ss_sp;    // void __user*
+        int32_t ss_flags;  // int
+        uint32_t ss_size;  // size_t
+    };
 
-struct arm_mcontext_t {
-  uint32_t trap_no;             // unsigned long
-  uint32_t error_code;          // unsigned long
-  uint32_t oldmask;             // unsigned long
-  uint32_t regs[ARM_REG_LAST];  // unsigned long
-  uint32_t cpsr;                // unsigned long
-  uint32_t fault_address;       // unsigned long
-};
+    struct arm_mcontext_t {
+        uint32_t trap_no;             // unsigned long
+        uint32_t error_code;          // unsigned long
+        uint32_t oldmask;             // unsigned long
+        uint32_t regs[ARM_REG_LAST];  // unsigned long
+        uint32_t cpsr;                // unsigned long
+        uint32_t fault_address;       // unsigned long
+    };
 
-struct arm_ucontext_t {
-  uint32_t uc_flags;  // unsigned long
-  uint32_t uc_link;   // struct ucontext*
-  arm_stack_t uc_stack;
-  arm_mcontext_t uc_mcontext;
-  // Nothing else is used, so don't define it.
-};
+    struct arm_ucontext_t {
+        uint32_t uc_flags;  // unsigned long
+        uint32_t uc_link;   // struct ucontext*
+        arm_stack_t uc_stack;
+        arm_mcontext_t uc_mcontext;
+        // Nothing else is used, so don't define it.
+    };
 
 }  // namespace unwindstack
 

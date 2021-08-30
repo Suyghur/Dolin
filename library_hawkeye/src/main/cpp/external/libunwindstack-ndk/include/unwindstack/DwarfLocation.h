@@ -23,30 +23,30 @@
 
 namespace unwindstack {
 
-struct DwarfCie;
+    struct DwarfCie;
 
-enum DwarfLocationEnum : uint8_t {
-  DWARF_LOCATION_INVALID = 0,
-  DWARF_LOCATION_UNDEFINED,
-  DWARF_LOCATION_OFFSET,
-  DWARF_LOCATION_VAL_OFFSET,
-  DWARF_LOCATION_REGISTER,
-  DWARF_LOCATION_EXPRESSION,
-  DWARF_LOCATION_VAL_EXPRESSION,
-};
+    enum DwarfLocationEnum : uint8_t {
+        DWARF_LOCATION_INVALID = 0,
+        DWARF_LOCATION_UNDEFINED,
+        DWARF_LOCATION_OFFSET,
+        DWARF_LOCATION_VAL_OFFSET,
+        DWARF_LOCATION_REGISTER,
+        DWARF_LOCATION_EXPRESSION,
+        DWARF_LOCATION_VAL_EXPRESSION,
+    };
 
-struct DwarfLocation {
-  DwarfLocationEnum type;
-  uint64_t values[2];
-};
+    struct DwarfLocation {
+        DwarfLocationEnum type;
+        uint64_t values[2];
+    };
 
-struct DwarfLocations : public std::unordered_map<uint32_t, DwarfLocation> {
-  const DwarfCie* cie;
-  // The range of PCs where the locations are valid (end is exclusive).
-  uint64_t pc_start = 0;
-  uint64_t pc_end = 0;
-};
-typedef DwarfLocations dwarf_loc_regs_t;
+    struct DwarfLocations : public std::unordered_map<uint32_t, DwarfLocation> {
+        const DwarfCie *cie;
+        // The range of PCs where the locations are valid (end is exclusive).
+        uint64_t pc_start = 0;
+        uint64_t pc_end = 0;
+    };
+    typedef DwarfLocations dwarf_loc_regs_t;
 
 }  // namespace unwindstack
 

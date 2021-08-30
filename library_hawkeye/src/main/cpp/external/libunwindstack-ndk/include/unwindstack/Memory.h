@@ -28,141 +28,149 @@
 
 namespace unwindstack {
 
-class Memory {
- public:
-  Memory() = default;
-  virtual ~Memory() = default;
+    class Memory {
+    public:
+        Memory() = default;
 
-  static std::shared_ptr<Memory> CreateProcessMemory(pid_t pid);
+        virtual ~Memory() = default;
 
-  virtual bool ReadString(uint64_t addr, std::string* string, uint64_t max_read = UINT64_MAX);
+        static std::shared_ptr<Memory> CreateProcessMemory(pid_t pid);
 
-  virtual size_t Read(uint64_t addr, void* dst, size_t size) = 0;
+        virtual bool ReadString(uint64_t addr, std::string *string, uint64_t max_read = UINT64_MAX);
 
-  bool ReadFully(uint64_t addr, void* dst, size_t size);
+        virtual size_t Read(uint64_t addr, void *dst, size_t size) = 0;
 
-  inline bool ReadField(uint64_t addr, void* start, void* field, size_t size) {
-    if (reinterpret_cast<uintptr_t>(field) < reinterpret_cast<uintptr_t>(start)) {
-      return false;
-    }
-    uint64_t offset = reinterpret_cast<uintptr_t>(field) - reinterpret_cast<uintptr_t>(start);
-    if (__builtin_add_overflow(addr, offset, &offset)) {
-      return false;
-    }
-    // The read will check if offset + size overflows.
-    return ReadFully(offset, field, size);
-  }
+        bool ReadFully(uint64_t addr, void *dst, size_t size);
 
-  inline bool Read32(uint64_t addr, uint32_t* dst) {
-    return ReadFully(addr, dst, sizeof(uint32_t));
-  }
+        inline bool ReadField(uint64_t addr, void *start, void *field, size_t size) {
+            if (reinterpret_cast<uintptr_t>(field) < reinterpret_cast<uintptr_t>(start)) {
+                return false;
+            }
+            uint64_t offset = reinterpret_cast<uintptr_t>(field) - reinterpret_cast<uintptr_t>(start);
+            if (__builtin_add_overflow(addr, offset, &offset)) {
+                return false;
+            }
+            // The read will check if offset + size overflows.
+            return ReadFully(offset, field, size);
+        }
 
-  inline bool Read64(uint64_t addr, uint64_t* dst) {
-    return ReadFully(addr, dst, sizeof(uint64_t));
-  }
-};
+        inline bool Read32(uint64_t addr, uint32_t *dst) {
+            return ReadFully(addr, dst, sizeof(uint32_t));
+        }
 
-class MemoryBuffer : public Memory {
- public:
-  MemoryBuffer() = default;
-  virtual ~MemoryBuffer() = default;
+        inline bool Read64(uint64_t addr, uint64_t *dst) {
+            return ReadFully(addr, dst, sizeof(uint64_t));
+        }
+    };
 
-  size_t Read(uint64_t addr, void* dst, size_t size) override;
+    class MemoryBuffer : public Memory {
+    public:
+        MemoryBuffer() = default;
 
-  uint8_t* GetPtr(size_t offset);
+        virtual ~MemoryBuffer() = default;
 
-  void Resize(size_t size) { raw_.resize(size); }
+        size_t Read(uint64_t addr, void *dst, size_t size) override;
 
-  uint64_t Size() { return raw_.size(); }
+        uint8_t *GetPtr(size_t offset);
 
- private:
-  std::vector<uint8_t> raw_;
-};
+        void Resize(size_t size) { raw_.resize(size); }
 
-class MemoryFileAtOffset : public Memory {
- public:
-  MemoryFileAtOffset() = default;
-  virtual ~MemoryFileAtOffset();
+        uint64_t Size() { return raw_.size(); }
 
-  bool Init(const std::string& file, uint64_t offset, uint64_t size = UINT64_MAX);
+    private:
+        std::vector<uint8_t> raw_;
+    };
 
-  size_t Read(uint64_t addr, void* dst, size_t size) override;
+    class MemoryFileAtOffset : public Memory {
+    public:
+        MemoryFileAtOffset() = default;
 
-  size_t Size() { return size_; }
+        virtual ~MemoryFileAtOffset();
 
-  void Clear();
+        bool Init(const std::string &file, uint64_t offset, uint64_t size = UINT64_MAX);
 
- protected:
-  size_t size_ = 0;
-  size_t offset_ = 0;
-  uint8_t* data_ = nullptr;
-};
+        size_t Read(uint64_t addr, void *dst, size_t size) override;
 
-class MemoryRemote : public Memory {
- public:
-  MemoryRemote(pid_t pid) : pid_(pid), read_redirect_func_(0) {}
-  virtual ~MemoryRemote() = default;
+        size_t Size() { return size_; }
 
-  size_t Read(uint64_t addr, void* dst, size_t size) override;
+        void Clear();
 
-  pid_t pid() { return pid_; }
+    protected:
+        size_t size_ = 0;
+        size_t offset_ = 0;
+        uint8_t *data_ = nullptr;
+    };
 
- private:
-  pid_t pid_;
-  std::atomic_uintptr_t read_redirect_func_;
-};
+    class MemoryRemote : public Memory {
+    public:
+        MemoryRemote(pid_t pid) : pid_(pid), read_redirect_func_(0) {}
 
-class MemoryLocal : public Memory {
- public:
-  MemoryLocal() = default;
-  virtual ~MemoryLocal() = default;
+        virtual ~MemoryRemote() = default;
 
-  size_t Read(uint64_t addr, void* dst, size_t size) override;
-};
+        size_t Read(uint64_t addr, void *dst, size_t size) override;
+
+        pid_t pid() { return pid_; }
+
+    private:
+        pid_t pid_;
+        std::atomic_uintptr_t read_redirect_func_;
+    };
+
+    class MemoryLocal : public Memory {
+    public:
+        MemoryLocal() = default;
+
+        virtual ~MemoryLocal() = default;
+
+        size_t Read(uint64_t addr, void *dst, size_t size) override;
+    };
 
 // MemoryRange maps one address range onto another.
 // The range [src_begin, src_begin + length) in the underlying Memory is mapped onto offset,
 // such that range.read(offset) is equivalent to underlying.read(src_begin).
-class MemoryRange : public Memory {
- public:
-  MemoryRange(const std::shared_ptr<Memory>& memory, uint64_t begin, uint64_t length,
-              uint64_t offset);
-  virtual ~MemoryRange() = default;
+    class MemoryRange : public Memory {
+    public:
+        MemoryRange(const std::shared_ptr<Memory> &memory, uint64_t begin, uint64_t length,
+                    uint64_t offset);
 
-  size_t Read(uint64_t addr, void* dst, size_t size) override;
+        virtual ~MemoryRange() = default;
 
- private:
-  std::shared_ptr<Memory> memory_;
-  uint64_t begin_;
-  uint64_t length_;
-  uint64_t offset_;
-};
+        size_t Read(uint64_t addr, void *dst, size_t size) override;
 
-class MemoryOffline : public Memory {
- public:
-  MemoryOffline() = default;
-  virtual ~MemoryOffline() = default;
+    private:
+        std::shared_ptr<Memory> memory_;
+        uint64_t begin_;
+        uint64_t length_;
+        uint64_t offset_;
+    };
 
-  bool Init(const std::string& file, uint64_t offset);
+    class MemoryOffline : public Memory {
+    public:
+        MemoryOffline() = default;
 
-  size_t Read(uint64_t addr, void* dst, size_t size) override;
+        virtual ~MemoryOffline() = default;
 
- private:
-  std::unique_ptr<MemoryRange> memory_;
-};
+        bool Init(const std::string &file, uint64_t offset);
 
-class MemoryOfflineParts : public Memory {
- public:
-  MemoryOfflineParts() = default;
-  virtual ~MemoryOfflineParts();
+        size_t Read(uint64_t addr, void *dst, size_t size) override;
 
-  void Add(MemoryOffline* memory) { memories_.push_back(memory); }
+    private:
+        std::unique_ptr<MemoryRange> memory_;
+    };
 
-  size_t Read(uint64_t addr, void* dst, size_t size) override;
+    class MemoryOfflineParts : public Memory {
+    public:
+        MemoryOfflineParts() = default;
 
- private:
-  std::vector<MemoryOffline*> memories_;
-};
+        virtual ~MemoryOfflineParts();
+
+        void Add(MemoryOffline *memory) { memories_.push_back(memory); }
+
+        size_t Read(uint64_t addr, void *dst, size_t size) override;
+
+    private:
+        std::vector<MemoryOffline *> memories_;
+    };
 
 }  // namespace unwindstack
 

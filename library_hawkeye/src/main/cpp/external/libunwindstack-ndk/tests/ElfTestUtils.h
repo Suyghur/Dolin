@@ -22,16 +22,19 @@
 
 namespace unwindstack {
 
-typedef std::function<void(uint64_t, const void*, size_t)> TestCopyFuncType;
+    typedef std::function<
+    void(uint64_t,
+    const void*, size_t)>
+    TestCopyFuncType;
 
-template <typename Ehdr>
-void TestInitEhdr(Ehdr* ehdr, uint32_t elf_class, uint32_t machine_type);
+    template<typename Ehdr>
+    void TestInitEhdr(Ehdr *ehdr, uint32_t elf_class, uint32_t machine_type);
 
-template <typename Ehdr, typename Shdr>
-void TestInitGnuDebugdata(uint32_t elf_class, uint32_t machine_type, bool init_gnu_debudata,
-                          TestCopyFuncType copy_func);
+    template<typename Ehdr, typename Shdr>
+    void TestInitGnuDebugdata(uint32_t elf_class, uint32_t machine_type, bool init_gnu_debudata,
+                              TestCopyFuncType copy_func);
 
-std::string TestGetFileDirectory();
+    std::string TestGetFileDirectory();
 
 }  // namespace unwindstack
 

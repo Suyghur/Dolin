@@ -21,6 +21,7 @@
 #include <string>
 
 #define LOG_TAG "unwind"
+
 #include <android-base/log_main.h>
 
 #include <android-base/stringprintf.h>
@@ -29,29 +30,29 @@
 
 namespace unwindstack {
 
-static bool g_print_to_stdout = false;
+    static bool g_print_to_stdout = false;
 
-void log_to_stdout(bool enable) {
-  g_print_to_stdout = enable;
-}
+    void log_to_stdout(bool enable) {
+        g_print_to_stdout = enable;
+    }
 
 // Send the data to the log.
-void log(uint8_t indent, const char* format, ...) {
-  std::string real_format;
-  if (indent > 0) {
-    real_format = android::base::StringPrintf("%*s%s", 2 * indent, " ", format);
-  } else {
-    real_format = format;
-  }
-  va_list args;
-  va_start(args, format);
-  if (g_print_to_stdout) {
-    real_format += '\n';
-    vprintf(real_format.c_str(), args);
-  } else {
-    LOG_PRI_VA(ANDROID_LOG_INFO, LOG_TAG, real_format.c_str(), args);
-  }
-  va_end(args);
-}
+    void log(uint8_t indent, const char *format, ...) {
+        std::string real_format;
+        if (indent > 0) {
+            real_format = android::base::StringPrintf("%*s%s", 2 * indent, " ", format);
+        } else {
+            real_format = format;
+        }
+        va_list args;
+        va_start(args, format);
+        if (g_print_to_stdout) {
+            real_format += '\n';
+            vprintf(real_format.c_str(), args);
+        } else {
+            LOG_PRI_VA(ANDROID_LOG_INFO, LOG_TAG, real_format.c_str(), args);
+        }
+        va_end(args);
+    }
 
 }  // namespace unwindstack

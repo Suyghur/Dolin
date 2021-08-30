@@ -32,7 +32,6 @@ public:
     static bool ReleaseCore();
 
 
-
 private:
     static void __SignalHandler(int signo, struct siginfo *siginfo, void *ctx);
 

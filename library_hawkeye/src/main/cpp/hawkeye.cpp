@@ -7,8 +7,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <iostream>
+#include "guard/mmap_guard.h"
 #include "hawkeye_log.h"
-#include "hawkeye_mmap_buffer.h"
 #include "hawkeye_core.h"
 #include "hawkeye_daemon.h"
 
@@ -91,27 +91,26 @@ static void TestCxxCrash(JNIEnv *env, jobject clz) {
 static jlong InitTempBuffer(JNIEnv *env, jobject clz, jstring buffer_path, jint capacity) {
     const char *_buffer_path = env->GetStringUTFChars(buffer_path, JNI_FALSE);
     auto buffer_size = static_cast<size_t>(capacity);
-    auto buffer_ptr = new MmapBuffer(_buffer_path, buffer_size);
+    auto buffer_ptr = new MmapGuard(_buffer_path, buffer_size);
     env->ReleaseStringUTFChars(buffer_path, _buffer_path);
     return reinterpret_cast<long >(buffer_ptr);
 }
 
 static void Record2Buffer(JNIEnv *env, jobject clz, jlong buffer_ptr, jstring content) {
-    auto *_buffer_ptr = reinterpret_cast<MmapBuffer *>(buffer_ptr);
+    auto *_buffer_ptr = reinterpret_cast<MmapGuard *>(buffer_ptr);
     const char *_content = env->GetStringUTFChars(content, JNI_FALSE);
     _buffer_ptr->Write(_content);
     env->ReleaseStringUTFChars(content, _content);
 }
 
 static void FlushLog2File(JNIEnv *env, jobject clz, jlong buffer_ptr, jstring path) {
-    auto *ptr = reinterpret_cast<MmapBuffer *>(buffer_ptr);
+    auto *ptr = reinterpret_cast<MmapGuard *>(buffer_ptr);
     const char *_path = env->GetStringUTFChars(path, JNI_FALSE);
     ptr->Flush(_path);
 }
 
 static void ReleaseBuffer(JNIEnv *env, jobject clz, jlong buffer_ptr) {
-    auto *_buffer_ptr = reinterpret_cast<MmapBuffer *>(buffer_ptr);
-    _buffer_ptr->Close();
+    auto *_buffer_ptr = reinterpret_cast<MmapGuard *>(buffer_ptr);
     delete _buffer_ptr;
 }
 

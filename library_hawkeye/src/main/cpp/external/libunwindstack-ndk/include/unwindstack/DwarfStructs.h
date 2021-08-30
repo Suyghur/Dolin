@@ -23,31 +23,31 @@
 
 namespace unwindstack {
 
-struct DwarfCie {
-  uint8_t version = 0;
-  uint8_t fde_address_encoding = 0;
-  uint8_t lsda_encoding = 0;
-  uint8_t segment_size = 0;
-  std::vector<char> augmentation_string;
-  uint64_t personality_handler = 0;
-  uint64_t cfa_instructions_offset = 0;
-  uint64_t cfa_instructions_end = 0;
-  uint64_t code_alignment_factor = 0;
-  int64_t data_alignment_factor = 0;
-  uint64_t return_address_register = 0;
-};
+    struct DwarfCie {
+        uint8_t version = 0;
+        uint8_t fde_address_encoding = 0;
+        uint8_t lsda_encoding = 0;
+        uint8_t segment_size = 0;
+        std::vector<char> augmentation_string;
+        uint64_t personality_handler = 0;
+        uint64_t cfa_instructions_offset = 0;
+        uint64_t cfa_instructions_end = 0;
+        uint64_t code_alignment_factor = 0;
+        int64_t data_alignment_factor = 0;
+        uint64_t return_address_register = 0;
+    };
 
-struct DwarfFde {
-  uint64_t cie_offset = 0;
-  uint64_t cfa_instructions_offset = 0;
-  uint64_t cfa_instructions_end = 0;
-  uint64_t pc_start = 0;
-  uint64_t pc_end = 0;
-  uint64_t lsda_address = 0;
-  const DwarfCie* cie = nullptr;
-};
+    struct DwarfFde {
+        uint64_t cie_offset = 0;
+        uint64_t cfa_instructions_offset = 0;
+        uint64_t cfa_instructions_end = 0;
+        uint64_t pc_start = 0;
+        uint64_t pc_end = 0;
+        uint64_t lsda_address = 0;
+        const DwarfCie *cie = nullptr;
+    };
 
-constexpr uint16_t CFA_REG = static_cast<uint16_t>(-1);
+    constexpr uint16_t CFA_REG = static_cast<uint16_t>(-1);
 
 }  // namespace unwindstack
 

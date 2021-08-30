@@ -1,6 +1,6 @@
-import zlib
 import os
 import sys
+import zlib
 
 
 def decompress_py2(args):

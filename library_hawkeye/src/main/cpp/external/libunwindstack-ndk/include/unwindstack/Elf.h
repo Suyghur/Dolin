@@ -35,74 +35,80 @@
 namespace unwindstack {
 
 // Forward declaration.
-struct MapInfo;
-class Regs;
+    struct MapInfo;
 
-enum ArchEnum : uint8_t {
-  ARCH_UNKNOWN = 0,
-  ARCH_ARM,
-  ARCH_ARM64,
-  ARCH_X86,
-  ARCH_X86_64,
-};
+    class Regs;
 
-class Elf {
- public:
-  Elf(Memory* memory) : memory_(memory) {}
-  virtual ~Elf() = default;
+    enum ArchEnum : uint8_t {
+        ARCH_UNKNOWN = 0,
+        ARCH_ARM,
+        ARCH_ARM64,
+        ARCH_X86,
+        ARCH_X86_64,
+    };
 
-  bool Init(bool init_gnu_debugdata);
+    class Elf {
+    public:
+        Elf(Memory *memory) : memory_(memory) {}
 
-  bool GetFunctionName(uint64_t addr, std::string* name, uint64_t* func_offset);
+        virtual ~Elf() = default;
 
-  uint64_t GetRelPc(uint64_t pc, const MapInfo* map_info);
+        bool Init(bool init_gnu_debugdata);
 
-  bool Step(uint64_t rel_pc, uint64_t adjusted_rel_pc, uint64_t elf_offset, Regs* regs,
-            Memory* process_memory, bool* finished);
+        bool GetFunctionName(uint64_t addr, std::string *name, uint64_t *func_offset);
 
-  ElfInterface* CreateInterfaceFromMemory(Memory* memory);
+        uint64_t GetRelPc(uint64_t pc, const MapInfo *map_info);
 
-  uint64_t GetLoadBias() { return load_bias_; }
+        bool Step(uint64_t rel_pc, uint64_t adjusted_rel_pc, uint64_t elf_offset, Regs *regs,
+                  Memory *process_memory, bool *finished);
 
-  bool valid() { return valid_; }
+        ElfInterface *CreateInterfaceFromMemory(Memory *memory);
 
-  ArchEnum arch() { return arch_; }
+        uint64_t GetLoadBias() { return load_bias_; }
 
-  Memory* memory() { return memory_.get(); }
+        bool valid() { return valid_; }
 
-  ElfInterface* interface() { return interface_.get(); }
+        ArchEnum arch() { return arch_; }
 
-  static bool IsValidElf(Memory* memory);
+        Memory *memory() { return memory_.get(); }
 
-  static void GetInfo(Memory* memory, bool* valid, uint64_t* size);
+        ElfInterface *interface() { return interface_.get(); }
 
-  static uint64_t GetLoadBias(Memory* memory);
+        static bool IsValidElf(Memory *memory);
 
-  static bool CachingEnabled() { return cache_enabled_; }
+        static void GetInfo(Memory *memory, bool *valid, uint64_t *size);
 
-  static void CacheLock();
-  static void CacheUnlock();
-  static void CacheAdd(MapInfo* info);
-  static bool CacheGet(MapInfo* info);
-  static bool CacheAfterCreateMemory(MapInfo* info);
+        static uint64_t GetLoadBias(Memory *memory);
 
- protected:
-  bool valid_ = false;
-  uint64_t load_bias_ = 0;
-  std::unique_ptr<ElfInterface> interface_;
-  std::unique_ptr<Memory> memory_;
-  uint32_t machine_type_;
-  uint8_t class_type_;
-  ArchEnum arch_;
-  // Protect calls that can modify internal state of the interface object.
-  std::mutex lock_;
+        static bool CachingEnabled() { return cache_enabled_; }
 
-  std::unique_ptr<ElfInterface> gnu_debugdata_interface_;
+        static void CacheLock();
 
-  static bool cache_enabled_;
-  static std::unordered_map<std::string, std::pair<std::shared_ptr<Elf>, bool>>* cache_;
-  static std::mutex* cache_lock_;
-};
+        static void CacheUnlock();
+
+        static void CacheAdd(MapInfo *info);
+
+        static bool CacheGet(MapInfo *info);
+
+        static bool CacheAfterCreateMemory(MapInfo *info);
+
+    protected:
+        bool valid_ = false;
+        uint64_t load_bias_ = 0;
+        std::unique_ptr<ElfInterface> interface_;
+        std::unique_ptr<Memory> memory_;
+        uint32_t machine_type_;
+        uint8_t class_type_;
+        ArchEnum arch_;
+        // Protect calls that can modify internal state of the interface object.
+        std::mutex lock_;
+
+        std::unique_ptr<ElfInterface> gnu_debugdata_interface_;
+
+        static bool cache_enabled_;
+        static std::unordered_map<std::string, std::pair<std::shared_ptr<Elf>, bool>> *cache_;
+        static std::mutex *cache_lock_;
+    };
 
 }  // namespace unwindstack
 

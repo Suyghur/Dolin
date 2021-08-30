@@ -4,7 +4,7 @@
 
     <application android:allowBackup="true">
         <service
-            android:name=".HawkeyeMonitorService"
+            android:name="com.dolin.hawkeye.HawkeyeMonitorService"
             android:enabled="true"
             android:exported="false"
             android:process=":monitor" />

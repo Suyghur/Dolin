@@ -29,50 +29,54 @@
 namespace unwindstack {
 
 // Forward declarations.
-class Memory;
+    class Memory;
 
-struct MapInfo {
-  MapInfo() = default;
-  MapInfo(uint64_t start, uint64_t end) : start(start), end(end) {}
-  MapInfo(uint64_t start, uint64_t end, uint64_t offset, uint64_t flags, const std::string& name)
-      : start(start),
-        end(end),
-        offset(offset),
-        flags(flags),
-        name(name),
-        load_bias(static_cast<uint64_t>(-1)) {}
-  ~MapInfo() = default;
+    struct MapInfo {
+        MapInfo() = default;
 
-  uint64_t start = 0;
-  uint64_t end = 0;
-  uint64_t offset = 0;
-  uint16_t flags = 0;
-  std::string name;
-  std::shared_ptr<Elf> elf;
-  // This value is only non-zero if the offset is non-zero but there is
-  // no elf signature found at that offset. This indicates that the
-  // entire file is represented by the Memory object returned by CreateMemory,
-  // instead of a portion of the file.
-  uint64_t elf_offset = 0;
+        MapInfo(uint64_t start, uint64_t end) : start(start), end(end) {}
 
-  std::atomic<std::uint64_t> load_bias;
+        MapInfo(uint64_t start, uint64_t end, uint64_t offset, uint64_t flags, const std::string &name)
+                : start(start),
+                  end(end),
+                  offset(offset),
+                  flags(flags),
+                  name(name),
+                  load_bias(static_cast<uint64_t>(-1)) {}
 
-  // This function guarantees it will never return nullptr.
-  Elf* GetElf(const std::shared_ptr<Memory>& process_memory, bool init_gnu_debugdata = false);
+        ~MapInfo() = default;
 
-  uint64_t GetLoadBias(const std::shared_ptr<Memory>& process_memory);
+        uint64_t start = 0;
+        uint64_t end = 0;
+        uint64_t offset = 0;
+        uint16_t flags = 0;
+        std::string name;
+        std::shared_ptr<Elf> elf;
+        // This value is only non-zero if the offset is non-zero but there is
+        // no elf signature found at that offset. This indicates that the
+        // entire file is represented by the Memory object returned by CreateMemory,
+        // instead of a portion of the file.
+        uint64_t elf_offset = 0;
 
- private:
-  MapInfo(const MapInfo&) = delete;
-  void operator=(const MapInfo&) = delete;
+        std::atomic<std::uint64_t> load_bias;
 
-  Memory* GetFileMemory();
+        // This function guarantees it will never return nullptr.
+        Elf *GetElf(const std::shared_ptr<Memory> &process_memory, bool init_gnu_debugdata = false);
 
-  Memory* CreateMemory(const std::shared_ptr<Memory>& process_memory);
+        uint64_t GetLoadBias(const std::shared_ptr<Memory> &process_memory);
 
-  // Protect the creation of the elf object.
-  std::mutex mutex_;
-};
+    private:
+        MapInfo(const MapInfo &) = delete;
+
+        void operator=(const MapInfo &) = delete;
+
+        Memory *GetFileMemory();
+
+        Memory *CreateMemory(const std::shared_ptr<Memory> &process_memory);
+
+        // Protect the creation of the elf object.
+        std::mutex mutex_;
+    };
 
 }  // namespace unwindstack
 

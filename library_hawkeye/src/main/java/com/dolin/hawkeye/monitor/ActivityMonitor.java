@@ -3,7 +3,6 @@ package com.dolin.hawkeye.monitor;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.dolin.hawkeye.handler.BoostCrashHandler;
 import com.dolin.hawkeye.handler.NativeCrashHandler;
@@ -54,27 +53,27 @@ public class ActivityMonitor {
 
             @Override
             public void onActivityStarted(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
                 if (++activityReferences == 1 && !isActivityChangingConfigurations) {
                     isAppForeground = true;
                 }
             }
 
             @Override
-            public void onActivityResumed(Activity activity) {
-
-            }
-
-            @Override
             public void onActivityPaused(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityStopped(Activity activity) {
                 isActivityChangingConfigurations = activity.isChangingConfigurations();
                 if (--activityReferences == 0 && !isActivityChangingConfigurations) {
                     isAppForeground = false;
                 }
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+
             }
 
             @Override
@@ -84,7 +83,6 @@ public class ActivityMonitor {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                Log.d("dolin_hawkeye", "onActivityDestroyed, size : " + activities.size());
                 if (activities != null && activities.size() == 1) {
                     finishAllActivities();
                 }
@@ -93,12 +91,12 @@ public class ActivityMonitor {
     }
 
     public void finishAllActivities() {
-        Log.d("dolin_hawkeye", "finishAllActivities, size: " + activities);
         if (activities != null) {
             for (Activity activity : activities) {
                 activity.finish();
             }
             activities.clear();
+            activities = null;
         }
         NativeCrashHandler.getInstance().release();
         BoostCrashHandler.getInstance().release();

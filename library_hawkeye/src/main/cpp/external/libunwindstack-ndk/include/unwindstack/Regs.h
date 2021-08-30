@@ -26,86 +26,97 @@
 namespace unwindstack {
 
 // Forward declarations.
-class Elf;
-enum ArchEnum : uint8_t;
-class Memory;
+    class Elf;
 
-class Regs {
- public:
-  enum LocationEnum : uint8_t {
-    LOCATION_UNKNOWN = 0,
-    LOCATION_REGISTER,
-    LOCATION_SP_OFFSET,
-  };
+    enum ArchEnum : uint8_t;
 
-  struct Location {
-    Location(LocationEnum type, int16_t value) : type(type), value(value) {}
+    class Memory;
 
-    LocationEnum type;
-    int16_t value;
-  };
+    class Regs {
+    public:
+        enum LocationEnum : uint8_t {
+            LOCATION_UNKNOWN = 0,
+            LOCATION_REGISTER,
+            LOCATION_SP_OFFSET,
+        };
 
-  Regs(uint16_t total_regs, const Location& return_loc)
-      : total_regs_(total_regs), return_loc_(return_loc) {}
-  virtual ~Regs() = default;
+        struct Location {
+            Location(LocationEnum type, int16_t value) : type(type), value(value) {}
 
-  virtual ArchEnum Arch() = 0;
+            LocationEnum type;
+            int16_t value;
+        };
 
-  virtual bool Is32Bit() = 0;
+        Regs(uint16_t total_regs, const Location &return_loc)
+                : total_regs_(total_regs), return_loc_(return_loc) {}
 
-  virtual void* RawData() = 0;
-  virtual uint64_t pc() = 0;
-  virtual uint64_t sp() = 0;
+        virtual ~Regs() = default;
 
-  virtual void set_pc(uint64_t pc) = 0;
-  virtual void set_sp(uint64_t sp) = 0;
+        virtual ArchEnum Arch() = 0;
 
-  uint64_t dex_pc() { return dex_pc_; }
-  void set_dex_pc(uint64_t dex_pc) { dex_pc_ = dex_pc; }
+        virtual bool Is32Bit() = 0;
 
-  virtual uint64_t GetPcAdjustment(uint64_t rel_pc, Elf* elf) = 0;
+        virtual void *RawData() = 0;
 
-  virtual bool StepIfSignalHandler(uint64_t rel_pc, Elf* elf, Memory* process_memory) = 0;
+        virtual uint64_t pc() = 0;
 
-  virtual bool SetPcFromReturnAddress(Memory* process_memory) = 0;
+        virtual uint64_t sp() = 0;
 
-  virtual void IterateRegisters(std::function<void(const char*, uint64_t)>) = 0;
+        virtual void set_pc(uint64_t pc) = 0;
 
-  uint16_t total_regs() { return total_regs_; }
+        virtual void set_sp(uint64_t sp) = 0;
 
-  static ArchEnum CurrentArch();
-  static Regs* RemoteGet(pid_t pid);
-  static Regs* CreateFromUcontext(ArchEnum arch, void* ucontext);
-  static Regs* CreateFromLocal();
+        uint64_t dex_pc() { return dex_pc_; }
 
- protected:
-  uint16_t total_regs_;
-  Location return_loc_;
-  uint64_t dex_pc_ = 0;
-};
+        void set_dex_pc(uint64_t dex_pc) { dex_pc_ = dex_pc; }
 
-template <typename AddressType>
-class RegsImpl : public Regs {
- public:
-  RegsImpl(uint16_t total_regs, Location return_loc)
-      : Regs(total_regs, return_loc), regs_(total_regs) {}
-  virtual ~RegsImpl() = default;
+        virtual uint64_t GetPcAdjustment(uint64_t rel_pc, Elf *elf) = 0;
 
-  bool Is32Bit() override { return sizeof(AddressType) == sizeof(uint32_t); }
+        virtual bool StepIfSignalHandler(uint64_t rel_pc, Elf *elf, Memory *process_memory) = 0;
 
-  inline AddressType& operator[](size_t reg) { return regs_[reg]; }
+        virtual bool SetPcFromReturnAddress(Memory *process_memory) = 0;
 
-  void* RawData() override { return regs_.data(); }
+        virtual void IterateRegisters(std::function<void(const char *, uint64_t)>) = 0;
 
-  virtual void IterateRegisters(std::function<void(const char*, uint64_t)> fn) override {
-    for (size_t i = 0; i < regs_.size(); ++i) {
-      fn(std::to_string(i).c_str(), regs_[i]);
-    }
-  }
+        uint16_t total_regs() { return total_regs_; }
 
- protected:
-  std::vector<AddressType> regs_;
-};
+        static ArchEnum CurrentArch();
+
+        static Regs *RemoteGet(pid_t pid);
+
+        static Regs *CreateFromUcontext(ArchEnum arch, void *ucontext);
+
+        static Regs *CreateFromLocal();
+
+    protected:
+        uint16_t total_regs_;
+        Location return_loc_;
+        uint64_t dex_pc_ = 0;
+    };
+
+    template<typename AddressType>
+    class RegsImpl : public Regs {
+    public:
+        RegsImpl(uint16_t total_regs, Location return_loc)
+                : Regs(total_regs, return_loc), regs_(total_regs) {}
+
+        virtual ~RegsImpl() = default;
+
+        bool Is32Bit() override { return sizeof(AddressType) == sizeof(uint32_t); }
+
+        inline AddressType &operator[](size_t reg) { return regs_[reg]; }
+
+        void *RawData() override { return regs_.data(); }
+
+        virtual void IterateRegisters(std::function<void(const char *, uint64_t)> fn) override {
+            for (size_t i = 0; i < regs_.size(); ++i) {
+                fn(std::to_string(i).c_str(), regs_[i]);
+            }
+        }
+
+    protected:
+        std::vector<AddressType> regs_;
+    };
 
 }  // namespace unwindstack
 

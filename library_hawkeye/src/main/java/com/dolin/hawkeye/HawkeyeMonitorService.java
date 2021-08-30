@@ -3,13 +3,10 @@ package com.dolin.hawkeye;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.dolin.hawkeye.handler.BoostCrashHandler;
 import com.dolin.hawkeye.utils.FileUtils;
-
-import java.io.File;
 
 /**
  * @author #Suyghur.

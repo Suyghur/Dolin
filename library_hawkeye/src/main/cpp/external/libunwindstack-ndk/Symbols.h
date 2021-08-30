@@ -25,46 +25,48 @@
 namespace unwindstack {
 
 // Forward declaration.
-class Memory;
+    class Memory;
 
-class Symbols {
-  struct Info {
-    Info(uint64_t start_offset, uint64_t end_offset, uint64_t str_offset)
-        : start_offset(start_offset), end_offset(end_offset), str_offset(str_offset) {}
-    uint64_t start_offset;
-    uint64_t end_offset;
-    uint64_t str_offset;
-  };
+    class Symbols {
+        struct Info {
+            Info(uint64_t start_offset, uint64_t end_offset, uint64_t str_offset)
+                    : start_offset(start_offset), end_offset(end_offset), str_offset(str_offset) {}
 
- public:
-  Symbols(uint64_t offset, uint64_t size, uint64_t entry_size, uint64_t str_offset,
-          uint64_t str_size);
-  virtual ~Symbols() = default;
+            uint64_t start_offset;
+            uint64_t end_offset;
+            uint64_t str_offset;
+        };
 
-  const Info* GetInfoFromCache(uint64_t addr);
+    public:
+        Symbols(uint64_t offset, uint64_t size, uint64_t entry_size, uint64_t str_offset,
+                uint64_t str_size);
 
-  template <typename SymType>
-  bool GetName(uint64_t addr, uint64_t load_bias, Memory* elf_memory, std::string* name,
-               uint64_t* func_offset);
+        virtual ~Symbols() = default;
 
-  template <typename SymType>
-  bool GetGlobal(Memory* elf_memory, const std::string& name, uint64_t* memory_address);
+        const Info *GetInfoFromCache(uint64_t addr);
 
-  void ClearCache() {
-    symbols_.clear();
-    cur_offset_ = offset_;
-  }
+        template<typename SymType>
+        bool GetName(uint64_t addr, uint64_t load_bias, Memory *elf_memory, std::string *name,
+                     uint64_t *func_offset);
 
- private:
-  uint64_t cur_offset_;
-  uint64_t offset_;
-  uint64_t end_;
-  uint64_t entry_size_;
-  uint64_t str_offset_;
-  uint64_t str_end_;
+        template<typename SymType>
+        bool GetGlobal(Memory *elf_memory, const std::string &name, uint64_t *memory_address);
 
-  std::vector<Info> symbols_;
-};
+        void ClearCache() {
+            symbols_.clear();
+            cur_offset_ = offset_;
+        }
+
+    private:
+        uint64_t cur_offset_;
+        uint64_t offset_;
+        uint64_t end_;
+        uint64_t entry_size_;
+        uint64_t str_offset_;
+        uint64_t str_end_;
+
+        std::vector<Info> symbols_;
+    };
 
 }  // namespace unwindstack
 

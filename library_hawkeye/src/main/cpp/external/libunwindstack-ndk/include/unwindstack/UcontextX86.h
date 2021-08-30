@@ -35,42 +35,42 @@
 
 namespace unwindstack {
 
-struct x86_stack_t {
-  uint32_t ss_sp;    // void __user*
-  int32_t ss_flags;  // int
-  uint32_t ss_size;  // size_t
-};
+    struct x86_stack_t {
+        uint32_t ss_sp;    // void __user*
+        int32_t ss_flags;  // int
+        uint32_t ss_size;  // size_t
+    };
 
-struct x86_mcontext_t {
-  uint32_t gs;
-  uint32_t fs;
-  uint32_t es;
-  uint32_t ds;
-  uint32_t edi;
-  uint32_t esi;
-  uint32_t ebp;
-  uint32_t esp;
-  uint32_t ebx;
-  uint32_t edx;
-  uint32_t ecx;
-  uint32_t eax;
-  uint32_t trapno;
-  uint32_t err;
-  uint32_t eip;
-  uint32_t cs;
-  uint32_t efl;
-  uint32_t uesp;
-  uint32_t ss;
-  // Only care about the registers, skip everything else.
-};
+    struct x86_mcontext_t {
+        uint32_t gs;
+        uint32_t fs;
+        uint32_t es;
+        uint32_t ds;
+        uint32_t edi;
+        uint32_t esi;
+        uint32_t ebp;
+        uint32_t esp;
+        uint32_t ebx;
+        uint32_t edx;
+        uint32_t ecx;
+        uint32_t eax;
+        uint32_t trapno;
+        uint32_t err;
+        uint32_t eip;
+        uint32_t cs;
+        uint32_t efl;
+        uint32_t uesp;
+        uint32_t ss;
+        // Only care about the registers, skip everything else.
+    };
 
-struct x86_ucontext_t {
-  uint32_t uc_flags;  // unsigned long
-  uint32_t uc_link;   // struct ucontext*
-  x86_stack_t uc_stack;
-  x86_mcontext_t uc_mcontext;
-  // Nothing else is used, so don't define it.
-};
+    struct x86_ucontext_t {
+        uint32_t uc_flags;  // unsigned long
+        uint32_t uc_link;   // struct ucontext*
+        x86_stack_t uc_stack;
+        x86_mcontext_t uc_mcontext;
+        // Nothing else is used, so don't define it.
+    };
 
 }  // namespace unwindstack
 

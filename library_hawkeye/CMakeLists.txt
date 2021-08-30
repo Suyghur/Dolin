@@ -16,10 +16,15 @@ project("library_hawkeye")
 
 include_directories(src/main/cpp/)
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
+
+include_directories(src/main/cpp/guard)
+aux_source_directory(src/main/cpp/guard GUARD_SOURCE)
+
 add_library(
         dolin-hawkeye
         SHARED
         ${DIR_SOURCE}
+        ${GUARD_SOURCE}
 )
 
 message("add external library libunwindstack")

@@ -34,72 +34,72 @@ std::string g_fake_log_print;
 
 namespace unwindstack {
 
-void ResetLogs() {
-  g_fake_log_buf = "";
-  g_fake_log_print = "";
-}
+    void ResetLogs() {
+        g_fake_log_buf = "";
+        g_fake_log_print = "";
+    }
 
-std::string GetFakeLogBuf() {
-  return g_fake_log_buf;
-}
+    std::string GetFakeLogBuf() {
+        return g_fake_log_buf;
+    }
 
-std::string GetFakeLogPrint() {
-  return g_fake_log_print;
-}
+    std::string GetFakeLogPrint() {
+        return g_fake_log_print;
+    }
 
 }  // namespace unwindstack
 
-extern "C" int __android_log_buf_write(int bufId, int prio, const char* tag, const char* msg) {
-  g_fake_log_buf += std::to_string(bufId) + ' ' + std::to_string(prio) + ' ';
-  g_fake_log_buf += tag;
-  g_fake_log_buf += ' ';
-  g_fake_log_buf += msg;
-  return 1;
+extern "C" int __android_log_buf_write(int bufId, int prio, const char *tag, const char *msg) {
+    g_fake_log_buf += std::to_string(bufId) + ' ' + std::to_string(prio) + ' ';
+    g_fake_log_buf += tag;
+    g_fake_log_buf += ' ';
+    g_fake_log_buf += msg;
+    return 1;
 }
 
-extern "C" int __android_log_print(int prio, const char* tag, const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  int val = __android_log_vprint(prio, tag, fmt, ap);
-  va_end(ap);
+extern "C" int __android_log_print(int prio, const char *tag, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    int val = __android_log_vprint(prio, tag, fmt, ap);
+    va_end(ap);
 
-  return val;
+    return val;
 }
 
-extern "C" int __android_log_vprint(int prio, const char* tag, const char* fmt, va_list ap) {
-  g_fake_log_print += std::to_string(prio) + ' ';
-  g_fake_log_print += tag;
-  g_fake_log_print += ' ';
+extern "C" int __android_log_vprint(int prio, const char *tag, const char *fmt, va_list ap) {
+    g_fake_log_print += std::to_string(prio) + ' ';
+    g_fake_log_print += tag;
+    g_fake_log_print += ' ';
 
-  android::base::StringAppendV(&g_fake_log_print, fmt, ap);
+    android::base::StringAppendV(&g_fake_log_print, fmt, ap);
 
-  g_fake_log_print += '\n';
+    g_fake_log_print += '\n';
 
-  return 1;
+    return 1;
 }
 
-extern "C" log_id_t android_name_to_log_id(const char*) {
-  return LOG_ID_SYSTEM;
+extern "C" log_id_t android_name_to_log_id(const char *) {
+    return LOG_ID_SYSTEM;
 }
 
-extern "C" struct logger_list* android_logger_list_open(log_id_t, int, unsigned int, pid_t) {
-  errno = EACCES;
-  return nullptr;
+extern "C" struct logger_list *android_logger_list_open(log_id_t, int, unsigned int, pid_t) {
+    errno = EACCES;
+    return nullptr;
 }
 
-extern "C" int android_logger_list_read(struct logger_list*, struct log_msg*) {
-  return 0;
+extern "C" int android_logger_list_read(struct logger_list *, struct log_msg *) {
+    return 0;
 }
 
-extern "C" EventTagMap* android_openEventTagMap(const char*) {
-  return nullptr;
+extern "C" EventTagMap *android_openEventTagMap(const char *) {
+    return nullptr;
 }
 
 extern "C" int android_log_processBinaryLogBuffer(
-    struct logger_entry*,
-    AndroidLogEntry*, const EventTagMap*, char*, int) {
-  return 0;
+        struct logger_entry *,
+        AndroidLogEntry *, const EventTagMap *, char *, int) {
+    return 0;
 }
 
-extern "C" void android_logger_list_free(struct logger_list*) {
+extern "C" void android_logger_list_free(struct logger_list *) {
 }

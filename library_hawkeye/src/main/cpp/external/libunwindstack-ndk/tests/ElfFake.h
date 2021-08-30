@@ -32,102 +32,120 @@
 
 namespace unwindstack {
 
-struct StepData {
-  StepData(uint64_t pc, uint64_t sp, bool finished) : pc(pc), sp(sp), finished(finished) {}
-  uint64_t pc;
-  uint64_t sp;
-  bool finished;
-};
+    struct StepData {
+        StepData(uint64_t pc, uint64_t sp, bool finished) : pc(pc), sp(sp), finished(finished) {}
 
-struct FunctionData {
-  FunctionData(std::string name, uint64_t offset) : name(name), offset(offset) {}
+        uint64_t pc;
+        uint64_t sp;
+        bool finished;
+    };
 
-  std::string name;
-  uint64_t offset;
-};
+    struct FunctionData {
+        FunctionData(std::string name, uint64_t offset) : name(name), offset(offset) {}
 
-class ElfFake : public Elf {
- public:
-  ElfFake(Memory* memory) : Elf(memory) { valid_ = true; }
-  virtual ~ElfFake() = default;
+        std::string name;
+        uint64_t offset;
+    };
 
-  void FakeSetValid(bool valid) { valid_ = valid; }
+    class ElfFake : public Elf {
+    public:
+        ElfFake(Memory *memory) : Elf(memory) { valid_ = true; }
 
-  void FakeSetLoadBias(uint64_t load_bias) { load_bias_ = load_bias; }
+        virtual ~ElfFake() = default;
 
-  void FakeSetInterface(ElfInterface* interface) { interface_.reset(interface); }
-  void FakeSetGnuDebugdataInterface(ElfInterface* interface) {
-    gnu_debugdata_interface_.reset(interface);
-  }
-};
+        void FakeSetValid(bool valid) { valid_ = valid; }
 
-class ElfInterfaceFake : public ElfInterface {
- public:
-  ElfInterfaceFake(Memory* memory) : ElfInterface(memory) {}
-  virtual ~ElfInterfaceFake() = default;
+        void FakeSetLoadBias(uint64_t load_bias) { load_bias_ = load_bias; }
 
-  bool Init(uint64_t*) override { return false; }
-  void InitHeaders() override {}
-  bool GetSoname(std::string*) override { return false; }
+        void FakeSetInterface(ElfInterface *interface) { interface_.reset(interface); }
 
-  bool GetFunctionName(uint64_t, uint64_t, std::string*, uint64_t*) override;
-  bool GetGlobalVariable(const std::string&, uint64_t*) override;
+        void FakeSetGnuDebugdataInterface(ElfInterface *interface) {
+            gnu_debugdata_interface_.reset(interface);
+        }
+    };
 
-  bool Step(uint64_t, uint64_t, Regs*, Memory*, bool*) override;
+    class ElfInterfaceFake : public ElfInterface {
+    public:
+        ElfInterfaceFake(Memory *memory) : ElfInterface(memory) {}
 
-  void FakeSetGlobalVariable(const std::string& global, uint64_t offset) {
-    globals_[global] = offset;
-  }
+        virtual ~ElfInterfaceFake() = default;
 
-  static void FakePushFunctionData(const FunctionData data) { functions_.push_back(data); }
-  static void FakePushStepData(const StepData data) { steps_.push_back(data); }
+        bool Init(uint64_t *) override { return false; }
 
-  static void FakeClear() {
-    functions_.clear();
-    steps_.clear();
-  }
+        void InitHeaders() override {}
 
-  void FakeSetErrorCode(ErrorCode code) { last_error_.code = code; }
+        bool GetSoname(std::string *) override { return false; }
 
-  void FakeSetErrorAddress(uint64_t address) { last_error_.address = address; }
+        bool GetFunctionName(uint64_t, uint64_t, std::string *, uint64_t *) override;
 
- private:
-  std::unordered_map<std::string, uint64_t> globals_;
+        bool GetGlobalVariable(const std::string &, uint64_t *) override;
 
-  static std::deque<FunctionData> functions_;
-  static std::deque<StepData> steps_;
-};
+        bool Step(uint64_t, uint64_t, Regs *, Memory *, bool *) override;
 
-class ElfInterface32Fake : public ElfInterface32 {
- public:
-  ElfInterface32Fake(Memory* memory) : ElfInterface32(memory) {}
-  virtual ~ElfInterface32Fake() = default;
+        void FakeSetGlobalVariable(const std::string &global, uint64_t offset) {
+            globals_[global] = offset;
+        }
 
-  void FakeSetEhFrameOffset(uint64_t offset) { eh_frame_offset_ = offset; }
-  void FakeSetEhFrameSize(uint64_t size) { eh_frame_size_ = size; }
-  void FakeSetDebugFrameOffset(uint64_t offset) { debug_frame_offset_ = offset; }
-  void FakeSetDebugFrameSize(uint64_t size) { debug_frame_size_ = size; }
-};
+        static void FakePushFunctionData(const FunctionData data) { functions_.push_back(data); }
 
-class ElfInterface64Fake : public ElfInterface64 {
- public:
-  ElfInterface64Fake(Memory* memory) : ElfInterface64(memory) {}
-  virtual ~ElfInterface64Fake() = default;
+        static void FakePushStepData(const StepData data) { steps_.push_back(data); }
 
-  void FakeSetEhFrameOffset(uint64_t offset) { eh_frame_offset_ = offset; }
-  void FakeSetEhFrameSize(uint64_t size) { eh_frame_size_ = size; }
-  void FakeSetDebugFrameOffset(uint64_t offset) { debug_frame_offset_ = offset; }
-  void FakeSetDebugFrameSize(uint64_t size) { debug_frame_size_ = size; }
-};
+        static void FakeClear() {
+            functions_.clear();
+            steps_.clear();
+        }
 
-class ElfInterfaceArmFake : public ElfInterfaceArm {
- public:
-  ElfInterfaceArmFake(Memory* memory) : ElfInterfaceArm(memory) {}
-  virtual ~ElfInterfaceArmFake() = default;
+        void FakeSetErrorCode(ErrorCode code) { last_error_.code = code; }
 
-  void FakeSetStartOffset(uint64_t offset) { start_offset_ = offset; }
-  void FakeSetTotalEntries(size_t entries) { total_entries_ = entries; }
-};
+        void FakeSetErrorAddress(uint64_t address) { last_error_.address = address; }
+
+    private:
+        std::unordered_map <std::string, uint64_t> globals_;
+
+        static std::deque <FunctionData> functions_;
+        static std::deque <StepData> steps_;
+    };
+
+    class ElfInterface32Fake : public ElfInterface32 {
+    public:
+        ElfInterface32Fake(Memory *memory) : ElfInterface32(memory) {}
+
+        virtual ~ElfInterface32Fake() = default;
+
+        void FakeSetEhFrameOffset(uint64_t offset) { eh_frame_offset_ = offset; }
+
+        void FakeSetEhFrameSize(uint64_t size) { eh_frame_size_ = size; }
+
+        void FakeSetDebugFrameOffset(uint64_t offset) { debug_frame_offset_ = offset; }
+
+        void FakeSetDebugFrameSize(uint64_t size) { debug_frame_size_ = size; }
+    };
+
+    class ElfInterface64Fake : public ElfInterface64 {
+    public:
+        ElfInterface64Fake(Memory *memory) : ElfInterface64(memory) {}
+
+        virtual ~ElfInterface64Fake() = default;
+
+        void FakeSetEhFrameOffset(uint64_t offset) { eh_frame_offset_ = offset; }
+
+        void FakeSetEhFrameSize(uint64_t size) { eh_frame_size_ = size; }
+
+        void FakeSetDebugFrameOffset(uint64_t offset) { debug_frame_offset_ = offset; }
+
+        void FakeSetDebugFrameSize(uint64_t size) { debug_frame_size_ = size; }
+    };
+
+    class ElfInterfaceArmFake : public ElfInterfaceArm {
+    public:
+        ElfInterfaceArmFake(Memory *memory) : ElfInterfaceArm(memory) {}
+
+        virtual ~ElfInterfaceArmFake() = default;
+
+        void FakeSetStartOffset(uint64_t offset) { start_offset_ = offset; }
+
+        void FakeSetTotalEntries(size_t entries) { total_entries_ = entries; }
+    };
 
 }  // namespace unwindstack
 

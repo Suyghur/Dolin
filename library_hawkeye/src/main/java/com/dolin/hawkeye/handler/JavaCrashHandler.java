@@ -3,9 +3,9 @@ package com.dolin.hawkeye.handler;
 import android.app.Application;
 import android.os.Process;
 
-import com.dolin.comm.util.AppInfoUtils;
 import com.dolin.hawkeye.internal.ICrashHandler;
 import com.dolin.hawkeye.monitor.ActivityMonitor;
+import com.dolin.hawkeye.utils.AppUtils;
 import com.dolin.hawkeye.utils.FileUtils;
 import com.dolin.hawkeye.utils.LogUtils;
 
@@ -53,9 +53,9 @@ public class JavaCrashHandler implements Thread.UncaughtExceptionHandler {
         this.crashHandler = crashHandler;
         this.customMap = customMap;
         this.exceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
-        this.processName = AppInfoUtils.getProcessName(application);
+        this.processName = AppUtils.getProcessName(application);
         this.packageName = application.getPackageName();
-        this.versionName = AppInfoUtils.getVersionName(application);
+        this.versionName = AppUtils.getVersionName(application);
         this.logFolderDir = FileUtils.getLogFolderDir(application);
         try {
             Thread.setDefaultUncaughtExceptionHandler(this);

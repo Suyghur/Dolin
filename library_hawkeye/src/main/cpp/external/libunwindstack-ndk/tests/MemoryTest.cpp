@@ -28,103 +28,155 @@
 
 namespace unwindstack {
 
-TEST(MemoryTest, read32) {
-  MemoryFakeAlwaysReadZero memory;
+    TEST(MemoryTest, read32
+    ) {
+    MemoryFakeAlwaysReadZero memory;
 
-  uint32_t data = 0xffffffff;
-  ASSERT_TRUE(memory.Read32(0, &data));
-  ASSERT_EQ(0U, data);
+    uint32_t data = 0xffffffff;
+    ASSERT_TRUE(memory
+    .Read32(0, &data));
+    ASSERT_EQ(0U, data);
 }
 
-TEST(MemoryTest, read64) {
-  MemoryFakeAlwaysReadZero memory;
+TEST(MemoryTest, read64
+) {
+MemoryFakeAlwaysReadZero memory;
 
-  uint64_t data = 0xffffffffffffffffULL;
-  ASSERT_TRUE(memory.Read64(0, &data));
-  ASSERT_EQ(0U, data);
+uint64_t data = 0xffffffffffffffffULL;
+ASSERT_TRUE(memory
+.Read64(0, &data));
+ASSERT_EQ(0U, data);
 }
 
 struct FakeStruct {
-  int one;
-  bool two;
-  uint32_t three;
-  uint64_t four;
+    int one;
+    bool two;
+    uint32_t three;
+    uint64_t four;
 };
 
-TEST(MemoryTest, read_field) {
-  MemoryFakeAlwaysReadZero memory;
+TEST(MemoryTest, read_field
+) {
+MemoryFakeAlwaysReadZero memory;
 
-  FakeStruct data;
-  memset(&data, 0xff, sizeof(data));
-  ASSERT_TRUE(memory.ReadField(0, &data, &data.one, sizeof(data.one)));
-  ASSERT_EQ(0, data.one);
+FakeStruct data;
+memset(&data,
+0xff, sizeof(data));
+ASSERT_TRUE(memory
+.ReadField(0, &data, &data.one, sizeof(data.one)));
+ASSERT_EQ(0, data.one);
 
-  memset(&data, 0xff, sizeof(data));
-  ASSERT_TRUE(memory.ReadField(0, &data, &data.two, sizeof(data.two)));
-  ASSERT_FALSE(data.two);
+memset(&data,
+0xff, sizeof(data));
+ASSERT_TRUE(memory
+.ReadField(0, &data, &data.two, sizeof(data.two)));
+ASSERT_FALSE(data
+.two);
 
-  memset(&data, 0xff, sizeof(data));
-  ASSERT_TRUE(memory.ReadField(0, &data, &data.three, sizeof(data.three)));
-  ASSERT_EQ(0U, data.three);
+memset(&data,
+0xff, sizeof(data));
+ASSERT_TRUE(memory
+.ReadField(0, &data, &data.three, sizeof(data.three)));
+ASSERT_EQ(0U, data.three);
 
-  memset(&data, 0xff, sizeof(data));
-  ASSERT_TRUE(memory.ReadField(0, &data, &data.four, sizeof(data.four)));
-  ASSERT_EQ(0U, data.four);
+memset(&data,
+0xff, sizeof(data));
+ASSERT_TRUE(memory
+.ReadField(0, &data, &data.four, sizeof(data.four)));
+ASSERT_EQ(0U, data.four);
 }
 
-TEST(MemoryTest, read_field_fails) {
-  MemoryFakeAlwaysReadZero memory;
+TEST(MemoryTest, read_field_fails
+) {
+MemoryFakeAlwaysReadZero memory;
 
-  FakeStruct data;
-  memset(&data, 0xff, sizeof(data));
+FakeStruct data;
+memset(&data,
+0xff, sizeof(data));
 
-  ASSERT_FALSE(memory.ReadField(UINT64_MAX, &data, &data.three, sizeof(data.three)));
+ASSERT_FALSE(memory
+.
+ReadField(UINT64_MAX, &data, &data
+.three, sizeof(data.three)));
 
-  // Field and start reversed, should fail.
-  ASSERT_FALSE(memory.ReadField(100, &data.two, &data, sizeof(data.two)));
-  ASSERT_FALSE(memory.ReadField(0, &data.two, &data, sizeof(data.two)));
+// Field and start reversed, should fail.
+ASSERT_FALSE(memory
+.ReadField(100, &data.two, &data, sizeof(data.two)));
+ASSERT_FALSE(memory
+.ReadField(0, &data.two, &data, sizeof(data.two)));
 }
 
-TEST(MemoryTest, read_string) {
-  std::string name("string_in_memory");
+TEST(MemoryTest, read_string
+) {
+std::string name("string_in_memory");
 
-  MemoryFake memory;
+MemoryFake memory;
 
-  memory.SetMemory(100, name.c_str(), name.size() + 1);
+memory.SetMemory(100, name.
 
-  std::string dst_name;
-  ASSERT_TRUE(memory.ReadString(100, &dst_name));
-  ASSERT_EQ("string_in_memory", dst_name);
+c_str(), name
 
-  ASSERT_TRUE(memory.ReadString(107, &dst_name));
-  ASSERT_EQ("in_memory", dst_name);
+.
 
-  // Set size greater than string.
-  ASSERT_TRUE(memory.ReadString(107, &dst_name, 10));
-  ASSERT_EQ("in_memory", dst_name);
+size()
 
-  ASSERT_FALSE(memory.ReadString(107, &dst_name, 9));
++ 1);
+
+std::string dst_name;
+ASSERT_TRUE(memory
+.ReadString(100, &dst_name));
+ASSERT_EQ("string_in_memory", dst_name);
+
+ASSERT_TRUE(memory
+.ReadString(107, &dst_name));
+ASSERT_EQ("in_memory", dst_name);
+
+// Set size greater than string.
+ASSERT_TRUE(memory
+.ReadString(107, &dst_name, 10));
+ASSERT_EQ("in_memory", dst_name);
+
+ASSERT_FALSE(memory
+.ReadString(107, &dst_name, 9));
 }
 
-TEST(MemoryTest, read_string_error) {
-  std::string name("short");
+TEST(MemoryTest, read_string_error
+) {
+std::string name("short");
 
-  MemoryFake memory;
+MemoryFake memory;
 
-  // Save everything except the terminating '\0'.
-  memory.SetMemory(0, name.c_str(), name.size());
+// Save everything except the terminating '\0'.
+memory.SetMemory(0, name.
 
-  std::string dst_name;
-  // Read from a non-existant address.
-  ASSERT_FALSE(memory.ReadString(100, &dst_name));
+c_str(), name
 
-  // This should fail because there is no terminating '\0'.
-  ASSERT_FALSE(memory.ReadString(0, &dst_name));
+.
 
-  // This should pass because there is a terminating '\0'.
-  memory.SetData8(name.size(), '\0');
-  ASSERT_TRUE(memory.ReadString(0, &dst_name));
-  ASSERT_EQ("short", dst_name);
+size()
+
+);
+
+std::string dst_name;
+// Read from a non-existant address.
+ASSERT_FALSE(memory
+.ReadString(100, &dst_name));
+
+// This should fail because there is no terminating '\0'.
+ASSERT_FALSE(memory
+.ReadString(0, &dst_name));
+
+// This should pass because there is a terminating '\0'.
+memory.
+SetData8(name
+.
+
+size(),
+
+'\0');
+ASSERT_TRUE(memory
+.ReadString(0, &dst_name));
+ASSERT_EQ("short", dst_name);
 }
 
 }  // namespace unwindstack

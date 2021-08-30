@@ -31,9 +31,9 @@
 
 namespace unwindstack {
 
-struct arm_user_regs {
-  uint32_t regs[18];
-};
+    struct arm_user_regs {
+        uint32_t regs[18];
+    };
 
 }  // namespace unwindstack
 

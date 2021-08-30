@@ -2,8 +2,6 @@ package com.dolin.demo
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
-import com.dolin.comm.util.AppInfoUtils
 import com.dolin.hawkeye.Hawkeye
 import com.dolin.zap.Zap
 import com.dolin.zap.entity.Config

@@ -22,7 +22,6 @@ public class ZapRecord implements IRecord {
     static {
         System.loadLibrary("dolin-zap");
     }
-//    private R4LogHandler handler = null;
 
     private ZapRecord() {
 

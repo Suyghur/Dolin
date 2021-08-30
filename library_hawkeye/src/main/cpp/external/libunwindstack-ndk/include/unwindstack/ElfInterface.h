@@ -31,152 +31,160 @@
 namespace unwindstack {
 
 // Forward declarations.
-class Memory;
-class Regs;
-class Symbols;
+    class Memory;
 
-struct LoadInfo {
-  uint64_t offset;
-  uint64_t table_offset;
-  size_t table_size;
-};
+    class Regs;
 
-enum : uint8_t {
-  SONAME_UNKNOWN = 0,
-  SONAME_VALID,
-  SONAME_INVALID,
-};
+    class Symbols;
 
-class ElfInterface {
- public:
-  ElfInterface(Memory* memory) : memory_(memory) {}
-  virtual ~ElfInterface();
+    struct LoadInfo {
+        uint64_t offset;
+        uint64_t table_offset;
+        size_t table_size;
+    };
 
-  virtual bool Init(uint64_t* load_bias) = 0;
+    enum : uint8_t {
+        SONAME_UNKNOWN = 0,
+        SONAME_VALID,
+        SONAME_INVALID,
+    };
 
-  virtual void InitHeaders() = 0;
+    class ElfInterface {
+    public:
+        ElfInterface(Memory *memory) : memory_(memory) {}
 
-  virtual bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string* name,
-                               uint64_t* offset) = 0;
+        virtual ~ElfInterface();
 
-  virtual bool Step(uint64_t rel_pc, uint64_t load_bias, Regs* regs, Memory* process_memory,
-                    bool* finished);
+        virtual bool Init(uint64_t *load_bias) = 0;
 
-  Memory* memory() { return memory_; }
+        virtual void InitHeaders() = 0;
 
-  DwarfSection* eh_frame() { return eh_frame_.get(); }
-  DwarfSection* debug_frame() { return debug_frame_.get(); }
+        virtual bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string *name,
+                                     uint64_t *offset) = 0;
 
-  const ErrorData& last_error() { return last_error_; }
-  ErrorCode LastErrorCode() { return last_error_.code; }
-  uint64_t LastErrorAddress() { return last_error_.address; }
+        virtual bool Step(uint64_t rel_pc, uint64_t load_bias, Regs *regs, Memory *process_memory,
+                          bool *finished);
 
-  template <typename EhdrType, typename PhdrType>
-  static uint64_t GetLoadBias(Memory* memory);
+        Memory *memory() { return memory_; }
 
- protected:
-  template <typename AddressType>
-  void InitHeadersWithTemplate();
+        DwarfSection *eh_frame() { return eh_frame_.get(); }
 
-  template <typename EhdrType, typename PhdrType, typename ShdrType>
-  bool ReadAllHeaders(uint64_t* load_bias);
+        DwarfSection *debug_frame() { return debug_frame_.get(); }
 
-  template <typename EhdrType, typename PhdrType>
-  bool ReadProgramHeaders(const EhdrType& ehdr, uint64_t* load_bias);
+        const ErrorData &last_error() { return last_error_; }
 
-  template <typename EhdrType, typename ShdrType>
-  bool ReadSectionHeaders(const EhdrType& ehdr);
+        ErrorCode LastErrorCode() { return last_error_.code; }
 
-  template <typename DynType>
-  bool GetSonameWithTemplate(std::string* soname);
+        uint64_t LastErrorAddress() { return last_error_.address; }
 
-  template <typename SymType>
-  bool GetFunctionNameWithTemplate(uint64_t addr, uint64_t load_bias, std::string* name,
-                                   uint64_t* func_offset);
+        template<typename EhdrType, typename PhdrType>
+        static uint64_t GetLoadBias(Memory *memory);
 
-  template <typename SymType>
-  bool GetGlobalVariableWithTemplate(const std::string& name, uint64_t* memory_address);
+    protected:
+        template<typename AddressType>
+        void InitHeadersWithTemplate();
 
-  virtual bool HandleType(uint64_t, uint32_t, uint64_t) { return false; }
+        template<typename EhdrType, typename PhdrType, typename ShdrType>
+        bool ReadAllHeaders(uint64_t *load_bias);
 
-  template <typename EhdrType>
-  static void GetMaxSizeWithTemplate(Memory* memory, uint64_t* size);
+        template<typename EhdrType, typename PhdrType>
+        bool ReadProgramHeaders(const EhdrType &ehdr, uint64_t *load_bias);
 
-  Memory* memory_;
-  std::unordered_map<uint64_t, LoadInfo> pt_loads_;
+        template<typename EhdrType, typename ShdrType>
+        bool ReadSectionHeaders(const EhdrType &ehdr);
 
-  // Stored elf data.
-  uint64_t dynamic_offset_ = 0;
-  uint64_t dynamic_vaddr_ = 0;
-  uint64_t dynamic_size_ = 0;
+        template<typename DynType>
+        bool GetSonameWithTemplate(std::string *soname);
 
-  uint64_t eh_frame_hdr_offset_ = 0;
-  uint64_t eh_frame_hdr_size_ = 0;
+        template<typename SymType>
+        bool GetFunctionNameWithTemplate(uint64_t addr, uint64_t load_bias, std::string *name,
+                                         uint64_t *func_offset);
 
-  uint64_t eh_frame_offset_ = 0;
-  uint64_t eh_frame_size_ = 0;
+        template<typename SymType>
+        bool GetGlobalVariableWithTemplate(const std::string &name, uint64_t *memory_address);
 
-  uint64_t debug_frame_offset_ = 0;
-  uint64_t debug_frame_size_ = 0;
+        virtual bool HandleType(uint64_t, uint32_t, uint64_t) { return false; }
 
-  uint64_t gnu_debugdata_offset_ = 0;
-  uint64_t gnu_debugdata_size_ = 0;
+        template<typename EhdrType>
+        static void GetMaxSizeWithTemplate(Memory *memory, uint64_t *size);
 
-  uint8_t soname_type_ = SONAME_UNKNOWN;
-  std::string soname_;
+        Memory *memory_;
+        std::unordered_map<uint64_t, LoadInfo> pt_loads_;
 
-  ErrorData last_error_{ERROR_NONE, 0};
+        // Stored elf data.
+        uint64_t dynamic_offset_ = 0;
+        uint64_t dynamic_vaddr_ = 0;
+        uint64_t dynamic_size_ = 0;
 
-  std::unique_ptr<DwarfSection> eh_frame_;
-  std::unique_ptr<DwarfSection> debug_frame_;
-  // The Elf object owns the gnu_debugdata interface object.
-  ElfInterface* gnu_debugdata_interface_ = nullptr;
+        uint64_t eh_frame_hdr_offset_ = 0;
+        uint64_t eh_frame_hdr_size_ = 0;
 
-  std::vector<Symbols*> symbols_;
-  std::vector<std::pair<uint64_t, uint64_t>> strtabs_;
-};
+        uint64_t eh_frame_offset_ = 0;
+        uint64_t eh_frame_size_ = 0;
 
-class ElfInterface32 : public ElfInterface {
- public:
-  ElfInterface32(Memory* memory) : ElfInterface(memory) {}
-  virtual ~ElfInterface32() = default;
+        uint64_t debug_frame_offset_ = 0;
+        uint64_t debug_frame_size_ = 0;
 
-  bool Init(uint64_t* load_bias) override {
-    return ElfInterface::ReadAllHeaders<Elf32_Ehdr, Elf32_Phdr, Elf32_Shdr>(load_bias);
-  }
+        uint64_t gnu_debugdata_offset_ = 0;
+        uint64_t gnu_debugdata_size_ = 0;
 
-  void InitHeaders() override { ElfInterface::InitHeadersWithTemplate<uint32_t>(); }
+        uint8_t soname_type_ = SONAME_UNKNOWN;
+        std::string soname_;
 
-  bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string* name,
-                       uint64_t* func_offset) override {
-    return ElfInterface::GetFunctionNameWithTemplate<Elf32_Sym>(addr, load_bias, name, func_offset);
-  }
+        ErrorData last_error_{ERROR_NONE, 0};
 
-  static void GetMaxSize(Memory* memory, uint64_t* size) {
-    GetMaxSizeWithTemplate<Elf32_Ehdr>(memory, size);
-  }
-};
+        std::unique_ptr<DwarfSection> eh_frame_;
+        std::unique_ptr<DwarfSection> debug_frame_;
+        // The Elf object owns the gnu_debugdata interface object.
+        ElfInterface *gnu_debugdata_interface_ = nullptr;
 
-class ElfInterface64 : public ElfInterface {
- public:
-  ElfInterface64(Memory* memory) : ElfInterface(memory) {}
-  virtual ~ElfInterface64() = default;
+        std::vector<Symbols *> symbols_;
+        std::vector<std::pair<uint64_t, uint64_t>> strtabs_;
+    };
 
-  bool Init(uint64_t* load_bias) override {
-    return ElfInterface::ReadAllHeaders<Elf64_Ehdr, Elf64_Phdr, Elf64_Shdr>(load_bias);
-  }
+    class ElfInterface32 : public ElfInterface {
+    public:
+        ElfInterface32(Memory *memory) : ElfInterface(memory) {}
 
-  void InitHeaders() override { ElfInterface::InitHeadersWithTemplate<uint64_t>(); }
+        virtual ~ElfInterface32() = default;
 
-  bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string* name,
-                       uint64_t* func_offset) override {
-    return ElfInterface::GetFunctionNameWithTemplate<Elf64_Sym>(addr, load_bias, name, func_offset);
-  }
+        bool Init(uint64_t *load_bias) override {
+            return ElfInterface::ReadAllHeaders<Elf32_Ehdr, Elf32_Phdr, Elf32_Shdr>(load_bias);
+        }
 
-  static void GetMaxSize(Memory* memory, uint64_t* size) {
-    GetMaxSizeWithTemplate<Elf64_Ehdr>(memory, size);
-  }
-};
+        void InitHeaders() override { ElfInterface::InitHeadersWithTemplate<uint32_t>(); }
+
+        bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string *name,
+                             uint64_t *func_offset) override {
+            return ElfInterface::GetFunctionNameWithTemplate<Elf32_Sym>(addr, load_bias, name, func_offset);
+        }
+
+        static void GetMaxSize(Memory *memory, uint64_t *size) {
+            GetMaxSizeWithTemplate<Elf32_Ehdr>(memory, size);
+        }
+    };
+
+    class ElfInterface64 : public ElfInterface {
+    public:
+        ElfInterface64(Memory *memory) : ElfInterface(memory) {}
+
+        virtual ~ElfInterface64() = default;
+
+        bool Init(uint64_t *load_bias) override {
+            return ElfInterface::ReadAllHeaders<Elf64_Ehdr, Elf64_Phdr, Elf64_Shdr>(load_bias);
+        }
+
+        void InitHeaders() override { ElfInterface::InitHeadersWithTemplate<uint64_t>(); }
+
+        bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string *name,
+                             uint64_t *func_offset) override {
+            return ElfInterface::GetFunctionNameWithTemplate<Elf64_Sym>(addr, load_bias, name, func_offset);
+        }
+
+        static void GetMaxSize(Memory *memory, uint64_t *size) {
+            GetMaxSizeWithTemplate<Elf64_Ehdr>(memory, size);
+        }
+    };
 
 }  // namespace unwindstack
 

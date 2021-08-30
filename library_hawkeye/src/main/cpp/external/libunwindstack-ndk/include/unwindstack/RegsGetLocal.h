@@ -33,63 +33,63 @@ namespace unwindstack {
 
 #if defined(__arm__)
 
-inline __always_inline void RegsGetLocal(Regs* regs) {
-  void* reg_data = regs->RawData();
-  asm volatile(
-      ".align 2\n"
-      "bx pc\n"
-      "nop\n"
-      ".code 32\n"
-      "stmia %[base], {r0-r12}\n"
-      "add %[base], #52\n"
-      "mov r1, r13\n"
-      "mov r2, r14\n"
-      "mov r3, r15\n"
-      "stmia %[base], {r1-r3}\n"
-      "orr %[base], pc, #1\n"
-      "bx %[base]\n"
-      : [base] "+r"(reg_data)
-      :
-      : "memory");
-}
+    inline __always_inline void RegsGetLocal(Regs* regs) {
+      void* reg_data = regs->RawData();
+      asm volatile(
+          ".align 2\n"
+          "bx pc\n"
+          "nop\n"
+          ".code 32\n"
+          "stmia %[base], {r0-r12}\n"
+          "add %[base], #52\n"
+          "mov r1, r13\n"
+          "mov r2, r14\n"
+          "mov r3, r15\n"
+          "stmia %[base], {r1-r3}\n"
+          "orr %[base], pc, #1\n"
+          "bx %[base]\n"
+          : [base] "+r"(reg_data)
+          :
+          : "memory");
+    }
 
 #elif defined(__aarch64__)
 
-inline __always_inline void RegsGetLocal(Regs* regs) {
-  void* reg_data = regs->RawData();
-  asm volatile(
-      "1:\n"
-      "stp x0, x1, [%[base], #0]\n"
-      "stp x2, x3, [%[base], #16]\n"
-      "stp x4, x5, [%[base], #32]\n"
-      "stp x6, x7, [%[base], #48]\n"
-      "stp x8, x9, [%[base], #64]\n"
-      "stp x10, x11, [%[base], #80]\n"
-      "stp x12, x13, [%[base], #96]\n"
-      "stp x14, x15, [%[base], #112]\n"
-      "stp x16, x17, [%[base], #128]\n"
-      "stp x18, x19, [%[base], #144]\n"
-      "stp x20, x21, [%[base], #160]\n"
-      "stp x22, x23, [%[base], #176]\n"
-      "stp x24, x25, [%[base], #192]\n"
-      "stp x26, x27, [%[base], #208]\n"
-      "stp x28, x29, [%[base], #224]\n"
-      "str x30, [%[base], #240]\n"
-      "mov x12, sp\n"
-      "adr x13, 1b\n"
-      "stp x12, x13, [%[base], #248]\n"
-      : [base] "+r"(reg_data)
-      :
-      : "x12", "x13", "memory");
-}
+    inline __always_inline void RegsGetLocal(Regs* regs) {
+      void* reg_data = regs->RawData();
+      asm volatile(
+          "1:\n"
+          "stp x0, x1, [%[base], #0]\n"
+          "stp x2, x3, [%[base], #16]\n"
+          "stp x4, x5, [%[base], #32]\n"
+          "stp x6, x7, [%[base], #48]\n"
+          "stp x8, x9, [%[base], #64]\n"
+          "stp x10, x11, [%[base], #80]\n"
+          "stp x12, x13, [%[base], #96]\n"
+          "stp x14, x15, [%[base], #112]\n"
+          "stp x16, x17, [%[base], #128]\n"
+          "stp x18, x19, [%[base], #144]\n"
+          "stp x20, x21, [%[base], #160]\n"
+          "stp x22, x23, [%[base], #176]\n"
+          "stp x24, x25, [%[base], #192]\n"
+          "stp x26, x27, [%[base], #208]\n"
+          "stp x28, x29, [%[base], #224]\n"
+          "str x30, [%[base], #240]\n"
+          "mov x12, sp\n"
+          "adr x13, 1b\n"
+          "stp x12, x13, [%[base], #248]\n"
+          : [base] "+r"(reg_data)
+          :
+          : "x12", "x13", "memory");
+    }
 
 #elif defined(__i386__) || defined(__x86_64__) || defined(__mips__)
 
-extern "C" void AsmGetRegs(void* regs);
+    extern "C" void AsmGetRegs(void* regs);
 
-inline void RegsGetLocal(Regs* regs) {
-  AsmGetRegs(regs->RawData());
-}
+    inline void RegsGetLocal(Regs* regs) {
+      AsmGetRegs(regs->RawData());
+    }
 
 #endif
 

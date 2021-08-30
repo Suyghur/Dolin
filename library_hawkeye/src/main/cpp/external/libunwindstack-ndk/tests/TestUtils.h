@@ -24,31 +24,32 @@
 
 namespace unwindstack {
 
-class TestScopedPidReaper {
- public:
-  TestScopedPidReaper(pid_t pid) : pid_(pid) {}
-  ~TestScopedPidReaper() {
-    kill(pid_, SIGKILL);
-    waitpid(pid_, nullptr, 0);
-  }
+    class TestScopedPidReaper {
+    public:
+        TestScopedPidReaper(pid_t pid) : pid_(pid) {}
 
- private:
-  pid_t pid_;
-};
+        ~TestScopedPidReaper() {
+            kill(pid_, SIGKILL);
+            waitpid(pid_, nullptr, 0);
+        }
 
-inline bool TestQuiescePid(pid_t pid) {
-  siginfo_t si;
-  bool ready = false;
-  // Wait for up to 5 seconds.
-  for (size_t i = 0; i < 5000; i++) {
-    if (ptrace(PTRACE_GETSIGINFO, pid, 0, &si) == 0) {
-      ready = true;
-      break;
+    private:
+        pid_t pid_;
+    };
+
+    inline bool TestQuiescePid(pid_t pid) {
+        siginfo_t si;
+        bool ready = false;
+        // Wait for up to 5 seconds.
+        for (size_t i = 0; i < 5000; i++) {
+            if (ptrace(PTRACE_GETSIGINFO, pid, 0, &si) == 0) {
+                ready = true;
+                break;
+            }
+            usleep(1000);
+        }
+        return ready;
     }
-    usleep(1000);
-  }
-  return ready;
-}
 
 }  // namespace unwindstack
 

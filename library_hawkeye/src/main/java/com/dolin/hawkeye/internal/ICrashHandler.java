@@ -6,5 +6,5 @@ package com.dolin.hawkeye.internal;
  */
 public interface ICrashHandler {
 
-    void onCrash(String logPath,String stackInfo);
+    void onCrash(String logPath, String stackInfo);
 }

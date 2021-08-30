@@ -28,67 +28,85 @@
 
 namespace unwindstack {
 
-class ElfInterfaceArm : public ElfInterface32 {
- public:
-  ElfInterfaceArm(Memory* memory) : ElfInterface32(memory) {}
-  virtual ~ElfInterfaceArm() = default;
+    class ElfInterfaceArm : public ElfInterface32 {
+    public:
+        ElfInterfaceArm(Memory *memory) : ElfInterface32(memory) {}
 
-  class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t> {
-   public:
-    iterator(ElfInterfaceArm* interface, size_t index) : interface_(interface), index_(index) { }
+        virtual ~ElfInterfaceArm() = default;
 
-    iterator& operator++() { index_++; return *this; }
-    iterator& operator++(int increment) { index_ += increment; return *this; }
-    iterator& operator--() { index_--; return *this; }
-    iterator& operator--(int decrement) { index_ -= decrement; return *this; }
+        class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t> {
+        public:
+            iterator(ElfInterfaceArm *interface, size_t index) : interface_(interface), index_(index) {}
 
-    bool operator==(const iterator& rhs) { return this->index_ == rhs.index_; }
-    bool operator!=(const iterator& rhs) { return this->index_ != rhs.index_; }
+            iterator &operator++() {
+                index_++;
+                return *this;
+            }
 
-    uint32_t operator*() {
-      uint32_t addr = interface_->addrs_[index_];
-      if (addr == 0) {
-        if (!interface_->GetPrel31Addr(interface_->start_offset_ + index_ * 8, &addr)) {
-          return 0;
-        }
-        interface_->addrs_[index_] = addr;
-      }
-      return addr;
-    }
+            iterator &operator++(int increment) {
+                index_ += increment;
+                return *this;
+            }
 
-   private:
-    ElfInterfaceArm* interface_ = nullptr;
-    size_t index_ = 0;
-  };
+            iterator &operator--() {
+                index_--;
+                return *this;
+            }
 
-  iterator begin() { return iterator(this, 0); }
-  iterator end() { return iterator(this, total_entries_); }
+            iterator &operator--(int decrement) {
+                index_ -= decrement;
+                return *this;
+            }
 
-  bool GetPrel31Addr(uint32_t offset, uint32_t* addr);
+            bool operator==(const iterator &rhs) { return this->index_ == rhs.index_; }
 
-  bool FindEntry(uint32_t pc, uint64_t* entry_offset);
+            bool operator!=(const iterator &rhs) { return this->index_ != rhs.index_; }
 
-  bool HandleType(uint64_t offset, uint32_t type, uint64_t load_bias) override;
+            uint32_t operator*() {
+                uint32_t addr = interface_->addrs_[index_];
+                if (addr == 0) {
+                    if (!interface_->GetPrel31Addr(interface_->start_offset_ + index_ * 8, &addr)) {
+                        return 0;
+                    }
+                    interface_->addrs_[index_] = addr;
+                }
+                return addr;
+            }
 
-  bool Step(uint64_t pc, uint64_t load_bias, Regs* regs, Memory* process_memory,
-            bool* finished) override;
+        private:
+            ElfInterfaceArm *interface_ = nullptr;
+            size_t index_ = 0;
+        };
 
-  bool StepExidx(uint64_t pc, uint64_t load_bias, Regs* regs, Memory* process_memory,
-                 bool* finished);
+        iterator begin() { return iterator(this, 0); }
 
-  bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string* name,
-                       uint64_t* offset) override;
+        iterator end() { return iterator(this, total_entries_); }
 
-  uint64_t start_offset() { return start_offset_; }
+        bool GetPrel31Addr(uint32_t offset, uint32_t *addr);
 
-  size_t total_entries() { return total_entries_; }
+        bool FindEntry(uint32_t pc, uint64_t *entry_offset);
 
- protected:
-  uint64_t start_offset_ = 0;
-  size_t total_entries_ = 0;
+        bool HandleType(uint64_t offset, uint32_t type, uint64_t load_bias) override;
 
-  std::unordered_map<size_t, uint32_t> addrs_;
-};
+        bool Step(uint64_t pc, uint64_t load_bias, Regs *regs, Memory *process_memory,
+                  bool *finished) override;
+
+        bool StepExidx(uint64_t pc, uint64_t load_bias, Regs *regs, Memory *process_memory,
+                       bool *finished);
+
+        bool GetFunctionName(uint64_t addr, uint64_t load_bias, std::string *name,
+                             uint64_t *offset) override;
+
+        uint64_t start_offset() { return start_offset_; }
+
+        size_t total_entries() { return total_entries_; }
+
+    protected:
+        uint64_t start_offset_ = 0;
+        size_t total_entries_ = 0;
+
+        std::unordered_map<size_t, uint32_t> addrs_;
+    };
 
 }  // namespace unwindstack
 

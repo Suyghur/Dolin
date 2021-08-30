@@ -27,33 +27,36 @@
 namespace unwindstack {
 
 // Forward declarations.
-class Memory;
+    class Memory;
 
-class RegsArm64 : public RegsImpl<uint64_t> {
- public:
-  RegsArm64();
-  virtual ~RegsArm64() = default;
+    class RegsArm64 : public RegsImpl<uint64_t> {
+    public:
+        RegsArm64();
 
-  ArchEnum Arch() override final;
+        virtual ~RegsArm64() = default;
 
-  uint64_t GetPcAdjustment(uint64_t rel_pc, Elf* elf) override;
+        ArchEnum Arch() override final;
 
-  bool SetPcFromReturnAddress(Memory* process_memory) override;
+        uint64_t GetPcAdjustment(uint64_t rel_pc, Elf *elf) override;
 
-  bool StepIfSignalHandler(uint64_t rel_pc, Elf* elf, Memory* process_memory) override;
+        bool SetPcFromReturnAddress(Memory *process_memory) override;
 
-  void IterateRegisters(std::function<void(const char*, uint64_t)>) override final;
+        bool StepIfSignalHandler(uint64_t rel_pc, Elf *elf, Memory *process_memory) override;
 
-  uint64_t pc() override;
-  uint64_t sp() override;
+        void IterateRegisters(std::function<void(const char *, uint64_t)>) override final;
 
-  void set_pc(uint64_t pc) override;
-  void set_sp(uint64_t sp) override;
+        uint64_t pc() override;
 
-  static Regs* Read(void* data);
+        uint64_t sp() override;
 
-  static Regs* CreateFromUcontext(void* ucontext);
-};
+        void set_pc(uint64_t pc) override;
+
+        void set_sp(uint64_t sp) override;
+
+        static Regs *Read(void *data);
+
+        static Regs *CreateFromUcontext(void *ucontext);
+    };
 
 }  // namespace unwindstack
 

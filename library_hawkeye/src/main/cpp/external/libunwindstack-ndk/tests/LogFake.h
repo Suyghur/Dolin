@@ -21,9 +21,11 @@
 
 namespace unwindstack {
 
-void ResetLogs();
-std::string GetFakeLogBuf();
-std::string GetFakeLogPrint();
+    void ResetLogs();
+
+    std::string GetFakeLogBuf();
+
+    std::string GetFakeLogPrint();
 
 }  // namespace unwindstack
 

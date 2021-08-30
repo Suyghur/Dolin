@@ -41,7 +41,7 @@ int DumperUtils::DumpCreateFile(const char *path) {
 #endif
 
 
-void DumperUtils::Record2Buffer(MmapBuffer *mmap_ptr, const char *format, ...) {
+void DumperUtils::Record2Buffer(MmapGuard *mmap_ptr, const char *format, ...) {
 
     char *buffer = static_cast<char *>(malloc(HAWKEYE_LOG_BUFFER_SIZE));
 
@@ -123,7 +123,7 @@ void DumperUtils::DumpWriteLine(int log_fd, const char *format, ...) {
     }
 }
 
-void DumperUtils::DumpHeader(MmapBuffer *mmap_ptr, int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context) {
+void DumperUtils::DumpHeader(MmapGuard *mmap_ptr, int log_fd, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context) {
     // a special marker of crash report beginning
 //    DumpWriteLine(log_fd, SEP_HEAD);
     Record2Buffer(mmap_ptr, SEP_HEAD);
@@ -243,7 +243,7 @@ void DumperUtils::DumpHeader(MmapBuffer *mmap_ptr, int log_fd, pid_t pid, pid_t 
     Record2Buffer(mmap_ptr, "backtrace: ");
 }
 
-void DumperUtils::DumpOtherThreadHeader(MmapBuffer *mmap_ptr, int log_fd, pid_t pid, pid_t tid) {
+void DumperUtils::DumpOtherThreadHeader(MmapGuard *mmap_ptr, int log_fd, pid_t pid, pid_t tid) {
     // a special marker about next (not crashed) thread data beginning.
 //    DumpWriteLine(log_fd, SEP_OTHER_INFO);
     Record2Buffer(mmap_ptr, SEP_OTHER_INFO);
@@ -273,7 +273,7 @@ void DumperUtils::DumpOtherThreadHeader(MmapBuffer *mmap_ptr, int log_fd, pid_t 
     Record2Buffer(mmap_ptr, "backtrace: ");
 }
 
-void DumperUtils::DumpBacktraceLine(MmapBuffer *mmap_ptr, int log_fd, int counter, intptr_t pc,
+void DumperUtils::DumpBacktraceLine(MmapGuard *mmap_ptr, int log_fd, int counter, intptr_t pc,
                                     const char *map_name, const char *func_name, intptr_t func_offset) {
     if (!map_name) {
         map_name = "<unknown>";
@@ -281,11 +281,9 @@ void DumperUtils::DumpBacktraceLine(MmapBuffer *mmap_ptr, int log_fd, int counte
         map_name = "<anonymous>";
     }
     if (!func_name) {
-//        DumpWriteLine(log_fd, "    #%02d pc %" PRIPTR"  %s", counter, pc, map_name);
         Record2Buffer(mmap_ptr, "    #%02d pc %" PRIPTR"  %s", counter, pc, map_name);
     } else {
         Record2Buffer(mmap_ptr, "    #%02d pc %" PRIPTR"  %s (%s+%d)", counter, pc, map_name, func_name, (int) func_offset);
-//        DumpWriteLine(log_fd, "    #%02d pc %" PRIPTR"  %s (%s+%d)", counter, pc, map_name, func_name, (int) func_offset);
     }
 }
 
@@ -311,7 +309,7 @@ ssize_t DumperUtils::__ReadFile(const char *file_name, char *out_buffer, size_t 
     return overall_read;
 }
 
-void DumperUtils::__DumpOtherThreadRegistersByPtrace(MmapBuffer *mmap_ptr, int log_fd, pid_t tid) {
+void DumperUtils::__DumpOtherThreadRegistersByPtrace(MmapGuard *mmap_ptr, int log_fd, pid_t tid) {
 #if defined(__aarch64__)
     // For arm64 modern PTRACE_GETREGSET request should be executed
     struct user_pt_regs r{};
@@ -393,7 +391,7 @@ void DumperUtils::__DumpOtherThreadRegistersByPtrace(MmapBuffer *mmap_ptr, int l
     LOGE("Couldn't get registers by ptrace: %s (%d)", strerror(errno), errno);
 }
 
-void DumperUtils::__WriteProcessAndThreadInfo(MmapBuffer *mmap_ptr, int log_fd, pid_t pid, pid_t tid,
+void DumperUtils::__WriteProcessAndThreadInfo(MmapGuard *mmap_ptr, int log_fd, pid_t pid, pid_t tid,
                                               char *process_name_buffer, size_t process_name_buffer_size) {
     // buffer used for file path formatting. Max theoretical value is "/proc/2147483647/cmdline" 25 characters with terminating characters.
     char proc_file_path[25];
@@ -424,7 +422,7 @@ void DumperUtils::__WriteProcessAndThreadInfo(MmapBuffer *mmap_ptr, int log_fd, 
     Record2Buffer(mmap_ptr, "pid: %d, tid: %d, name: %s,  >>> %s <<<", pid, tid, proc_comm_content, process_name_buffer);
 }
 
-void DumperUtils::__DumpSignalInfo(MmapBuffer *mmap_ptr, int log_fd, int signo, int si_code, void *faultaddr, char *str_buffer, size_t str_buffer_size) {
+void DumperUtils::__DumpSignalInfo(MmapGuard *mmap_ptr, int log_fd, int signo, int si_code, void *faultaddr, char *str_buffer, size_t str_buffer_size) {
     if (SignalUtils::HasSiAddr(signo, si_code)) {
         snprintf(str_buffer, str_buffer_size, "%p", faultaddr);
     } else {

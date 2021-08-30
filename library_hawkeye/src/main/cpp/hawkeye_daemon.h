@@ -6,8 +6,8 @@
 #define DOLIN_HAWKEYE_DAEMON_H
 
 #include <linux/un.h>
+#include "guard/mmap_guard.h"
 #include "hawkeye_private.h"
-#include "hawkeye_mmap_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +30,7 @@ struct hawkeye_daemon_context {
 
     char *log_file_path = nullptr;
 
-    MmapBuffer *buffer_ptr;
+    MmapGuard *mmap_guard;
 
     long *file_fd;
 

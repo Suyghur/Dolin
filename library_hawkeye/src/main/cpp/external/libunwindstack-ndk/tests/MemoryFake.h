@@ -27,55 +27,57 @@
 
 namespace unwindstack {
 
-class MemoryFake : public Memory {
- public:
-  MemoryFake() = default;
-  virtual ~MemoryFake() = default;
+    class MemoryFake : public Memory {
+    public:
+        MemoryFake() = default;
 
-  size_t Read(uint64_t addr, void* buffer, size_t size) override;
+        virtual ~MemoryFake() = default;
 
-  void SetMemory(uint64_t addr, const void* memory, size_t length);
+        size_t Read(uint64_t addr, void *buffer, size_t size) override;
 
-  void SetData8(uint64_t addr, uint8_t value) {
-    SetMemory(addr, &value, sizeof(value));
-  }
+        void SetMemory(uint64_t addr, const void *memory, size_t length);
 
-  void SetData16(uint64_t addr, uint16_t value) {
-    SetMemory(addr, &value, sizeof(value));
-  }
+        void SetData8(uint64_t addr, uint8_t value) {
+            SetMemory(addr, &value, sizeof(value));
+        }
 
-  void SetData32(uint64_t addr, uint32_t value) {
-    SetMemory(addr, &value, sizeof(value));
-  }
+        void SetData16(uint64_t addr, uint16_t value) {
+            SetMemory(addr, &value, sizeof(value));
+        }
 
-  void SetData64(uint64_t addr, uint64_t value) {
-    SetMemory(addr, &value, sizeof(value));
-  }
+        void SetData32(uint64_t addr, uint32_t value) {
+            SetMemory(addr, &value, sizeof(value));
+        }
 
-  void SetMemory(uint64_t addr, std::vector<uint8_t> values) {
-    SetMemory(addr, values.data(), values.size());
-  }
+        void SetData64(uint64_t addr, uint64_t value) {
+            SetMemory(addr, &value, sizeof(value));
+        }
 
-  void SetMemory(uint64_t addr, std::string string) {
-    SetMemory(addr, string.c_str(), string.size() + 1);
-  }
+        void SetMemory(uint64_t addr, std::vector <uint8_t> values) {
+            SetMemory(addr, values.data(), values.size());
+        }
 
-  void Clear() { data_.clear(); }
+        void SetMemory(uint64_t addr, std::string string) {
+            SetMemory(addr, string.c_str(), string.size() + 1);
+        }
 
- private:
-  std::unordered_map<uint64_t, uint8_t> data_;
-};
+        void Clear() { data_.clear(); }
 
-class MemoryFakeAlwaysReadZero : public Memory {
- public:
-  MemoryFakeAlwaysReadZero() = default;
-  virtual ~MemoryFakeAlwaysReadZero() = default;
+    private:
+        std::unordered_map <uint64_t, uint8_t> data_;
+    };
 
-  size_t Read(uint64_t, void* buffer, size_t size) override {
-    memset(buffer, 0, size);
-    return size;
-  }
-};
+    class MemoryFakeAlwaysReadZero : public Memory {
+    public:
+        MemoryFakeAlwaysReadZero() = default;
+
+        virtual ~MemoryFakeAlwaysReadZero() = default;
+
+        size_t Read(uint64_t, void *buffer, size_t size) override {
+            memset(buffer, 0, size);
+            return size;
+        }
+    };
 
 }  // namespace unwindstack
 

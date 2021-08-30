@@ -31,12 +31,12 @@
 
 namespace unwindstack {
 
-struct arm64_user_regs {
-  uint64_t regs[31];
-  uint64_t sp;
-  uint64_t pc;
-  uint64_t pstate;
-};
+    struct arm64_user_regs {
+        uint64_t regs[31];
+        uint64_t sp;
+        uint64_t pc;
+        uint64_t pstate;
+    };
 
 }  // namespace unwindstack
 

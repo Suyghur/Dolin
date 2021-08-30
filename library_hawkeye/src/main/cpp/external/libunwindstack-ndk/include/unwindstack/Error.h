@@ -21,21 +21,21 @@
 
 namespace unwindstack {
 
-enum ErrorCode : uint8_t {
-  ERROR_NONE,                 // No error.
-  ERROR_MEMORY_INVALID,       // Memory read failed.
-  ERROR_UNWIND_INFO,          // Unable to use unwind information to unwind.
-  ERROR_UNSUPPORTED,          // Encountered unsupported feature.
-  ERROR_INVALID_MAP,          // Unwind in an invalid map.
-  ERROR_MAX_FRAMES_EXCEEDED,  // The number of frames exceed the total allowed.
-  ERROR_REPEATED_FRAME,       // The last frame has the same pc/sp as the next.
-};
+    enum ErrorCode : uint8_t {
+        ERROR_NONE,                 // No error.
+        ERROR_MEMORY_INVALID,       // Memory read failed.
+        ERROR_UNWIND_INFO,          // Unable to use unwind information to unwind.
+        ERROR_UNSUPPORTED,          // Encountered unsupported feature.
+        ERROR_INVALID_MAP,          // Unwind in an invalid map.
+        ERROR_MAX_FRAMES_EXCEEDED,  // The number of frames exceed the total allowed.
+        ERROR_REPEATED_FRAME,       // The last frame has the same pc/sp as the next.
+    };
 
-struct ErrorData {
-  ErrorCode code;
-  uint64_t address;  // Only valid when code is ERROR_MEMORY_INVALID.
-                     // Indicates the failing address.
-};
+    struct ErrorData {
+        ErrorCode code;
+        uint64_t address;  // Only valid when code is ERROR_MEMORY_INVALID.
+        // Indicates the failing address.
+    };
 
 }  // namespace unwindstack
 

@@ -47,7 +47,7 @@ bool HawkeyeCore::InitCore(const char *socket_name) {
     FillSockAddr(socket_name, &core_context->socket_address);
 
     // trying to register signal handler.
-    if (!SignalUtils::RegisterSignalHandler(&__SignalHandler, core_context->old_handlers)) {
+    if (!SignalUtils::RegisterSignalHandler(&SignalHandler, core_context->old_handlers)) {
         ReleaseCore();
         return false;
     }
@@ -74,7 +74,7 @@ bool HawkeyeCore::ReleaseCore() {
 }
 
 /// signal handler.
-void HawkeyeCore::__SignalHandler(int signo, struct siginfo *siginfo, void *ctx) {
+void HawkeyeCore::SignalHandler(int signo, struct siginfo *siginfo, void *ctx) {
     // restoring an old handler to make built-in Android crash mechanism work.
     sigaction(signo, &core_context->old_handlers[signo], nullptr);
 

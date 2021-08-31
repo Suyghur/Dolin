@@ -61,12 +61,9 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
         }
     }
 
-    int log_fd = -1;
     if (daemon_context->log_folder_path) {
         daemon_context->log_file_path = static_cast<char *>(malloc(256 * sizeof(char)));
         snprintf(daemon_context->log_file_path, 256 * sizeof(char), "%s/hawkeye_%020ld.native.crash", daemon_context->log_folder_path, crash_time);
-        LOGD("log_file_path: %s", daemon_context->log_file_path);
-        log_fd = DumperUtils::DumpCreateFile(daemon_context->log_file_path);
     }
 
 
@@ -93,17 +90,17 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
         daemon_context->unwinder_func(daemon_context->mmap_guard, *it, nullptr, unwinder_data);
     }
 
+    // dump logcat info.
+    DumperUtils::DumpLogcatInfo(daemon_context->mmap_guard, message->pid);
+
+    // dump fds info.
+    DumperUtils::DumpFds(daemon_context->mmap_guard, message->pid);
+
     // unwinder de-initialization
     daemon_context->unwinder_release(unwinder_data);
 
     // final line of crash dump.
-    DumperUtils::Record2Buffer(daemon_context->mmap_guard, " ");
-
-    // closing output file.
-    if (log_fd >= 0) {
-        // closing file
-        close(log_fd);
-    }
+    RecordNewline(daemon_context->mmap_guard, " ");
 
     if (daemon_context->mmap_guard != nullptr) {
         daemon_context->mmap_guard->Flush(daemon_context->log_file_path);
@@ -121,7 +118,7 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
         PtraceDetach(*it);
     }
 
-    return log_fd >= 0;
+    return true;
 }
 
 void HawkeyeDaemon::DaemonProcessClient(int socket_fd) {

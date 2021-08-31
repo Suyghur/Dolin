@@ -28,8 +28,8 @@ public:
     static void DoUnwind(MmapGuard *mmap_ptr, pid_t tid, struct ucontext *context, void *data);
 
 private:
-    static void __DoUnwind(MmapGuard *mmap_ptr, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
-                           const std::shared_ptr<unwindstack::Memory> &memory);
+    static void Unwind(MmapGuard *mmap_ptr, const std::unique_ptr<unwindstack::Regs> &regs, unwindstack::Maps &maps,
+                       const std::shared_ptr<unwindstack::Memory> &memory);
 
 };
 

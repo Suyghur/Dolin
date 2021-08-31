@@ -1,3 +1,4 @@
+#include <__bit_reference>
 //
 // Created by #Suyghur, on 2021/08/20.
 //
@@ -26,176 +27,184 @@
 #define PRIPTR "08" PRIxPTR
 #endif
 
-//DumperUtils::m_ptr = nullptr;
 
-int DumperUtils::DumpCreateFile(const char *path) {
-    const int result = open(path, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-    if (result < 0) {
-        LOGE("Error creating dump file %s: %s (%d)", path, strerror(errno), errno);
-    }
-    return result;
-}
-
-#ifndef HAWKEYE_LOG_BUFFER_SIZE
-#define HAWKEYE_LOG_BUFFER_SIZE (1024 * sizeof(char))
-#endif
-
-
-void DumperUtils::Record2Buffer(MmapGuard *mmap_ptr, const char *format, ...) {
-
-    char *buffer = static_cast<char *>(malloc(HAWKEYE_LOG_BUFFER_SIZE));
-
-    // writing file to log may be disabled.
-    if (mmap_ptr == nullptr) {
-        return;
-    }
-
-    // writing to a buffer.
-    int printed;
-    {
-        va_list args;
-        va_start(args, format);
-        printed = vsnprintf(buffer, HAWKEYE_LOG_BUFFER_SIZE, format, args);
-        va_end(args);
-    }
-
-    // printed contains the number of characters that would have been written if n had been sufficiently
-    // large, not counting the terminating null character.
-    if (printed > 0) {
-        if (printed >= HAWKEYE_LOG_BUFFER_SIZE) {
-            printed = HAWKEYE_LOG_BUFFER_SIZE - 1;
-        }
-
-        // replacing last buffer character with new line.
-        buffer[printed] = '\n';
-
-        // writing to a file including \n character.
-        mmap_ptr->Write(buffer, (size_t) printed + 1);
-    }
-    free(buffer);
-}
-
-void DumperUtils::DumpWriteLine(int log_fd, const char *format, ...) {
-    char buffer[HAWKEYE_LOG_BUFFER_SIZE];
-
-    // writing to a log as is.
+//void DumperUtils::RecordNewline(MmapGuard *mmap_ptr, const char *format, ...) {
+//
+//    // writing file to log may be disabled.
+//    if (mmap_ptr == nullptr) {
+//        return;
+//    }
+//
+//    char *buffer = static_cast<char *>(malloc(HAWKEYE_LOG_BUFFER_SIZE));
+//    //    {
+////        va_list args;
+////        va_start(args, format);
+////        __android_log_vprint(ANDROID_LOG_ERROR, TAG, format, args);
+////        va_end(args);
+////    }
+//
+//    // writing to a buffer.
+//    int printed;
 //    {
 //        va_list args;
 //        va_start(args, format);
-//        __android_log_vprint(ANDROID_LOG_ERROR, TAG, format, args);
+//        printed = vsnprintf(buffer, HAWKEYE_LOG_BUFFER_SIZE, format, args);
 //        va_end(args);
 //    }
-
-    // writing file to log may be disabled.
-    if (log_fd < 0) {
-        return;
-    }
-
-    // writing to a buffer.
-    int printed;
-    {
-        va_list args;
-        va_start(args, format);
-        printed = vsnprintf(buffer, HAWKEYE_LOG_BUFFER_SIZE, format, args);
-        va_end(args);
-    }
-
-    // printed contains the number of characters that would have been written if n had been sufficiently
-    // large, not counting the terminating null character.
-    if (printed > 0) {
-        if (printed >= HAWKEYE_LOG_BUFFER_SIZE) {
-            printed = HAWKEYE_LOG_BUFFER_SIZE - 1;
-        }
-
-        // replacing last buffer character with new line.
-        buffer[printed] = '\n';
-
-        // writing to a file including \n character.
-        write(log_fd, buffer, (size_t) printed + 1);
-    }
-}
+//
+//    // printed contains the number of characters that would have been written if n had been sufficiently
+//    // large, not counting the terminating null character.
+//    if (printed > 0) {
+//        if (printed >= HAWKEYE_LOG_BUFFER_SIZE) {
+//            printed = HAWKEYE_LOG_BUFFER_SIZE - 1;
+//        }
+//
+//        // replacing last buffer character with new line.
+//        buffer[printed] = '\n';
+//        // writing to a file including \n character.
+//        mmap_ptr->Write(buffer, (size_t) printed + 1);
+//
+//    }
+//    free(buffer);
+//}
+//
+//void DumperUtils::RecordLine(MmapGuard *mmap_ptr, const char *format, ...) {
+//    // writing file to log may be disabled.
+//    if (mmap_ptr == nullptr) {
+//        return;
+//    }
+//
+//    char *buffer = static_cast<char *>(malloc(HAWKEYE_LOG_BUFFER_SIZE));
+//
+//    // writing to a buffer.
+//    int printed;
+//    {
+//        va_list args;
+//        va_start(args, format);
+//        printed = vsnprintf(buffer, HAWKEYE_LOG_BUFFER_SIZE, format, args);
+//        va_end(args);
+//    }
+//
+//    // printed contains the number of characters that would have been written if n had been sufficiently
+//    // large, not counting the terminating null character.
+//    if (printed > 0) {
+//        if (printed >= HAWKEYE_LOG_BUFFER_SIZE) {
+//            printed = HAWKEYE_LOG_BUFFER_SIZE - 1;
+//        }
+//        // writing to a file not included \n character.
+//        mmap_ptr->Write(buffer, (size_t) printed + 1);
+//    }
+//    free(buffer);
+//}
 
 void DumperUtils::DumpHeader(MmapGuard *mmap_ptr, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context) {
     // a special marker of crash report beginning
-    Record2Buffer(mmap_ptr, SEP_HEAD);
+    RecordNewline(mmap_ptr, SEP_HEAD);
 
     // this buffer we use to read data from system properties and to read other data from files.
     char str_buffer[PROP_VALUE_MAX];
     {
+        RecordNewline(mmap_ptr, "Dolin-Hawkeye monitor: '%s'", FULL_VERSION);
+        RecordNewline(mmap_ptr, "Scene type: '%s'", SCENE_TYPE);
+        RecordNewline(mmap_ptr, "Start time: '%s'", SCENE_TYPE);
+        RecordNewline(mmap_ptr, "Crash time: '%s'", SCENE_TYPE);
+//        RecordNewline(mmap_ptr, "PackageName: '%s'", SCENE_TYPE);
+//        RecordNewline(mmap_ptr, "Version: '%s'");
+
+        __system_property_get("ro.build.version.sdk", str_buffer);
+        RecordNewline(mmap_ptr, "API version: '%s'", str_buffer);
+//
+        __system_property_get("ro.build.version.release", str_buffer);
+        RecordNewline(mmap_ptr, "OS version: '%s'", str_buffer);
+
+        GetKernelVersion(str_buffer, sizeof(str_buffer));
+        RecordNewline(mmap_ptr, "Kernel version: '%s'", str_buffer);
+
+        GetABIs(str_buffer, sizeof(str_buffer));
+        RecordNewline(mmap_ptr, "ABIs: '%s'", str_buffer);
+
+        __system_property_get("ro.product.manufacturer", str_buffer);
+        RecordNewline(mmap_ptr, "Manufacturer: '%s'", str_buffer);
+
+        __system_property_get("ro.product.brand", str_buffer);
+        RecordNewline(mmap_ptr, "Brand: '%s'", str_buffer);
+
+        __system_property_get("ro.product.model", str_buffer);
+        RecordNewline(mmap_ptr, "Model: '%s'", str_buffer);
+
         // getting system properties and writing them to report.
         __system_property_get("ro.build.fingerprint", str_buffer);
-        Record2Buffer(mmap_ptr, "Build fingerprint: %s", str_buffer);
+        RecordNewline(mmap_ptr, "Build fingerprint: %s", str_buffer);
 
         __system_property_get("ro.revision", str_buffer);
-        Record2Buffer(mmap_ptr, "Revision: '0'");
+        RecordNewline(mmap_ptr, "Revision: '0'");
     }
 
     // writing processor architecture.
 #if defined(__arm__)
-    Record2Buffer(mmap_ptr, "ABI: 'arm'");
+    RecordNewline(mmap_ptr, "ABI: 'arm'");
 #elif defined(__aarch64__)
-    Record2Buffer(mmap_ptr, "ABI: 'arm64'");
+    RecordNewline(mmap_ptr, "ABI: 'arm64'");
 #elif defined(__i386__)
-    Record2Buffer(mmap_ptr, "ABI: 'x86'");
+    RecordNewline(mmap_ptr, "ABI: 'x86'");
 #elif defined(__x86_64__)
-    Record2Buffer(mmap_ptr, "ABI: 'x86_64'");
+    RecordNewline(mmap_ptr, "ABI: 'x86_64'");
 #endif
 
     // writing a line about process and thread. re-using str_buffer for a process name.
-    __WriteProcessAndThreadInfo(mmap_ptr, pid, tid, str_buffer, SIZEOF_ARRAY(str_buffer));
+    WriteProcessAndThreadInfo(mmap_ptr, pid, tid, str_buffer, SIZEOF_ARRAY(str_buffer));
 
     // writing an information about signal.
-    __DumpSignalInfo(mmap_ptr, signo, si_code, falutaddr, str_buffer, SIZEOF_ARRAY(str_buffer));
+    DumpSignalInfo(mmap_ptr, signo, si_code, falutaddr, str_buffer, SIZEOF_ARRAY(str_buffer));
 
     // writing registers to a report.
     const mcontext_t *const ctx = &context->uc_mcontext;
 #if defined(__arm__)
-    Record2Buffer(mmap_ptr, "    r0 %08x  r1 %08x  r2 %08x  r3 %08x", ctx->arm_r0, ctx->arm_r1, ctx->arm_r2, ctx->arm_r3);
-    Record2Buffer(mmap_ptr, "    r4 %08x  r5 %08x  r6 %08x  r7 %08x", ctx->arm_r4, ctx->arm_r5, ctx->arm_r6, ctx->arm_r7);
-    Record2Buffer(mmap_ptr, "    r8 %08x  r9 %08x  sl %08x  fp %08x", ctx->arm_r8, ctx->arm_r9, ctx->arm_r10, ctx->arm_fp);
-    Record2Buffer(mmap_ptr, "    ip %08x  sp %08x  lr %08x  pc %08x  cpsr %08x", ctx->arm_ip, ctx->arm_sp, ctx->arm_lr, ctx->arm_pc, ctx->arm_cpsr);
+    RecordLine(mmap_ptr, "    r0 %08x  r1 %08x  r2 %08x  r3 %08x", ctx->arm_r0, ctx->arm_r1, ctx->arm_r2, ctx->arm_r3);
+    RecordLine(mmap_ptr, "    r4 %08x  r5 %08x  r6 %08x  r7 %08x", ctx->arm_r4, ctx->arm_r5, ctx->arm_r6, ctx->arm_r7);
+    RecordLine(mmap_ptr, "    r8 %08x  r9 %08x  sl %08x  fp %08x", ctx->arm_r8, ctx->arm_r9, ctx->arm_r10, ctx->arm_fp);
+    RecordNewline(mmap_ptr, "    ip %08x  sp %08x  lr %08x  pc %08x  cpsr %08x", ctx->arm_ip, ctx->arm_sp, ctx->arm_lr, ctx->arm_pc, ctx->arm_cpsr);
 #elif defined(__aarch64__)
     for (int i = 0; i < 28; i += 4) {
-        Record2Buffer(mmap_ptr, "    x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx", i, ctx->regs[i], i + 1, ctx->regs[i + 1], i + 2,
+        RecordLine(mmap_ptr, "    x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx", i, ctx->regs[i], i + 1, ctx->regs[i + 1], i + 2,
                       ctx->regs[i + 2], i + 3, ctx->regs[i + 3]);
     }
-    Record2Buffer(mmap_ptr, "    x28  %016llx  x29  %016llx  x30  %016llx", ctx->regs[28], ctx->regs[29], ctx->regs[30]);
-    Record2Buffer(mmap_ptr, "    sp   %016llx  pc   %016llx  pstate %016llx", ctx->sp, ctx->pc, ctx->pstate);
+    RecordNewline(mmap_ptr, "    x28  %016llx  x29  %016llx  x30  %016llx", ctx->regs[28], ctx->regs[29], ctx->regs[30]);
+    RecordLine(mmap_ptr, "    sp   %016llx  pc   %016llx  pstate %016llx", ctx->sp, ctx->pc, ctx->pstate);
 #elif defined(__i386__)
-    Record2Buffer(mmap_ptr, "    eax %08lx  ebx %08lx  ecx %08lx  edx %08lx", ctx->gregs[REG_EAX], ctx->gregs[REG_EBX], ctx->gregs[REG_ECX],
+    RecordNewline(mmap_ptr, "    eax %08lx  ebx %08lx  ecx %08lx  edx %08lx", ctx->gregs[REG_EAX], ctx->gregs[REG_EBX], ctx->gregs[REG_ECX],
                   ctx->gregs[REG_EDX]);
-    Record2Buffer(mmap_ptr, "    esi %08lx  edi %08lx", ctx->gregs[REG_ESI], ctx->gregs[REG_EDI]);
-
-    Record2Buffer(mmap_ptr, "    xcs %08x  xds %08x  xes %08x  xfs %08x  xss %08x", ctx->gregs[REG_CS], ctx->gregs[REG_DS], ctx->gregs[REG_ES],
+    RecordNewline(mmap_ptr, "    esi %08lx  edi %08lx", ctx->gregs[REG_ESI], ctx->gregs[REG_EDI]);
+    RecordNewline(mmap_ptr, "    xcs %08x  xds %08x  xes %08x  xfs %08x  xss %08x", ctx->gregs[REG_CS], ctx->gregs[REG_DS], ctx->gregs[REG_ES],
                   ctx->gregs[REG_FS], ctx->gregs[REG_SS]);
-    Record2Buffer(mmap_ptr, "    eip %08lx  ebp %08lx  esp %08lx  flags %08lx", ctx->gregs[REG_EIP], ctx->gregs[REG_EBP], ctx->gregs[REG_ESP],
+    RecordNewline(mmap_ptr, "    eip %08lx  ebp %08lx  esp %08lx  flags %08lx", ctx->gregs[REG_EIP], ctx->gregs[REG_EBP], ctx->gregs[REG_ESP],
                   ctx->gregs[REG_EFL]);
 #elif defined(__x86_64__)
-    Record2Buffer(mmap_ptr, "    rax %016lx  rbx %016lx  rcx %016lx  rdx %016lx", ctx->gregs[REG_RAX], ctx->gregs[REG_RBX], ctx->gregs[REG_RCX],
+    RecordLine(mmap_ptr, "    rax %016lx  rbx %016lx  rcx %016lx  rdx %016lx", ctx->gregs[REG_RAX], ctx->gregs[REG_RBX], ctx->gregs[REG_RCX],
                   ctx->gregs[REG_RDX]);
-    Record2Buffer(mmap_ptr, "    rsi %016lx  rdi %016lx", ctx->gregs[REG_RSI], ctx->gregs[REG_RDI]);
-    Record2Buffer(mmap_ptr, "    r8  %016lx  r9  %016lx  r10 %016lx  r11 %016lx", ctx->gregs[REG_R8], ctx->gregs[REG_R9], ctx->gregs[REG_R10],
+    RecordNewline(mmap_ptr, "    rsi %016lx  rdi %016lx", ctx->gregs[REG_RSI], ctx->gregs[REG_RDI]);
+    RecordLine(mmap_ptr, "    r8  %016lx  r9  %016lx  r10 %016lx  r11 %016lx", ctx->gregs[REG_R8], ctx->gregs[REG_R9], ctx->gregs[REG_R10],
                   ctx->gregs[REG_R11]);
-    Record2Buffer(mmap_ptr, "    r12 %016lx  r13 %016lx  r14 %016lx  r15 %016lx", ctx->gregs[REG_R12], ctx->gregs[REG_R13], ctx->gregs[REG_R14],
+    RecordLine(mmap_ptr, "    r12 %016lx  r13 %016lx  r14 %016lx  r15 %016lx", ctx->gregs[REG_R12], ctx->gregs[REG_R13], ctx->gregs[REG_R14],
                   ctx->gregs[REG_R15]);
-    Record2Buffer(mmap_ptr, "    cs  %016lx", ctx->gregs[REG_CSGSFS]);
-    Record2Buffer(mmap_ptr, "    rip %016lx  rbp %016lx  rsp %016lx  eflags %016lx", ctx->gregs[REG_RIP], ctx->gregs[REG_RBP], ctx->gregs[REG_RSP],
+    RecordLine(mmap_ptr, "    cs  %016lx", ctx->gregs[REG_CSGSFS]);
+    RecordLine(mmap_ptr, "    rip %016lx  rbp %016lx  rsp %016lx  eflags %016lx", ctx->gregs[REG_RIP], ctx->gregs[REG_RBP], ctx->gregs[REG_RSP],
                   ctx->gregs[REG_EFL]);
 #endif
     // writing "backtrace: "
-    Record2Buffer(mmap_ptr, " ");
-    Record2Buffer(mmap_ptr, "backtrace: ");
+    RecordNewline(mmap_ptr, " ");
+    RecordNewline(mmap_ptr, "backtrace: ");
 }
 
 void DumperUtils::DumpOtherThreadHeader(MmapGuard *mmap_ptr, pid_t pid, pid_t tid) {
     // a special marker about next (not crashed) thread data beginning.
-    Record2Buffer(mmap_ptr, SEP_OTHER_INFO);
+    RecordNewline(mmap_ptr, "\n%s", SEP_OTHER_INFO);
 
     // assuming 64 bytes is sufficient for a process name.
     char process_name_buffer[64];
 
     // writing a line about process and thread.
-    __WriteProcessAndThreadInfo(mmap_ptr, pid, tid, process_name_buffer, SIZEOF_ARRAY(process_name_buffer));
+    WriteProcessAndThreadInfo(mmap_ptr, pid, tid, process_name_buffer, SIZEOF_ARRAY(process_name_buffer));
 
     // getting signal info by ptrace and writing to a dump.
     siginfo_t si;
@@ -204,31 +213,47 @@ void DumperUtils::DumpOtherThreadHeader(MmapGuard *mmap_ptr, pid_t pid, pid_t ti
         LOGE("Couldn't get signal info by ptrace: %s (%d)", strerror(errno), errno);
         return;
     }
-    __DumpSignalInfo(mmap_ptr, si.si_signo, si.si_code, si.si_addr, process_name_buffer, SIZEOF_ARRAY(process_name_buffer));
+    DumpSignalInfo(mmap_ptr, si.si_signo, si.si_code, si.si_addr, process_name_buffer, SIZEOF_ARRAY(process_name_buffer));
 
     // dumping registers information.
-    __DumpOtherThreadRegistersByPtrace(mmap_ptr, tid);
+    DumpOtherThreadRegistersByPtrace(mmap_ptr, tid);
 
     // writing "backtrace: "
-    Record2Buffer(mmap_ptr, " ");
-    Record2Buffer(mmap_ptr, "backtrace: ");
+    RecordNewline(mmap_ptr, " ");
+    RecordNewline(mmap_ptr, "backtrace: ");
 }
 
-void DumperUtils::DumpBacktraceLine(MmapGuard *mmap_ptr, int counter, intptr_t pc,
-                                    const char *map_name, const char *func_name, intptr_t func_offset) {
+void DumperUtils::DumpBacktraceLine(MmapGuard *mmap_ptr, int counter, intptr_t pc, const char *map_name, const char *func_name, intptr_t func_offset) {
     if (!map_name) {
         map_name = "<unknown>";
     } else if (!*map_name) {
         map_name = "<anonymous>";
     }
     if (!func_name) {
-        Record2Buffer(mmap_ptr, "    #%02d pc %" PRIPTR"  %s", counter, pc, map_name);
+        RecordNewline(mmap_ptr, "    #%02d pc %" PRIPTR"  %s", counter, pc, map_name);
     } else {
-        Record2Buffer(mmap_ptr, "    #%02d pc %" PRIPTR"  %s (%s+%d)", counter, pc, map_name, func_name, (int) func_offset);
+        RecordNewline(mmap_ptr, "    #%02d pc %" PRIPTR"  %s (%s+%d)", counter, pc, map_name, func_name, (int) func_offset);
     }
 }
 
-ssize_t DumperUtils::__ReadFile(const char *file_name, char *out_buffer, size_t buffer_size) {
+void DumperUtils::DumpLogcatInfo(MmapGuard *mmap_ptr, pid_t pid) {
+    /// system lines: 50
+    /// native logcat events lines: 50
+    /// native logcat main lines: 200
+    RecordNewline(mmap_ptr, "\n%s", SEP_OTHER_INFO);
+    RecordNewline(mmap_ptr, "logcat:");
+    GetLogcatInfo(mmap_ptr, pid, "main", 200, 'D');
+    GetLogcatInfo(mmap_ptr, pid, "system", 50, 'W');
+    GetLogcatInfo(mmap_ptr, pid, "events", 50, 'I');
+}
+
+void DumperUtils::DumpFds(MmapGuard *mmap_ptr, pid_t pid) {
+    RecordNewline(mmap_ptr, "\n%s", SEP_OTHER_INFO);
+    RecordNewline(mmap_ptr, "open files:");
+    GetFds(mmap_ptr, pid);
+}
+
+ssize_t DumperUtils::ReadFile(const char *file_name, char *out_buffer, size_t buffer_size) {
     const int fd = open(file_name, O_RDONLY);
     if (fd < 0) {
         return -1;
@@ -250,7 +275,7 @@ ssize_t DumperUtils::__ReadFile(const char *file_name, char *out_buffer, size_t 
     return overall_read;
 }
 
-void DumperUtils::__DumpOtherThreadRegistersByPtrace(MmapGuard *mmap_ptr, pid_t tid) {
+void DumperUtils::DumpOtherThreadRegistersByPtrace(MmapGuard *mmap_ptr, pid_t tid) {
 #if defined(__aarch64__)
     // For arm64 modern PTRACE_GETREGSET request should be executed
     struct user_pt_regs r{};
@@ -272,42 +297,43 @@ void DumperUtils::__DumpOtherThreadRegistersByPtrace(MmapGuard *mmap_ptr, pid_t 
     }
 #endif
 #if  defined(__arm__)
-    Record2Buffer(mmap_ptr, "    r0 %08x  r1 %08x  r2 %08x  r3 %08x", (uint32_t) r.ARM_r0, (uint32_t) r.ARM_r1, (uint32_t) r.ARM_r2, (uint32_t) r.ARM_r3);
-    Record2Buffer(mmap_ptr, "    r4 %08x  r5 %08x  r6 %08x  r7 %08x", (uint32_t) r.ARM_r4, (uint32_t) r.ARM_r5, (uint32_t) r.ARM_r6, (uint32_t) r.ARM_r7);
-    Record2Buffer(mmap_ptr, "    r8 %08x  r9 %08x  sl %08x  fp %08x", (uint32_t) r.ARM_r8, (uint32_t) r.ARM_r9, (uint32_t) r.ARM_r10, (uint32_t) r.ARM_fp);
-    Record2Buffer(mmap_ptr, "    ip %08x  sp %08x  lr %08x  pc %08x  cpsr %08x", (uint32_t) r.ARM_ip, (uint32_t) r.ARM_sp, (uint32_t) r.ARM_lr,
+    RecordNewline(mmap_ptr, "    r0 %08x  r1 %08x  r2 %08x  r3 %08x", (uint32_t) r.ARM_r0, (uint32_t) r.ARM_r1, (uint32_t) r.ARM_r2, (uint32_t) r.ARM_r3);
+    RecordLine(mmap_ptr, "    r4 %08x  r5 %08x  r6 %08x  r7 %08x", (uint32_t) r.ARM_r4, (uint32_t) r.ARM_r5, (uint32_t) r.ARM_r6, (uint32_t) r.ARM_r7);
+    RecordLine(mmap_ptr, "    r8 %08x  r9 %08x  sl %08x  fp %08x", (uint32_t) r.ARM_r8, (uint32_t) r.ARM_r9, (uint32_t) r.ARM_r10, (uint32_t) r.ARM_fp);
+    RecordLine(mmap_ptr, "    ip %08x  sp %08x  lr %08x  pc %08x  cpsr %08x", (uint32_t) r.ARM_ip, (uint32_t) r.ARM_sp, (uint32_t) r.ARM_lr,
                   (uint32_t) r.ARM_pc, (uint32_t) r.ARM_cpsr);
 #elif defined(__aarch64__)
     for (int i = 0; i < 28; i += 4) {
-        Record2Buffer(mmap_ptr, "    x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx",
+        RecordNewline(mmap_ptr, "    x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx  x%-2d  %016llx",
                       i, r.regs[i],
                       i + 1, r.regs[i + 1],
                       i + 2, r.regs[i + 2],
                       i + 3, r.regs[i + 3]);
     }
-    Record2Buffer(mmap_ptr, "    x28  %016llx  x29  %016llx  x30  %016llx", r.regs[28], r.regs[29], r.regs[30]);
-    Record2Buffer(mmap_ptr, "    sp   %016llx  pc   %016llx  pstate %016llx", r.sp, r.pc, r.pstate);
+    RecordLine(mmap_ptr, "    x28  %016llx  x29  %016llx  x30  %016llx", r.regs[28], r.regs[29], r.regs[30]);
+    RecordLine(mmap_ptr, "    sp   %016llx  pc   %016llx  pstate %016llx", r.sp, r.pc, r.pstate);
 #elif defined(__i386__)
-    Record2Buffer(mmap_ptr, "    eax %08lx  ebx %08lx  ecx %08lx  edx %08lx", r.eax, r.ebx, r.ecx, r.edx);
-    Record2Buffer(mmap_ptr, "    esi %08lx  edi %08lx", r.esi, r.edi);
-    Record2Buffer(mmap_ptr, "    xcs %08x  xds %08x  xes %08x  xfs %08x  xss %08x", r.xcs, r.xds, r.xes, r.xfs, r.xss);
-    Record2Buffer(mmap_ptr, "    eip %08lx  ebp %08lx  esp %08lx  flags %08lx", r.eip, r.ebp, r.esp, r.eflags);
+    RecordNewline(mmap_ptr, "    eax %08lx  ebx %08lx  ecx %08lx  edx %08lx", r.eax, r.ebx, r.ecx, r.edx);
+    RecordNewline(mmap_ptr, "    esi %08lx  edi %08lx", r.esi, r.edi);
+    RecordNewline(mmap_ptr, "    xcs %08x  xds %08x  xes %08x  xfs %08x  xss %08x", r.xcs, r.xds, r.xes, r.xfs, r.xss);
+    RecordNewline(mmap_ptr, "    eip %08lx  ebp %08lx  esp %08lx  flags %08lx", r.eip, r.ebp, r.esp, r.eflags);
 #elif defined(__x86_64__)
-    Record2Buffer(mmap_ptr, "    rax %016lx  rbx %016lx  rcx %016lx  rdx %016lx", r.rax, r.rbx, r.rcx, r.rdx);
-    Record2Buffer(mmap_ptr, "    rsi %016lx  rdi %016lx", r.rsi, r.rdi);
-    Record2Buffer(mmap_ptr, "    r8  %016lx  r9  %016lx  r10 %016lx  r11 %016lx", r.r8, r.r9, r.r10, r.r11);
-    Record2Buffer(mmap_ptr, "    r12 %016lx  r13 %016lx  r14 %016lx  r15 %016lx", r.r12, r.r13, r.r14, r.r15);
-    Record2Buffer(mmap_ptr, "    cs  %016lx  ss  %016lx", r.cs, r.ss);
-    Record2Buffer(mmap_ptr, "    rip %016lx  rbp %016lx  rsp %016lx  eflags %016lx", r.rip, r.rbp, r.rsp, r.eflags);
+    RecordLine(mmap_ptr, "    rax %016lx  rbx %016lx  rcx %016lx  rdx %016lx", r.rax, r.rbx, r.rcx, r.rdx);
+    RecordLine(mmap_ptr, "    rsi %016lx  rdi %016lx", r.rsi, r.rdi);
+    RecordLine(mmap_ptr, "    r8  %016lx  r9  %016lx  r10 %016lx  r11 %016lx", r.r8, r.r9, r.r10, r.r11);
+    RecordNewline(mmap_ptr, "    r12 %016lx  r13 %016lx  r14 %016lx  r15 %016lx", r.r12, r.r13, r.r14, r.r15);
+    RecordLine(mmap_ptr, "    cs  %016lx  ss  %016lx", r.cs, r.ss);
+    RecordLine(mmap_ptr, "    rip %016lx  rbp %016lx  rsp %016lx  eflags %016lx", r.rip, r.rbp, r.rsp, r.eflags);
 #endif
     return;
     // error processing
     error:
     LOGE("Couldn't get registers by ptrace: %s (%d)", strerror(errno), errno);
+//    RecordNewline(mmap_ptr, "Couldn't get registers by ptrace: %s (%d)", strerror(errno), errno);
 }
 
-void DumperUtils::__WriteProcessAndThreadInfo(MmapGuard *mmap_ptr, pid_t pid, pid_t tid,
-                                              char *process_name_buffer, size_t process_name_buffer_size) {
+void DumperUtils::WriteProcessAndThreadInfo(MmapGuard *mmap_ptr, pid_t pid, pid_t tid,
+                                            char *process_name_buffer, size_t process_name_buffer_size) {
     // buffer used for file path formatting. Max theoretical value is "/proc/2147483647/cmdline" 25 characters with terminating characters.
     char proc_file_path[25];
 
@@ -319,12 +345,12 @@ void DumperUtils::__WriteProcessAndThreadInfo(MmapGuard *mmap_ptr, pid_t pid, pi
 
     // reading a process name.
     if (snprintf(proc_file_path, SIZEOF_ARRAY(proc_file_path), "/proc/%d/cmdline", pid) >= 0) {
-        __ReadFile(proc_file_path, process_name_buffer, process_name_buffer_size);
+        ReadFile(proc_file_path, process_name_buffer, process_name_buffer_size);
     }
 
     // reading a thread name.
     if (snprintf(proc_file_path, SIZEOF_ARRAY(proc_file_path), "/proc/%d/comm", tid) >= 0) {
-        const ssize_t bytes_read = __ReadFile(proc_file_path, proc_comm_content, SIZEOF_ARRAY(proc_comm_content));
+        const ssize_t bytes_read = ReadFile(proc_file_path, proc_comm_content, SIZEOF_ARRAY(proc_comm_content));
 
         // comm usually contains newline character on the end.
         if (bytes_read > 0 && proc_comm_content[bytes_read - 1] == '\n') {
@@ -333,16 +359,16 @@ void DumperUtils::__WriteProcessAndThreadInfo(MmapGuard *mmap_ptr, pid_t pid, pi
     }
 
     // writing to a log and to a file.
-    Record2Buffer(mmap_ptr, "pid: %d, tid: %d, name: %s,  >>> %s <<<", pid, tid, proc_comm_content, process_name_buffer);
+    RecordNewline(mmap_ptr, "pid: %d, tid: %d, name: %s,  >>> %s <<<", pid, tid, proc_comm_content, process_name_buffer);
 }
 
-void DumperUtils::__DumpSignalInfo(MmapGuard *mmap_ptr, int signo, int si_code, void *faultaddr, char *str_buffer, size_t str_buffer_size) {
+void DumperUtils::DumpSignalInfo(MmapGuard *mmap_ptr, int signo, int si_code, void *faultaddr, char *str_buffer, size_t str_buffer_size) {
     if (SignalUtils::HasSiAddr(signo, si_code)) {
         snprintf(str_buffer, str_buffer_size, "%p", faultaddr);
     } else {
         snprintf(str_buffer, str_buffer_size, "--------");
     }
-    Record2Buffer(mmap_ptr, "signal %d (%s), code %d (%s), fault addr %s", signo, SignalUtils::GetSigName(signo), si_code,
+    RecordNewline(mmap_ptr, "signal %d (%s), code %d (%s), fault addr %s", signo, SignalUtils::GetSigName(signo), si_code,
                   SignalUtils::GetSigCode(signo, si_code), str_buffer);
 }
 

@@ -33,7 +33,7 @@ public:
 
 
 private:
-    static void __SignalHandler(int signo, struct siginfo *siginfo, void *ctx);
+    static void SignalHandler(int signo, struct siginfo *siginfo, void *ctx);
 
 };
 

@@ -97,7 +97,8 @@
 //    free(buffer);
 //}
 
-void DumperUtils::DumpHeader(MmapGuard *mmap_ptr, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr, struct ucontext *context) {
+void DumperUtils::DumpHeader(MmapGuard *mmap_ptr, long start_ts, long crash_ts, pid_t pid, pid_t tid, int signo, int si_code, void *falutaddr,
+                             struct ucontext *context) {
     // a special marker of crash report beginning
     RecordNewline(mmap_ptr, SEP_HEAD);
 
@@ -106,8 +107,12 @@ void DumperUtils::DumpHeader(MmapGuard *mmap_ptr, pid_t pid, pid_t tid, int sign
     {
         RecordNewline(mmap_ptr, "Dolin-Hawkeye monitor: '%s'", FULL_VERSION);
         RecordNewline(mmap_ptr, "Scene type: '%s'", SCENE_TYPE);
-        RecordNewline(mmap_ptr, "Start time: '%s'", SCENE_TYPE);
-        RecordNewline(mmap_ptr, "Crash time: '%s'", SCENE_TYPE);
+
+        Stamp2Standard(start_ts, str_buffer, sizeof(str_buffer));
+        RecordNewline(mmap_ptr, "Start time: '%s'", str_buffer);
+
+        Stamp2Standard(crash_ts, str_buffer, sizeof(str_buffer));
+        RecordNewline(mmap_ptr, "Crash time: '%s'", str_buffer);
 //        RecordNewline(mmap_ptr, "PackageName: '%s'", SCENE_TYPE);
 //        RecordNewline(mmap_ptr, "Version: '%s'");
 
@@ -253,6 +258,12 @@ void DumperUtils::DumpFds(MmapGuard *mmap_ptr, pid_t pid) {
     GetFds(mmap_ptr, pid);
 }
 
+void DumperUtils::DumpNetworkInfo(MmapGuard *mmap_ptr, pid_t pid) {
+    RecordNewline(mmap_ptr, "\n%s", SEP_OTHER_INFO);
+    RecordNewline(mmap_ptr, "network info:");
+    GetNetworkInfo(mmap_ptr, pid);
+}
+
 ssize_t DumperUtils::ReadFile(const char *file_name, char *out_buffer, size_t buffer_size) {
     const int fd = open(file_name, O_RDONLY);
     if (fd < 0) {
@@ -371,7 +382,6 @@ void DumperUtils::DumpSignalInfo(MmapGuard *mmap_ptr, int signo, int si_code, vo
     RecordNewline(mmap_ptr, "signal %d (%s), code %d (%s), fault addr %s", signo, SignalUtils::GetSigName(signo), si_code,
                   SignalUtils::GetSigCode(signo, si_code), str_buffer);
 }
-
 
 
 

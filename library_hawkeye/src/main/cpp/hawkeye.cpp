@@ -27,14 +27,12 @@ typedef struct {
 
 /// Called on daemon start from its background thread.
 static void OnDaemonStart(void *argvoid) {
-    LOGD("OnDaemonStart");
     auto *const ctx = static_cast<callback_context *const>(argvoid);
     gJavaVm->AttachCurrentThread(&ctx->env, nullptr);
 }
 
 /// Called when a crash report is generated. From background thread.
 static void OnCrash(const char *log_file, void *argvoid) {
-    LOGD("OnCrash");
     auto *const ctx = static_cast<callback_context *const>(argvoid);
     jstring _log_file = ctx->env->NewStringUTF(log_file);
     ctx->env->CallStaticVoidMethod(ctx->clz, ctx->mid, _log_file);
@@ -43,13 +41,13 @@ static void OnCrash(const char *log_file, void *argvoid) {
 
 /// Called on daemon stop from its background thread.
 static void OnDaemonStop(void *argvoid) {
-    LOGD("OnDaemonStop");
     gJavaVm->DetachCurrentThread();
 }
 
 static jboolean InitCxxCrashMonitor(JNIEnv *env, jobject clz, jstring socket_name) {
     const char *_socket_name = socket_name ? env->GetStringUTFChars(socket_name, JNI_FALSE) : nullptr;
     bool success = HawkeyeCore::InitCore(_socket_name);
+    char date[32];
 
     if (_socket_name) {
         env->ReleaseStringUTFChars(socket_name, _socket_name);

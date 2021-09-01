@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <sys/utsname.h>
+#include <cctype>
+#include <ctime>
 
 int Atoi(const char *str, int *i) {
     // We have to do this job very carefully for some unusual version of stdlib.
@@ -50,6 +52,63 @@ int Atoi(const char *str, int *i) {
     return 0;
 }
 
+char *Trim(char *start) {
+    char *end = nullptr;
+    if (start == nullptr) {
+        return nullptr;
+    }
+    end = start + strlen(start);
+    if (start == end) {
+        return start;
+    }
+    while (start < end && isspace((int) (*start))) {
+        start++;
+    }
+    if (start == end) {
+        return start;
+    }
+    while (start < end && isspace((int) (*(end - 1)))) {
+        end--;
+    }
+    *end = '\0';
+    return start;
+}
+
+void GetSubSection(MmapGuard *mmap_ptr, const char *path, const char *title, size_t limit) {
+    FILE *fp = nullptr;
+    char line[512];
+    char *p = nullptr;
+    size_t n = 0;
+
+    if ((fp = fopen(path, "r")) == nullptr) goto end;
+    RecordNewline(mmap_ptr, "%s", title);
+    while (fgets(line, sizeof(line), fp) != nullptr) {
+        p = Trim(line);
+        if (strlen(p) > 0) {
+            n++;
+            if (limit == 0 || n <= limit) {
+                RecordNewline(mmap_ptr, "  %s", p);
+            }
+        }
+    }
+    if (limit > 0 && n > limit) {
+        RecordNewline(mmap_ptr, "  ......");
+        RecordNewline(mmap_ptr, "  (number of records: %zu)", n);
+    }
+    RecordNewline(mmap_ptr, "-");
+    end:
+    if (fp != nullptr) {
+        fclose(fp);
+    }
+}
+
+
+void Stamp2Standard(long ts, char *date, size_t len) {
+    time_t tick = ts;
+    struct tm tm{};
+    tm = *localtime(&tick);
+    strftime(date, len, "%Y-%m-%d %H:%M:%S", &tm);
+}
 
 void RecordNewline(MmapGuard *mmap_ptr, const char *format, ...) {
     // writing file to log may be disabled.
@@ -192,9 +251,9 @@ void GetKernelVersion(char *buf, size_t len) {
 }
 
 void GetLogcatInfo(MmapGuard *mmap_ptr, pid_t pid, const char *stack_name, size_t lines, char priority) {
-    /// system lines: 50
-    /// native logcat events lines: 50
-    /// native logcat main lines: 200
+    // system lines: 50
+    // native logcat events lines: 50
+    // native logcat main lines: 200
     FILE *fp;
     char cmd[128];
     char buf[1025];
@@ -224,7 +283,7 @@ void GetLogcatInfo(MmapGuard *mmap_ptr, pid_t pid, const char *stack_name, size_
 }
 
 void GetFds(MmapGuard *mmap_ptr, pid_t pid) {
-    int fd2 = -1;
+    int fd = -1;
     char path[128];
     char fd_path[512];
     char buf[512];
@@ -236,16 +295,10 @@ void GetFds(MmapGuard *mmap_ptr, pid_t pid) {
 
     snprintf(path, sizeof(path), "/proc/%d/fd", pid);
 
-    if ((fd2 = HAWKEYE_TEMP_FAILURE_RETRY(open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC))) < 0) {
-        LOGD("11111----fd2: %d", fd2);
-        goto end;
-    } else {
-        LOGD("22222----fd2: %d", fd2);
-    }
+    if ((fd = HAWKEYE_TEMP_FAILURE_RETRY(open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC))) < 0) goto end;
 
-    while ((n = syscall(HAWKEYE_SYSCALL_GETDENTS, fd2, buf, sizeof(buf))) > 0) {
+    while ((n = syscall(HAWKEYE_SYSCALL_GETDENTS, fd, buf, sizeof(buf))) > 0) {
         for (i = 0; i < n;) {
-            LOGD("i: %ld", i);
             ent = (hawkeye_dirent_t *) (buf + i);
 
             // get thd fd.
@@ -282,26 +335,35 @@ void GetFds(MmapGuard *mmap_ptr, pid_t pid) {
         RecordNewline(mmap_ptr, "    ......");
     }
     RecordNewline(mmap_ptr, "    (number of FDs: %zu)", total);
-
-    clean:
-    if (fd2 > 0) {
-        close(fd2);
+    if (fd > 0) {
+        close(fd);
     }
 }
 
 void GetNetworkInfo(MmapGuard *mmap_ptr, pid_t pid) {
-//    char path[128];
-//
-//    RecordNewline(mmap_ptr, "\nnetwork info:");
-//
-//    if (android_get_device_api_level() >= 29) {
-//        RecordNewline(mmap_ptr, "Not supported on Android Q (API level 29) and later.");
-//    } else {
-//        snprintf(path, sizeof(path), "/proc/%d/net/tcp", pid);
-//        RecordNewline(mmap_ptr, " TCP over IPV4 (From: /proc/PID/net/tcp)");
-//    }
+    char path[128];
+    if (android_get_device_api_level() >= 29) {
+        RecordNewline(mmap_ptr, "Not supported on Android Q (API level 29) and later.");
+    } else {
+        snprintf(path, sizeof(path), "/proc/%d/net/tcp", pid);
+        GetSubSection(mmap_ptr, path, " TCP over IPV4 (From: /proc/PID/net/tcp)", 1024);
+
+        snprintf(path, sizeof(path), "/proc/%d/net/tcp6", pid);
+        GetSubSection(mmap_ptr, path, " TCP over IPv6 (From: /proc/PID/net/tcp6)", 1024);
+
+        snprintf(path, sizeof(path), "/proc/%d/net/udp", pid);
+        GetSubSection(mmap_ptr, path, " UDP over IPv4 (From: /proc/PID/net/udp)", 1024);
+
+        snprintf(path, sizeof(path), "/proc/%d/net/udp6", pid);
+        GetSubSection(mmap_ptr, path, " UDP over IPv6 (From: /proc/PID/net/udp6)\n", 1024);
+
+        snprintf(path, sizeof(path), "/proc/%d/net/icmp", pid);
+        GetSubSection(mmap_ptr, path, " ICMP in IPv4 (From: /proc/PID/net/icmp)\n", 256);
+
+        snprintf(path, sizeof(path), "/proc/%d/net/icmp6", pid);
+        GetSubSection(mmap_ptr, path, " ICMP in IPv6 (From: /proc/PID/net/icmp6)\n", 256);
+
+        snprintf(path, sizeof(path), "/proc/%d/net/unix", pid);
+        GetSubSection(mmap_ptr, path, " UNIX domain (From: /proc/PID/net/unix)\n", 256);
+    }
 }
-
-
-
-

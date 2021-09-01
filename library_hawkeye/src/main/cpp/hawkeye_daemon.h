@@ -32,9 +32,11 @@ struct hawkeye_daemon_context {
 
     MmapGuard *mmap_guard;
 
-    long *file_fd;
-
     int interrupter[2];
+
+    long start_ts = 0;
+
+    long crash_ts = 0;
 
     pthread_t daemon_thread;
 
@@ -45,6 +47,8 @@ struct hawkeye_daemon_context {
     void *callback_arg;
 
     struct sockaddr_un socket_address;
+
+
 };
 
 class HawkeyeDaemon {

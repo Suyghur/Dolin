@@ -37,7 +37,6 @@ public class HawkeyeMonitorService extends Service {
 //    };
 
     public void startDaemon() {
-        Log.d("dolin_hawkeye", "onDaemonStart");
         if (!mDaemonStarted) {
             String socketName = getPackageName() + ".monitor";
 //            String logPath = getExternalFilesDir("dolin/hawkeye");

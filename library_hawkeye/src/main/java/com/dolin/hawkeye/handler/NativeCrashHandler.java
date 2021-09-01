@@ -61,9 +61,7 @@ public class NativeCrashHandler {
     }
 
     public void release() {
-//        Log.d("dolin_hawkeye", "release");
         if (mContext != null && mIntent != null) {
-            Log.d("dolin_hawkeye", "release");
             mContext.stopService(mIntent);
         }
 //        if (remote != null) {

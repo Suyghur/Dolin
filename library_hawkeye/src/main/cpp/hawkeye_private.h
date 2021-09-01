@@ -89,6 +89,8 @@ typedef void (*unwinder_release_func_ptr)(void *data);
 
 typedef void (*unwinder_func_ptr)(MmapGuard *mmap_ptr, pid_t tid, struct ucontext *context, void *data);
 
+void Stamp2Standard(long ts, char *date, size_t len);
+
 void RecordNewline(MmapGuard *mmap_ptr, const char *format, ...);
 
 void RecordLine(MmapGuard *mmap_ptr, const char *format, ...);

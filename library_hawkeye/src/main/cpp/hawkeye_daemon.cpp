@@ -45,13 +45,15 @@ void HawkeyeDaemon::PtraceDetach(pid_t tid) {
 }
 
 bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
-    // hawkeye_00001629270036885000.native.crash
     if (!PtraceAttach(message->tid)) {
         return false;
     }
     struct timeval tv = {};
     gettimeofday(&tv, nullptr);
     long crash_time = tv.tv_sec * 1000 * 1000 + tv.tv_usec;
+
+    daemon_context->crash_ts = time(nullptr);
+
     pid_t tids[64];
     const size_t tids_size = GetThreads(message->pid, tids, SIZEOF_ARRAY(tids));
     for (pid_t *it = tids, *end = tids + tids_size; it != end; ++it) {
@@ -68,7 +70,8 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
 
 
     // writing a crash dump header
-    DumperUtils::DumpHeader(daemon_context->mmap_guard, message->pid, message->tid, message->signo, message->si_code, message->fault_addr, &message->context);
+    DumperUtils::DumpHeader(daemon_context->mmap_guard, daemon_context->start_ts, daemon_context->crash_ts,
+                            message->pid, message->tid, message->signo, message->si_code, message->fault_addr, &message->context);
 
     // unwinder initialization, should be done before any thread unwinding.
     void *const unwinder_data = daemon_context->unwinder_init(message->tid);
@@ -95,6 +98,9 @@ bool HawkeyeDaemon::DaemonCreateReport(struct hawkeye_crash_message *message) {
 
     // dump fds info.
     DumperUtils::DumpFds(daemon_context->mmap_guard, message->pid);
+
+    // dump network info.
+    DumperUtils::DumpNetworkInfo(daemon_context->mmap_guard, message->pid);
 
     // unwinder de-initialization
     daemon_context->unwinder_release(unwinder_data);
@@ -254,6 +260,9 @@ bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_folder_
     // creating a new struct instance.
     daemon_context = (struct hawkeye_daemon_context *) malloc(sizeof(struct hawkeye_daemon_context));
     memset(daemon_context, 0, sizeof(hawkeye_daemon_context));
+
+    daemon_context->start_ts = time(nullptr);
+
     daemon_context->start_callback = start_callback;
     daemon_context->crash_callback = crash_callback;
     daemon_context->stop_callback = stop_callback;

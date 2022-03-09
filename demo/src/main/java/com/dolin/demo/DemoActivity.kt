@@ -12,6 +12,8 @@ import android.widget.TextView
 import com.dolin.comm.util.DeviceInfoUtils
 import com.dolin.hawkeye.Hawkeye
 import com.dolin.zap.Zap
+import com.dolin.zap.entity.Config
+import com.dolin.zap.entity.Level
 import kotlin.system.exitProcess
 
 /**
@@ -31,6 +33,7 @@ class DemoActivity : Activity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initZap()
         initView()
         initDeviceInfo()
     }
@@ -82,6 +85,24 @@ class DemoActivity : Activity(), View.OnClickListener {
             return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun initZap() {
+        val config = Config.Builder()
+            //logcat输出最低等级
+            .setLogcatLevel(Level.DEBUG)
+            //是否开启缓存日志
+            .setRecordEnable(true)
+            //缓存日志最低等级
+            .setRecordLevel(Level.DEBUG)
+            //是否开启压缩缓存日志内容
+            .setCompressEnable(false)
+            //缓存文件的过期时间
+            .setOverdueDay(3)
+            //缓存文件大小限制，超过则会自动扩容新文件
+            .setFileSizeLimitDay(15)
+            .create()
+        Zap.initialize(this.application, config)
     }
 
     override fun onDestroy() {

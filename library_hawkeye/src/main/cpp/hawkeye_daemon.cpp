@@ -289,6 +289,8 @@ bool HawkeyeDaemon::StartDaemon(const char *socket_name, const char *log_folder_
             daemon_context->mmap_guard = new MmapGuard(buffer_path, 400 * 1024);
             free(buffer_path);
         }
+
+        char *p = (int *) malloc(1);
     }
 
 

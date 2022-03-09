@@ -2,7 +2,7 @@
 // Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_ZAP__BUFFER_H
+#ifndef DOLIN_ZAP_BUFFER_H
 #define DOLIN_ZAP_BUFFER_H
 
 
@@ -84,4 +84,4 @@ private:
 }
 #endif
 
-#endif //DOLIN__BUFFER_H
+#endif //DOLIN_ZAP_BUFFER_H

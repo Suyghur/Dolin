@@ -21,5 +21,4 @@ public interface IPrint {
     void e(Object obj);
 
     void e(String tag, Object obj);
-
 }

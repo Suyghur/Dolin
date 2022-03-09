@@ -6,10 +6,14 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sstream>
-#include "third_part/buffer/buffer.h"
-#include "third_part/buffer/file_flush.h"
-#include "third_part/buffer/buffer_header.h"
-#include "third_part/kit/common_log.h"
+#include "buffer.h"
+#include "file_flush.h"
+#include "buffer_header.h"
+#include "logger.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static FileFlush *pFileFlush = nullptr;
 
@@ -18,7 +22,7 @@ static void WriteDirty2File(int buffer_fd) {
     if (fstat(buffer_fd, &file_stat) >= 0) {
         auto buffer_size = static_cast<size_t>(file_stat.st_size);
         //buffer size必须大于文件头长度，否则下标溢出
-        if (buffer_size > dolin_common::BufferHeader::CalculateHeaderLen(0)) {
+        if (buffer_size > dolin_zap::BufferHeader::CalculateHeaderLen(0)) {
             char *buffer_ptr_tmp = (char *) mmap(0, buffer_size, PROT_WRITE | PROT_READ, MAP_SHARED, buffer_fd, 0);
             if (buffer_ptr_tmp != MAP_FAILED) {
                 auto *tmp = new Buffer(buffer_ptr_tmp, buffer_size);
@@ -151,3 +155,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     }
     return JNI_VERSION_1_6;
 }
+
+#ifdef __cplusplus
+}
+#endif

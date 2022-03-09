@@ -2,7 +2,6 @@ package com.dolin.zap.util;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.File;
 import java.text.ParseException;
@@ -30,37 +29,16 @@ public class LogFileUtils {
         }
     }
 
-//    public static void cleanOverdueLog(String folderPath, long overdueDayMs) {
-//        File folder = new File(folderPath);
-//        if (!folder.exists()) {
-//            return;
-//        }
-//        File[] files = folder.listFiles();
-//        if (files != null) {
-//            for (File f : files) {
-//                if (f.isDirectory()) {
-//                    cleanOverdueLog(folderPath, overdueDayMs);
-//                } else {
-//                    if (isFileOverdue(f, overdueDayMs)) {
-//                        f.delete();
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     private static boolean isFileOverdue(File file, long overdueDayMs) {
         return (System.currentTimeMillis() - file.lastModified()) > overdueDayMs;
     }
 
     private static boolean isFileOverdue(File file, long overdueDayMs, SimpleDateFormat format) {
         String time = file.getName();
-        Log.d("dolin_zap", "time : " + time);
         try {
             Date date = format.parse(time);
             if (date != null) {
                 long ts = date.getTime();
-                Log.d("dolin_zap", "ts : " + ts);
                 return (System.currentTimeMillis() - ts) > overdueDayMs;
             }
         } catch (ParseException e) {

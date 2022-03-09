@@ -3,12 +3,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdk rootProject.ext.android.compileSdk
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+    ndkVersion rootProject.ext.android.ndkVersion
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION
-        targetSdkVersion TARGET_SDK_VERSION
+        minSdk rootProject.ext.android.minSdk
+        targetSdk rootProject.ext.android.targetSdk
 
         externalNativeBuild {
             cmake {
@@ -18,11 +19,9 @@ android {
         }
     }
 
-    ndkVersion NDK_VERSION
-
     buildTypes {
         release {
-            minifyEnabled MINIFY_ENABLE
+            minifyEnabled rootProject.ext.module.minifyEnabled
             proguardFiles 'proguard-rules.pro'
         }
     }
@@ -35,28 +34,11 @@ android {
         abortOnError false
     }
 
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
-
-    dexOptions {
-        preDexLibraries = false
-    }
-
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
         }
     }
-
-//    sourceSets {
-//        main {
-//            // let gradle pack the shared library into apk
-//            jniLibs.srcDirs = ['src/main/jniLibs']
-//        }
-//    }
 }
 
 dependencies {

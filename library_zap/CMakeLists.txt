@@ -10,17 +10,12 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-set(PUBLISH TRUE)
-
-include_directories(src/main/cpp/third_part/buffer)
-include_directories(src/main/cpp/third_part/kit)
+include_directories(src/main/cpp/include)
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
-aux_source_directory(src/main/cpp/third_part/buffer DIR_BUFFER)
 add_library(
         dolin-zap
         SHARED
         ${DIR_SOURCE}
-        ${DIR_BUFFER}
 )
 
 #动态方式加载 STATIC：表示静态的.a的库 SHARED：表示.so的库
@@ -56,7 +51,6 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         dolin-zap
-#        dolin-comm
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

@@ -1,5 +1,5 @@
 //include ':library_crashlytics'
-include ':library_comm'
+//include ':library_comm'
 include ':demo'
 //include ':library_caps'
 include ':library_zap'

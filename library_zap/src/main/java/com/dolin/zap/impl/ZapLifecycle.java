@@ -1,10 +1,8 @@
-package com.dolin.zap.lifecycle;
+package com.dolin.zap.impl;
 
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-
-import com.dolin.zap.impl.ZapRecord;
 
 /**
  * @author #Suyghur.

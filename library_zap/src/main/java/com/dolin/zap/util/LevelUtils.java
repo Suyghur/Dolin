@@ -1,6 +1,6 @@
 package com.dolin.zap.util;
 
-import com.dolin.zap.entity.Level;
+import com.dolin.zap.Level;
 
 /**
  * @author #Suyghur.

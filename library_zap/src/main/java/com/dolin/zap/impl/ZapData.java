@@ -1,4 +1,6 @@
-package com.dolin.zap.entity;
+package com.dolin.zap.impl;
+
+import com.dolin.zap.Level;
 
 /**
  * @author #Suyghur.

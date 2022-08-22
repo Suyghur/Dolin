@@ -6,10 +6,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sstream>
-#include "zap_buffer.h"
-#include "zap_file_flush.h"
-#include "zap_buffer_header.h"
-#include "zap_log.h"
+#include "include/zap_buffer.h"
+#include "include/zap_file_flush.h"
+#include "include/zap_buffer_header.h"
 #include <map>
 
 #ifdef __cplusplus
@@ -54,7 +53,7 @@ static char *OpenMMap(int buffer_fd, size_t buffer_size, FileFlush *fileFlush) {
     return map_ptr;
 }
 
-static jlong InitNative(JNIEnv *env, jobject thiz, jstring buffer_path, jstring log_path, jint capacity, jint limit_size, jboolean compress) {
+jlong InitNative(JNIEnv *env, jobject thiz, jstring buffer_path, jstring log_path, jint capacity, jint limit_size, jboolean compress) {
 
     const char *_buffer_path = env->GetStringUTFChars(buffer_path, JNI_FALSE);
     const char *_log_path = env->GetStringUTFChars(log_path, JNI_FALSE);
@@ -86,7 +85,7 @@ static jlong InitNative(JNIEnv *env, jobject thiz, jstring buffer_path, jstring 
     return reinterpret_cast<long >(buffer);
 }
 
-static void WriteNative(JNIEnv *env, jobject thiz, jlong ptr, jstring msg) {
+void WriteNative(JNIEnv *env, jobject thiz, jlong ptr, jstring msg) {
     const char *_msg = env->GetStringUTFChars(msg, JNI_FALSE);
     jsize msg_len = env->GetStringUTFLength(msg);
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
@@ -100,7 +99,7 @@ static void WriteNative(JNIEnv *env, jobject thiz, jlong ptr, jstring msg) {
     env->ReleaseStringUTFChars(msg, _msg);
 }
 
-static void AsyncFlushNative(JNIEnv *env, jobject thiz, jlong ptr) {
+void AsyncFlushNative(JNIEnv *env, jobject thiz, jlong ptr) {
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
     if (pFileFlush != nullptr) {
         buffer->CallFileFlush(pFileFlush);
@@ -108,14 +107,14 @@ static void AsyncFlushNative(JNIEnv *env, jobject thiz, jlong ptr) {
 }
 
 
-static void ExpLogFileNative(JNIEnv *env, jobject thiz, jlong ptr, jstring path, jint limit_size) {
+void ExpLogFileNative(JNIEnv *env, jobject thiz, jlong ptr, jstring path, jint limit_size) {
     const char *log_path = env->GetStringUTFChars(path, JNI_FALSE);
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
     buffer->ExpLogPath(const_cast<charf *>(log_path), limit_size);
     env->ReleaseStringUTFChars(path, log_path);
 }
 
-static void ReleaseNative(JNIEnv *env, jobject thiz, jlong ptr) {
+void ReleaseNative(JNIEnv *env, jobject thiz, jlong ptr) {
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
     buffer->CallFileFlush(pFileFlush, buffer);
     if (pFileFlush != nullptr) {
@@ -124,12 +123,12 @@ static void ReleaseNative(JNIEnv *env, jobject thiz, jlong ptr) {
     pFileFlush = nullptr;
 }
 
-static jboolean IsLogFileOverSizeNative(JNIEnv *env, jobject thiz, jlong ptr) {
+jboolean IsLogFileOverSizeNative(JNIEnv *env, jobject thiz, jlong ptr) {
     auto *buffer = reinterpret_cast<Buffer *>(ptr);
     return buffer->IsCurrentLogFileOversize() ? JNI_TRUE : JNI_FALSE;
 }
 
-static JNINativeMethod gMethods[] = {
+JNINativeMethod gMethods[] = {
         {"initNative",              "(Ljava/lang/String;Ljava/lang/String;IIZ)J", (void *) InitNative},
         {"writeNative",             "(JLjava/lang/String;)V",                     (void *) WriteNative},
         {"asyncFlushNative",        "(J)V",                                       (void *) AsyncFlushNative},

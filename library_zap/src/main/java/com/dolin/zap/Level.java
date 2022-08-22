@@ -1,4 +1,4 @@
-package com.dolin.zap.entity;
+package com.dolin.zap;
 
 /**
  * @author #Suyghur.

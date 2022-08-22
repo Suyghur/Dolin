@@ -1,0 +1,16 @@
+ext {
+
+    module = [
+            remoteLib    : false,
+            minifyEnabled: true,
+            publish      : true,
+    ]
+
+    android = [
+            compileSdk       : 32,
+            buildToolsVersion: '32.0.0',
+            minSdk           : 21,
+            targetSdk        : 32,
+            ndkVersion       : '25.0.8775105'
+    ]
+}

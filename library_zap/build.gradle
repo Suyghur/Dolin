@@ -3,14 +3,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
-
-    ndkVersion NDK_VERSION
+    compileSdk rootProject.ext.android.compileSdk
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+    ndkVersion rootProject.ext.android.ndkVersion
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION
-        targetSdkVersion TARGET_SDK_VERSION
+        minSdk rootProject.ext.android.minSdk
+        targetSdk rootProject.ext.android.targetSdk
 
         externalNativeBuild {
             cmake {
@@ -20,52 +19,30 @@ android {
         }
     }
 
-//    packagingOptions {
-//        exclude 'lib/arm64-v8a/libdolin-comm.so'
-//        exclude 'lib/armeabi-v7a/libdolin-comm.so'
-//        exclude 'lib/x86/libdolin-comm.so'
-//        exclude 'lib/x86_64/libdolin-comm.so'
-//    }
-
     buildTypes {
         release {
-            minifyEnabled MINIFY_ENABLE
+            minifyEnabled rootProject.ext.module.minifyEnabled
             proguardFiles 'proguard-rules.pro'
         }
     }
-
     buildFeatures {
-        buildConfig = false
+        buildConfig false
     }
-
     lintOptions {
         abortOnError false
     }
-
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    dexOptions {
-        preDexLibraries = false
-    }
-
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
-            version '3.10.2'
         }
     }
 }
 
 dependencies {
-//    if (PUBLISH_ENABLE) {
-//        implementation 'io.github.suyghur.dolin:comm:1.0.1-alpha'
-//    } else {
-//        implementation project(':library_comm')
-//    }
 }
 
 apply from: 'publish.gradle'

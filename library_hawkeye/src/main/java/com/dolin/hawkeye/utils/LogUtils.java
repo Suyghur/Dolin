@@ -25,7 +25,6 @@ import java.util.Locale;
  */
 public class LogUtils {
 
-
     private static final String MEM_INFO_FMT = "%21s %8s\n";
     private static final String MEM_INFO_FMT2 = "%21s %8s %21s %8s\n";
 

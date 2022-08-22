@@ -2,9 +2,8 @@
 // Created by #Suyghur, on 2021/4/7.
 //
 
-#ifndef DOLIN_ZAP__BUFFER_H
+#ifndef DOLIN_ZAP_BUFFER_H
 #define DOLIN_ZAP_BUFFER_H
-
 
 #include <string>
 #include <mutex>
@@ -60,12 +59,12 @@ private:
     char *write_ptr = nullptr;
 
     size_t buffer_size = 0;
+
     std::recursive_mutex log_mtx;
 
     BufferHeader buffer_header;
     z_stream zStream{};
-//    size_t part_num = 1;
-//    size_t limit_size = 0;
+
     bool compress = false;
 
     void Clear();
@@ -84,4 +83,4 @@ private:
 }
 #endif
 
-#endif //DOLIN__BUFFER_H
+#endif //DOLIN_ZAP_BUFFER_H

@@ -4,12 +4,9 @@ import android.app.Application;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.dolin.zap.entity.Config;
-import com.dolin.zap.entity.Level;
-import com.dolin.zap.entity.ZapData;
+import com.dolin.zap.Config;
+import com.dolin.zap.Level;
 import com.dolin.zap.format.DateFileFormatter;
-import com.dolin.zap.internal.IPrint;
-import com.dolin.zap.lifecycle.ZapLifecycle;
 import com.dolin.zap.util.ZapFileUtils;
 
 import java.io.File;

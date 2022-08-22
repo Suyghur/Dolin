@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include <cstring>
-#include "zap_buffer_flush.h"
+#include "include/zap_buffer_flush.h"
 
 BufferFlush::BufferFlush(FILE *log_file, char *path, size_t size) : capacity(size), log_file_ptr(log_file), path(path) {}
 

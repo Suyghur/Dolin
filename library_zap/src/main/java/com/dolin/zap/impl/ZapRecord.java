@@ -1,7 +1,6 @@
 package com.dolin.zap.impl;
 
 
-import com.dolin.zap.internal.IRecord;
 import com.dolin.zap.util.ZapFileUtils;
 
 import java.io.File;

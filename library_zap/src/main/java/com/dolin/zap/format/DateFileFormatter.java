@@ -2,8 +2,8 @@ package com.dolin.zap.format;
 
 import android.text.TextUtils;
 
-import com.dolin.zap.entity.Level;
-import com.dolin.zap.internal.IFormatter;
+import com.dolin.zap.Level;
+import com.dolin.zap.impl.IFormatter;
 import com.dolin.zap.util.LevelUtils;
 
 import java.text.SimpleDateFormat;

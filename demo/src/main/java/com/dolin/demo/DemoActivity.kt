@@ -2,15 +2,12 @@ package com.dolin.demo
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.dolin.comm.util.DeviceInfoUtils
-import com.dolin.hawkeye.Hawkeye
 import com.dolin.zap.Zap
 import kotlin.system.exitProcess
 
@@ -24,8 +21,8 @@ class DemoActivity : Activity(), View.OnClickListener {
 
     private val events: MutableList<Item> = mutableListOf(
         Item(0, "Zap日志测试"),
-        Item(1, "Hawkeye崩溃测试"),
-        Item(2, "Hawkeye崩溃测试")
+//        Item(1, "Hawkeye崩溃测试"),
+//        Item(2, "Hawkeye崩溃测试")
     )
 
 
@@ -54,15 +51,15 @@ class DemoActivity : Activity(), View.OnClickListener {
 
     private fun initDeviceInfo() {
         val sb = StringBuilder()
-        sb.append("Android ID：").append(DeviceInfoUtils.getAndroidDeviceId(this)).append("\n")
-        sb.append("厂商：").append(DeviceInfoUtils.getMobileBrand()).append("\n")
-        sb.append("型号：").append(DeviceInfoUtils.getDeviceModel()).append("\n")
-        sb.append("系统版本：").append(DeviceInfoUtils.getDeviceSoftWareVersion()).append("\n")
-        sb.append("cpu核数：").append(DeviceInfoUtils.getCpuCount()).append("\n")
-        sb.append("cpu架构：").append(DeviceInfoUtils.getCpuAbi()).append("\n")
-        sb.append("本机内存：").append(DeviceInfoUtils.getRAM()).append("\n")
-        sb.append("本机剩余内存：").append(DeviceInfoUtils.getAvailMem(this)).append("M\n")
-        sb.append("系统SDK版本：${Build.VERSION.SDK_INT}")
+//        sb.append("Android ID：").append(DeviceInfoUtils.getAndroidDeviceId(this)).append("\n")
+//        sb.append("厂商：").append(DeviceInfoUtils.getMobileBrand()).append("\n")
+//        sb.append("型号：").append(DeviceInfoUtils.getDeviceModel()).append("\n")
+//        sb.append("系统版本：").append(DeviceInfoUtils.getDeviceSoftWareVersion()).append("\n")
+//        sb.append("cpu核数：").append(DeviceInfoUtils.getCpuCount()).append("\n")
+//        sb.append("cpu架构：").append(DeviceInfoUtils.getCpuAbi()).append("\n")
+//        sb.append("本机内存：").append(DeviceInfoUtils.getRAM()).append("\n")
+//        sb.append("本机剩余内存：").append(DeviceInfoUtils.getAvailMem(this)).append("M\n")
+//        sb.append("系统SDK版本：${Build.VERSION.SDK_INT}")
         textView.text = sb.toString()
     }
 
@@ -94,8 +91,8 @@ class DemoActivity : Activity(), View.OnClickListener {
         v?.apply {
             when (tag as Int) {
                 0 -> ZapActivity.start(this@DemoActivity)
-                1 -> CrashActivity.start(this@DemoActivity)
-                2 -> Hawkeye.getInstance().testNativeCrash()
+//                1 -> CrashActivity.start(this@DemoActivity)
+//                2 -> Hawkeye.getInstance().testNativeCrash()
             }
         }
     }

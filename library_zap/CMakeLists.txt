@@ -12,10 +12,9 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project("library_zap")
 
-#set(PUBLISH TRUE)
-
-include_directories(src/main/cpp)
+include_directories(src/main/cpp/include)
 aux_source_directory(src/main/cpp/ DIR_SOURCE)
+
 add_library(
         dolin-zap
         SHARED

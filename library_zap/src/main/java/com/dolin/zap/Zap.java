@@ -2,7 +2,6 @@ package com.dolin.zap;
 
 import android.app.Application;
 
-import com.dolin.zap.entity.Config;
 import com.dolin.zap.impl.ZapPrint;
 
 /**
@@ -70,13 +69,5 @@ public class Zap {
         if (hasInitialized) {
             ZapPrint.getInstance().e(tag, obj);
         }
-    }
-
-    public static String getVersion() {
-        return Version.VERSION;
-    }
-
-    public static String getFullVersion() {
-        return Version.FULL_VERSION;
     }
 }

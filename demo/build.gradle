@@ -8,21 +8,16 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
-    ndkVersion NDK_VERSION
+    compileSdk rootProject.ext.android.compileSdk
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
 
     defaultConfig {
         applicationId "com.dolin.demo"
-        minSdkVersion MIN_SDK_VERSION
-        targetSdkVersion TARGET_SDK_VERSION
+        minSdk rootProject.ext.android.minSdk
+        targetSdk rootProject.ext.android.targetSdk
         versionCode 1
-        versionName "1.0"
-
-        ndk {
-            // 设置支持的SO库架构
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-        }
+        versionName '0.0.1'
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -31,53 +26,47 @@ android {
             keyPassword keystoreProperties['keyPassword']
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
+            v1SigningEnabled true
+            v2SigningEnabled true
         }
     }
-
     buildTypes {
         debug {
-            minifyEnabled MINIFY_ENABLE
+            minifyEnabled false
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
         release {
-            minifyEnabled MINIFY_ENABLE
+            minifyEnabled false
             signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
     lintOptions {
         abortOnError false
     }
-
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
-
-    dexOptions {
-        preDexLibraries = false
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
     kotlinOptions {
         jvmTarget = '1.8'
+        useIR = true
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
     }
 }
 
 dependencies {
 //    implementation project(':library_caps')
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation project(':library_comm')
+    implementation 'com.google.android.material:material:1.6.1'
+//    implementation project(':library_comm')
     implementation project(':library_zap')
-    implementation project(':library_hawkeye')
+//    implementation project(':library_hawkeye')
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 
